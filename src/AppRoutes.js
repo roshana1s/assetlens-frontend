@@ -1,18 +1,31 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import AdminLayout from "./layouts/AdminLayout";
+import AssetLensAdminLayout from "./layouts/AssetLensAdminLayout";
+import LandingPageLayout from "./layouts/LandingPageLayout";
+import OrgAdminLayout from "./layouts/OrgAdminLayout";
+import LandingPage from "./pages/LandingPage/LandingPage";
 
 const AppRouter = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<AdminLayout />}>
-          
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<LandingPageLayout />}>
+                    <Route index element={<LandingPage />} />
+                    
+                </Route>
+
+                <Route path="/assetlens-admin" element={<AssetLensAdminLayout />}>
+                    
+                </Route>
+
+                <Route path="/admin" element={<OrgAdminLayout />}>
+                    
+                </Route>
+
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+        </BrowserRouter>
+    );
 };
 
 export default AppRouter;
