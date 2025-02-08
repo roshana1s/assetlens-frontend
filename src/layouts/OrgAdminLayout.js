@@ -4,9 +4,10 @@ import { Outlet } from "react-router-dom";
 const OrgAdminLayout = () => {
     return (
         <div>
-            <div>
-                <Outlet />
-            </div>
+            <nav>
+                <a href="/admin/configure">Configure</a>
+            </nav>
+            <Outlet />
         </div>
     );
 };

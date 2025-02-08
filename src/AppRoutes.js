@@ -4,6 +4,7 @@ import AssetLensAdminLayout from "./layouts/AssetLensAdminLayout";
 import LandingPageLayout from "./layouts/LandingPageLayout";
 import OrgAdminLayout from "./layouts/OrgAdminLayout";
 import LandingPage from "./pages/LandingPage/LandingPage";
+import MapConfigureToolPage from "./pages/ConfigurationTool/MapConfigureToolPage";
 
 const AppRouter = () => {
     return (
@@ -19,7 +20,7 @@ const AppRouter = () => {
                 </Route>
 
                 <Route path="/admin" element={<OrgAdminLayout />}>
-                    
+                    <Route path="configure" element={<MapConfigureToolPage />}/>
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />
