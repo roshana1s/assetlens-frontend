@@ -1,0 +1,36 @@
+.form-container {
+    padding: 20px;
+    background-color: #fff;
+    border-right: 1px solid #ccc;
+}
+
+.form-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-container label {
+    margin-bottom: 10px;
+}
+
+.form-container input[type="text"],
+.form-container input[type="color"],
+.form-container input[type="number"] {
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+.form-container button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.form-container h3 {
+    margin-top: 20px;
+}
+
+.form-container ul {
+    list-style-type: none;
+    padding: 0;
+}
