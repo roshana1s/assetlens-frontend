@@ -5,6 +5,7 @@ const AddZone = ({
     onAddCoordinate,
     onAddZone,
     onReset,
+    onRemoveCoordinate,
     coordinates,
     zoneName,
     setZoneName,
@@ -64,9 +65,17 @@ const AddZone = ({
                 <h3>Coordinates:</h3>
                 <ul>
                     {coordinates.map((coord, index) => (
-                        <li key={index}>
-                            {coord[0]}, {coord[1]}
-                        </li>
+                        <div>
+                            <li key={index}>
+                                {coord[0]}, {coord[1]}
+                            </li>
+                            <button
+                                key={index}
+                                onClick={() => onRemoveCoordinate(index)}
+                            >
+                                Remove
+                            </button>
+                        </div>
                     ))}
                 </ul>
             </div>
