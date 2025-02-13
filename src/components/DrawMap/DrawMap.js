@@ -77,6 +77,7 @@ const DrawMap = ({ zones }) => {
             ref={mapDivRef}
         >
             <MapContainer
+                key={JSON.stringify(zones)} // Add key to force re-render
                 center={[0, 0]} // Center the map at the origin
                 zoom={1}
                 style={{

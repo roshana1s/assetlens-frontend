@@ -24,6 +24,7 @@ const AddZone = ({
                     <input
                         type="text"
                         value={zoneName}
+                        required
                         onChange={(e) => setZoneName(e.target.value)}
                     />
                 </label>
@@ -40,6 +41,7 @@ const AddZone = ({
                     <input
                         type="number"
                         value={x}
+                        required
                         onChange={(e) => setX(e.target.value)}
                     />
                 </label>
@@ -48,6 +50,7 @@ const AddZone = ({
                     <input
                         type="number"
                         value={y}
+                        required
                         onChange={(e) => setY(e.target.value)}
                     />
                 </label>
