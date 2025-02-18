@@ -1,8 +1,17 @@
 import React from "react";
-import "./LandingPage.css";
+import { useNavigate } from "react-router-dom";
+import "./LandingPage.css"; 
 
 const LandingPage = () => {
-    return <div className="landing-page"></div>;
+    const navigate = useNavigate();
+
+    return (
+        <div className="landing-container">
+            <h1>Welcome to AssetLens</h1>
+            <button onClick={() => navigate("/place-order")}>Place Order</button>
+            <button onClick={() => navigate("/login")}>Login</button>
+        </div>
+    );
 };
 
 export default LandingPage;
