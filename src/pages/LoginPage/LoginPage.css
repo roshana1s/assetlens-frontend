@@ -1,32 +1,63 @@
 .login-container {
-    max-width: 350px;
-    margin: 50px auto;
+    width: 100%;
+    max-width: 400px;
+    margin: 80px auto;
     padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
 .login-container h2 {
-    text-align: center;
     margin-bottom: 20px;
+    color: #333;
 }
 
-.login-form div {
+.input-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: 5px;
     margin-bottom: 15px;
 }
 
-.login-form label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
+.input-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
 }
 
-.login-form input {
+.input-group input {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    color: #555;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.eye-icon:hover {
+    color: #007bff;
 }
 
 .login-form button {
@@ -35,8 +66,10 @@
     background-color: #007bff;
     color: white;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
-    border-radius: 4px;
+    font-size: 16px;
+    transition: background 0.3s ease-in-out;
 }
 
 .login-form button:hover {
@@ -45,5 +78,6 @@
 
 .error-message {
     color: red;
-    text-align: center;
+    font-size: 14px;
+    margin-top: -10px;
 }
