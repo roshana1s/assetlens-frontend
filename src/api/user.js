@@ -1,8 +1,8 @@
-import api from "../utils/api";  // Import the API client
+import api from "../utils/api";  
 
 export const fetchUserData = async () => {
     try {
-        const response = await api.get("/auth/me");  // API call (token included automatically)
+        const response = await api.get("/auth/me");  
         console.log("User Data:", response.data);
         return response.data;
     } catch (error) {

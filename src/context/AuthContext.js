@@ -1,9 +1,16 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []); // Empty dependency array to run only once on initial mount
 
   const login = (newToken) => {
     localStorage.setItem("token", newToken);
@@ -23,3 +30,4 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+
