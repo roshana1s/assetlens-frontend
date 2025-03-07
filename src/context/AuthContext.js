@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
     if (storedToken) {
       setToken(storedToken);
     }
-  }, []); // Empty dependency array to run only once on initial mount
+  }, []); 
 
   const login = (newToken) => {
     localStorage.setItem("token", newToken);
