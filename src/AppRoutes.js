@@ -10,6 +10,9 @@ import AssetLensAdminDashboard from "./pages/Dashboard/AssetLensAdminDashboard";
 import OrgAdminDashboard from "./pages/Dashboard/OrgAdminDashboard";
 import OrgUserDashboard from "./pages/Dashboard/OrgUserDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ForgotPassword from "./pages/LoginPage/ForgotPassword";
+import ResetPassword from "./pages/LoginPage/ResetPassword";
+
 
 const AppRouter = () => {
   return (
@@ -19,6 +22,8 @@ const AppRouter = () => {
         <Route path="/" element={<LandingPageLayout />}>
           <Route index element={<LandingPage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} /> 
           <Route path="place-order" element={<PlaceOrderPage />} />
         </Route>
 
