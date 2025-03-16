@@ -10,3 +10,4 @@ export const fetchUserData = async () => {
         return null;
     }
 };
+
