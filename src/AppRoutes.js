@@ -18,7 +18,6 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Landing Page Layout with sub-pages */}
         <Route path="/" element={<LandingPageLayout />}>
           <Route index element={<LandingPage />} />
           <Route path="login" element={<LoginPage />} />

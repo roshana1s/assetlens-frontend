@@ -5,6 +5,7 @@ const AssetLensAdminDashboard = () => {
     <div>
       <h1>AssetLens Admin Dashboard</h1>
       <button>Add New Organization</button>
+      
     </div>
   );
 };
