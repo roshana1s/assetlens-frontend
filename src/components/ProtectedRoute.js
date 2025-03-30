@@ -1,42 +1,33 @@
 import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = () => {
-  const { isAuthenticated } = useAuth();
-
+const ProtectedRoute = ({ requiredRole, orgAccess = false }) => {
+  const { isAuthenticated, user } = useAuth();
+  const { orgId } = useParams();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (orgAccess && user.org_id !== parseInt(orgId)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  if (requiredRole) {
+    if (user.org_id === 0) {
+      if (requiredRole !== 'admin') {
+        return <Navigate to="/unauthorized" replace />;
+      }
+    } else {
+      if (!requiredRole.includes(user.role)) {
+        return <Navigate to="/unauthorized" replace />;
+      }
+    }
   }
 
   return <Outlet />;
 };
 
 export default ProtectedRoute;
-
-
-// import React from "react";
-// import { Navigate, Outlet } from "react-router-dom";
-// import { useAuth } from "../context/AuthContext";
-
-// const ProtectedRoute = ({ requiredRole }) => {
-//   const { isAuthenticated, role, loading } = useAuth();
-
-//   if (loading) {
-//     return <div>Loading...</div>; // Prevents redirect before token is checked
-//   }
-
-//   if (!isAuthenticated) {
-//     return <Navigate to="/login" replace />;
-//   }
-
-//   if (requiredRole && role !== requiredRole) {
-//     return <Navigate to="/unauthorized" replace />; // Redirect to unauthorized page
-//   }
-
-//   return <Outlet />;
-// };
-
-// export default ProtectedRoute;
 

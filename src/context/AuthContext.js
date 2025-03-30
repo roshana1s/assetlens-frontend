@@ -1,81 +1,81 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
+  const [authState, setAuthState] = useState({
+    token: null,
+    user: null,
+    isAuthenticated: false,
+    loading: true 
+  });
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
-    }
-  }, []); 
+    const initializeAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          if (decoded.exp * 1000 < Date.now()) {
+            logout();
+            return;
+          }
+          
+          setAuthState({
+            token,
+            user: {
+              username: decoded.sub,
+              role: decoded.role,
+              org_id: decoded.org_id
+            },
+            isAuthenticated: true,
+            loading: false
+          });
+        } catch (error) {
+          console.error("Invalid token:", error);
+          logout();
+        }
+      } else {
+        setAuthState(prev => ({ ...prev, loading: false }));
+      }
+    };
 
-  const login = (newToken) => {
-    localStorage.setItem("token", newToken);
-    setToken(newToken);
+    initializeAuth();
+  }, []);
+
+  const login = (token, userData) => {
+    localStorage.setItem("token", token);
+    const decoded = jwtDecode(token);
+    setAuthState({
+      token,
+      user: {
+        username: decoded.sub,
+        role: decoded.role,
+        org_id: decoded.org_id,
+        ...userData
+      },
+      isAuthenticated: true,
+      loading: false
+    });
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    setToken(null);
+    setAuthState({
+      token: null,
+      user: null,
+      isAuthenticated: false,
+      loading: false
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, isAuthenticated: !!token }}>
-      {children}
+    <AuthContext.Provider value={{ ...authState, login, logout }}>
+      {!authState.loading && children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => useContext(AuthContext);
-
-
-
-// import React, { createContext, useContext, useState, useEffect } from "react";
-
-// const AuthContext = createContext();
-
-// export const AuthProvider = ({ children }) => {
-//   const [token, setToken] = useState(() => localStorage.getItem("token"));
-//   const [role, setRole] = useState(() => localStorage.getItem("role")); // NEW: Store role
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const storedToken = localStorage.getItem("token");
-//     const storedRole = localStorage.getItem("role");
-
-//     if (storedToken) {
-//       setToken(storedToken);
-//       setRole(storedRole); // Retrieve stored role
-//     }
-
-//     setLoading(false);
-//   }, []);
-
-//   const login = (newToken, userRole) => {
-//     localStorage.setItem("token", newToken);
-//     localStorage.setItem("role", userRole); // Store role
-//     setToken(newToken);
-//     setRole(userRole);
-//   };
-
-//   const logout = () => {
-//     localStorage.removeItem("token");
-//     localStorage.removeItem("role"); // Remove role
-//     setToken(null);
-//     setRole(null);
-//   };
-
-//   return (
-//     <AuthContext.Provider value={{ token, role, login, logout, isAuthenticated: !!token, loading }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-// export const useAuth = () => useContext(AuthContext);
-
-
-
