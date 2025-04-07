@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ForgotPassword from "./pages/LoginPage/ForgotPassword";
 import ResetPassword from "./pages/LoginPage/ResetPassword";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
+import HeatmapPage from "./pages/Dashboard/Heatmap/HeatmapPage";
 
 
 const AppRouter = () => {
@@ -54,6 +55,7 @@ const AppRouter = () => {
           }
         >
           <Route index element={<OrgAdminDashboard />} />
+          <Route path="heatmap" element={<HeatmapPage />} />
         </Route>
 
         {/* Organization User Routes */}

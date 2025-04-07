@@ -10,7 +10,7 @@ const LandingPageLayout = () => {
                 <Outlet /> 
             </main>
             <footer>
-                <p>© 2025 AssetLens. All rights reserved.</p>
+                <p><center>© 2025 AssetLens. All rights reserved.</center></p>
             </footer>
         </div>
     );
