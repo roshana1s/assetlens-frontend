@@ -130,6 +130,36 @@ const MapConfiguration = () => {
                             ))
                         )}
                     </ul>
+                    <a
+                        style={{
+                            position: "absolute",
+                            bottom: "20px",
+                            left: "20px",
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                            backgroundColor: "#007bff",
+                            color: "white",
+                            padding: "10px 15px",
+                            borderRadius: "5px",
+                            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                        href={"/admin/mapconfig/addfloor"}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            fill="currentColor"
+                            className="bi bi-plus-circle"
+                            viewBox="0 0 16 16"
+                            style={{ marginRight: "8px" }}
+                        >
+                            <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z" />
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3H4a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                        </svg>
+                        Add New Floor
+                    </a>
                 </div>
                 <DrawMap
                     zones={
@@ -169,7 +199,10 @@ const MapConfiguration = () => {
                         confirm if you wish to proceed.
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShow(false)}>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setShow(false)}
+                        >
                             Cancel
                         </Button>
                         <Button
@@ -184,36 +217,6 @@ const MapConfiguration = () => {
                     </Modal.Footer>
                 </Modal>
             )}
-            <a
-                style={{
-                    position: "fixed",
-                    bottom: "20px",
-                    left: "20px",
-                    display: "flex",
-                    alignItems: "center",
-                    cursor: "pointer",
-                    backgroundColor: "#007bff",
-                    color: "white",
-                    padding: "10px 15px",
-                    borderRadius: "5px",
-                    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                }}
-                href={"/admin/mapconfig/addfloor"}
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    fill="currentColor"
-                    className="bi bi-plus-circle"
-                    viewBox="0 0 16 16"
-                    style={{ marginRight: "8px" }}
-                >
-                    <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z" />
-                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3H4a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                </svg>
-                Add New Floor
-            </a>
         </>
     );
 };
