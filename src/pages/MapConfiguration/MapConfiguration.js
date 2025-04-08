@@ -83,7 +83,7 @@ const MapConfiguration = () => {
                                         style={{ display: "flex", gap: "10px" }}
                                     >
                                         <a
-                                            href={`/edit-floor/${floor.floor_id}`}
+                                            href={`mapconfig/editfloor/${floor.floor_id}`}
                                             style={{ cursor: "pointer" }}
                                         >
                                             <svg

@@ -6,6 +6,7 @@ import OrgAdminLayout from "./layouts/OrgAdminLayout";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import MapConfiguration from "./pages/MapConfiguration/MapConfiguration";
 import AddFloor from "./pages/MapConfiguration/AddFloorPage/AddFloor"
+import EditFloor from "./pages/MapConfiguration/EditFloorPage/EditFloor";
 
 const AppRouter = () => {
     return (
@@ -23,6 +24,7 @@ const AppRouter = () => {
                 <Route path="/admin" element={<OrgAdminLayout />}>
                     <Route path="mapconfig" element={<MapConfiguration />} />
                     <Route path="mapconfig/addfloor" element={<AddFloor />} />
+                    <Route path="mapconfig/editfloor/:floor_id" element={<EditFloor />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />

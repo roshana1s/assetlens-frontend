@@ -1,24 +1,44 @@
-import React, { useState } from "react";
-import "leaflet/dist/leaflet.css";
-import AddZone from "../../../components/AddZone/AddZone";
-import DrawMap from "../../../components/DrawMap/DrawMap";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
+import "leaflet/dist/leaflet.css";
+import DrawMap from "../../../components/DrawMap/DrawMap";
+import AddZone from "../../../components/AddZone/AddZone";
 import Accordion from "react-bootstrap/Accordion";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 
-const AddFloor = () => {
+const EditFloor = () => {
+    const { floor_id } = useParams(); // Get floor_id from the URL
+    const [floorName, setFloorName] = useState("");
+    const [zones, setZones] = useState([]);
+    const [selectedZoneIndex, setSelectedZoneIndex] = useState(null);
+    const [showZoneModal, setShowZoneModal] = useState(false);
     const [zoneName, setZoneName] = useState("");
     const [zoneColor, setZoneColor] = useState("#000000");
     const [coordinates, setCoordinates] = useState([]);
     const [x, setX] = useState("");
     const [y, setY] = useState("");
-    const [newFloorName, setNewFloorName] = useState("");
-    const [newZones, setNewZones] = useState([]);
-    const [selectedZoneIndex, setSelectedZoneIndex] = useState(null); // Track selected zone for editing
-    const [showZoneModal, setShowZoneModal] = useState(false); // Modal visibility for Add/Edit Zone
+
+    useEffect(() => {
+        // Fetch floor details using floor_id
+        const fetchFloorDetails = async () => {
+            try {
+                const response = await axios.get(
+                    `http://localhost:8000/maps/1/get-floor/${floor_id}`
+                );
+                const data = response.data;
+                setFloorName(data.floorName);
+                setZones(data.zones);
+            } catch (err) {
+                console.error("Error fetching floor details:", err.message);
+            }
+        };
+
+        fetchFloorDetails();
+    }, [floor_id]);
 
     const handleAddCoordinate = () => {
         if (!x || !y) {
@@ -45,13 +65,13 @@ const AddFloor = () => {
 
         if (selectedZoneIndex !== null) {
             // Edit existing zone
-            const updatedZones = [...newZones];
+            const updatedZones = [...zones];
             updatedZones[selectedZoneIndex] = newZone;
-            setNewZones(updatedZones);
+            setZones(updatedZones);
             setSelectedZoneIndex(null); // Clear selection after editing
         } else {
             // Add new zone
-            setNewZones([...newZones, newZone]);
+            setZones([...zones, newZone]);
         }
 
         // Reset inputs
@@ -71,43 +91,8 @@ const AddFloor = () => {
         setShowZoneModal(false);
     };
 
-    const onRemoveCoordinate = (index) => {
-        setCoordinates(coordinates.filter((_, i) => i !== index));
-    };
-
-    const handleCreateNewFloor = async () => {
-        if (!newFloorName.trim()) {
-            alert("Floor name cannot be empty.");
-            return;
-        }
-
-        const newFloor = {
-            floorName: newFloorName,
-            zones: newZones,
-        };
-
-        try {
-            const response = await axios.post(
-                `http://localhost:8000/maps/1/save-floor`, // Replace with your API endpoint
-                newFloor
-            );
-            console.log(response.data);
-        } catch (err) {
-            if (err.response && err.response.status === 400) {
-                alert("A zone with the same name already exists. Please use a different name.");
-            } else {
-                console.log(err.message);
-            }
-        }
-
-        setNewFloorName("");
-        setNewZones([]);
-
-        window.location.href = "/admin/mapconfig"; // Redirect to map configuration page
-    };
-
     const handleEditZone = (index) => {
-        const zoneToEdit = newZones[index];
+        const zoneToEdit = zones[index];
         setZoneName(zoneToEdit.name);
         setZoneColor(zoneToEdit.color);
         setCoordinates(zoneToEdit.coordinates);
@@ -116,10 +101,41 @@ const AddFloor = () => {
     };
 
     const handleDeleteZone = (index) => {
-        setNewZones(newZones.filter((_, i) => i !== index));
+        setZones(zones.filter((_, i) => i !== index));
         if (selectedZoneIndex === index) {
             handleReset(); // Reset inputs if the selected zone is deleted
         }
+    };
+
+    const handleSaveFloor = async () => {
+        if (!floorName.trim()) {
+            alert("Floor name cannot be empty.");
+            return;
+        }
+
+        const updatedFloor = {
+            floorName,
+            zones,
+        };
+
+        try {
+            const response = await axios.put(
+                `http://localhost:8000/maps/1/update-floor/${floor_id}`,
+                updatedFloor
+            );
+            console.log("Floor updated successfully:");
+            alert("Floor updated successfully!");
+        } catch (err) {
+            if (err.response && err.response.status === 400) {
+                alert(
+                    "A zone with the same name already exists. Please use a different name."
+                );
+            } else {
+                console.log(err.message);
+            }
+        }
+
+        window.location.href = "/admin/mapconfig"; // Redirect to map configuration page
     };
 
     return (
@@ -128,11 +144,11 @@ const AddFloor = () => {
             <div style={{ width: "30%" }}>
                 <Card className="mb-4">
                     <Card.Body>
-                        <Card.Title>Floor Details</Card.Title>
+                        <Card.Title>Edit Floor</Card.Title>
                         <Form.Control
                             type="text"
-                            value={newFloorName}
-                            onChange={(e) => setNewFloorName(e.target.value)}
+                            value={floorName}
+                            onChange={(e) => setFloorName(e.target.value)}
                             placeholder="Enter Floor Name"
                             className="mb-3"
                         />
@@ -143,7 +159,7 @@ const AddFloor = () => {
                     <Card.Body>
                         <Card.Title>Zones</Card.Title>
                         <Accordion>
-                            {newZones.map((zone, index) => (
+                            {zones.map((zone, index) => (
                                 <Accordion.Item
                                     eventKey={index.toString()}
                                     key={index}
@@ -210,18 +226,14 @@ const AddFloor = () => {
                 <div className="mt-4">
                     <Button
                         variant="success"
-                        onClick={handleCreateNewFloor}
+                        onClick={handleSaveFloor}
                         className="me-2 w-50"
                     >
-                        Create Floor
+                        Save Floor
                     </Button>
                     <Button
                         variant="secondary"
-                        onClick={() => {
-                            setNewFloorName("");
-                            setNewZones([]);
-                            window.location.href = "/admin/mapconfig";
-                        }}
+                        onClick={() => window.history.back()}
                         className="w-50"
                     >
                         Cancel
@@ -229,7 +241,7 @@ const AddFloor = () => {
                 </div>
             </div>
 
-            <DrawMap zones={newZones} />
+            <DrawMap zones={zones} />
 
             {/* Add/Edit Zone Modal */}
             <Modal show={showZoneModal} onHide={handleCloseModal} centered>
@@ -245,7 +257,11 @@ const AddFloor = () => {
                         onAddCoordinate={handleAddCoordinate}
                         onAddZone={handleAddZone}
                         onReset={handleReset}
-                        onRemoveCoordinate={onRemoveCoordinate}
+                        onRemoveCoordinate={(index) =>
+                            setCoordinates(
+                                coordinates.filter((_, i) => i !== index)
+                            )
+                        }
                         coordinates={coordinates}
                         zoneName={zoneName}
                         setZoneName={setZoneName}
@@ -262,4 +278,4 @@ const AddFloor = () => {
     );
 };
 
-export default AddFloor;
+export default EditFloor;
