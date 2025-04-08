@@ -36,6 +36,24 @@ const AddZone = ({
                         onChange={(e) => setZoneColor(e.target.value)}
                     />
                 </label>
+                <div>
+                    <h3>Coordinates:</h3>
+                    <ul>
+                        {coordinates.map((coord, index) => (
+                            <div>
+                                <li key={index}>
+                                    {coord[0]}, {coord[1]}
+                                </li>
+                                <button
+                                    key={index}
+                                    onClick={() => onRemoveCoordinate(index)}
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                    </ul>
+                </div>
                 <label>
                     X:
                     <input
@@ -64,24 +82,6 @@ const AddZone = ({
                     Reset
                 </button>
             </form>
-            <div>
-                <h3>Coordinates:</h3>
-                <ul>
-                    {coordinates.map((coord, index) => (
-                        <div>
-                            <li key={index}>
-                                {coord[0]}, {coord[1]}
-                            </li>
-                            <button
-                                key={index}
-                                onClick={() => onRemoveCoordinate(index)}
-                            >
-                                Remove
-                            </button>
-                        </div>
-                    ))}
-                </ul>
-            </div>
         </div>
     );
 };
