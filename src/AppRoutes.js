@@ -4,7 +4,8 @@ import AssetLensAdminLayout from "./layouts/AssetLensAdminLayout";
 import LandingPageLayout from "./layouts/LandingPageLayout";
 import OrgAdminLayout from "./layouts/OrgAdminLayout";
 import LandingPage from "./pages/LandingPage/LandingPage";
-import MapConfigureToolPage from "./pages/ConfigurationTool/MapConfigureToolPage";
+import MapConfiguration from "./pages/MapConfiguration/MapConfiguration";
+import AddFloor from "./pages/MapConfiguration/AddFloorPage/AddFloor"
 
 const AppRouter = () => {
     return (
@@ -12,15 +13,16 @@ const AppRouter = () => {
             <Routes>
                 <Route path="/" element={<LandingPageLayout />}>
                     <Route index element={<LandingPage />} />
-                    
                 </Route>
 
-                <Route path="/assetlens-admin" element={<AssetLensAdminLayout />}>
-                    
-                </Route>
+                <Route
+                    path="/assetlens-admin"
+                    element={<AssetLensAdminLayout />}
+                ></Route>
 
                 <Route path="/admin" element={<OrgAdminLayout />}>
-                    <Route path="configure" element={<MapConfigureToolPage />}/>
+                    <Route path="mapconfig" element={<MapConfiguration />} />
+                    <Route path="mapconfig/addfloor" element={<AddFloor />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />

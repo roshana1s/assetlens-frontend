@@ -4,7 +4,7 @@ import AddZone from "../../components/AddZone/AddZone";
 import DrawMap from "../../components/DrawMap/DrawMap";
 import axios from "axios";
 
-const MapConfigureToolPage = () => {
+const MapConfiguration = () => {
     const [zoneName, setZoneName] = useState("");
     const [zoneColor, setZoneColor] = useState("#000000");
     const [coordinates, setCoordinates] = useState([]);
@@ -12,8 +12,11 @@ const MapConfigureToolPage = () => {
     const [y, setY] = useState("");
     const [mapDetails, setMapDetails] = useState([]);
     const [selectedFloor, setSelectedFloor] = useState(null);
-    const [newFloorName, setNewFloorName] = useState("");
     const [expandedFloors, setExpandedFloors] = useState({});
+
+    const [newFloor, setNewFloor] = useState({});
+    const [newFloorName, setNewFloorName] = useState("");
+    const [newZones, setNewZones] = useState([]);
 
     const handleAddCoordinate = () => {
         if (!x || !y) {
@@ -98,10 +101,10 @@ const MapConfigureToolPage = () => {
     const handleSave = async (org_id) => {
         try {
             console.log(mapDetails);
-            await axios.post(
-                `http://localhost:8000/maps/save-map/${org_id}`,
-                mapDetails
-            );
+            // await axios.post(
+            //     `http://localhost:8000/maps/${org_id}/save-floor`,
+            //     mapDetails
+            // );
             alert("Map saved successfully.");
         } catch (err) {
             console.log("Error:", err.message);
@@ -112,7 +115,7 @@ const MapConfigureToolPage = () => {
         const fetchData = async (org_id) => {
             try {
                 const response = await axios.get(
-                    `http://localhost:8000/maps/get-map/${org_id}`
+                    `http://localhost:8000/maps/${org_id}/get-map`
                 );
                 console.log(response.data);
                 setMapDetails(response.data);
@@ -208,6 +211,36 @@ const MapConfigureToolPage = () => {
                     onChange={(e) => setNewFloorName(e.target.value)}
                     placeholder="New Floor Name"
                 />
+                {newZones.map((zone, index) => (
+                    <div key={index}>
+                        <h3>{zone.name}</h3>
+                        <p>{zone.color}</p>
+                        <p>Coordinates:</p>
+                        <ul>
+                            {zone.coordinates.map((coord, index) => (
+                                <li key={index}>
+                                    {coord[0]}, {coord[1]}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
+                <h3>Add Zones: </h3>
+                <AddZone
+                    onAddCoordinate={handleAddCoordinate}
+                    onAddZone={handleAddZone}
+                    onReset={handleReset}
+                    onRemoveCoordinate={onRemoveCoordinate}
+                    coordinates={coordinates}
+                    zoneName={zoneName}
+                    setZoneName={setZoneName}
+                    zoneColor={zoneColor}
+                    setZoneColor={setZoneColor}
+                    x={x}
+                    setX={setX}
+                    y={y}
+                    setY={setY}
+                />
                 <button onClick={handleCreateNewFloor}>Create Floor</button>
                 <button onClick={() => handleSave(1)}>Save Changes</button>
             </div>
@@ -224,4 +257,4 @@ const MapConfigureToolPage = () => {
     );
 };
 
-export default MapConfigureToolPage;
+export default MapConfiguration;
