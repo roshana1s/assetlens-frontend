@@ -70,15 +70,19 @@ const DrawMap = ({ zones }) => {
     return (
         <div
             style={{
-                height: "100vh",
-                width: "70%",
+                margin: "8px",
+                boxShadow: "0 12px 36px rgba(0, 0, 0, 0.2)",
+                borderRadius: "12px",
+                overflow: "hidden",
+                height: "calc(100vh - 86px)",
+                width: "75%",
                 position: "relative",
             }}
             ref={mapDivRef}
         >
             <MapContainer
                 key={JSON.stringify(zones)} // Add key to force re-render
-                center={[0, 0]} // Center the map at the origin
+                center={[20, 20]} // Center the map at (20, 20)
                 zoom={1}
                 style={{
                     height: "100%",

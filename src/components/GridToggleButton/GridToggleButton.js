@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "react-bootstrap";
 
 const GridToggleButton = ({ showGrid, setShowGrid }) => {
     const handleToggleGrid = () => {
@@ -6,21 +7,21 @@ const GridToggleButton = ({ showGrid, setShowGrid }) => {
     };
 
     return (
-        <button
+        <Button
             onClick={handleToggleGrid}
+            className="btn btn-success" // Bootstrap button classes
             style={{
                 position: "absolute",
                 top: "50px",
                 right: "10px",
                 zIndex: 1000,
-                padding: "10px",
-                backgroundColor: "#fff",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
+                padding: "8px 10px",
+                fontSize: "14px",
+                margin: "6px 0",
             }}
         >
             {showGrid ? "Remove Grid" : "Add Grid"}
-        </button>
+        </Button>
     );
 };
 

@@ -4,20 +4,20 @@ import { useMap } from "react-leaflet";
 const ResetViewButton = () => {
     const map = useMap();
     const handleResetView = () => {
-        map.setView([0, 0], 1); // Reset the view to the initial center and zoom level
+        map.setView([25, 25], 1); // Reset the view to the initial center and zoom level
     };
     return (
         <button
             onClick={handleResetView}
+            className="btn btn-success"
             style={{
                 position: "absolute",
                 top: "10px",
                 right: "10px",
                 zIndex: 1000,
-                padding: "10px",
-                backgroundColor: "#fff",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
+                padding: "8px 10px",
+                fontSize: "14px",
+                margin: "6px 0",
             }}
         >
             Reset View
