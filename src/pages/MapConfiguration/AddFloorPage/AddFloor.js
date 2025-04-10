@@ -103,7 +103,7 @@ const AddFloor = () => {
         setNewFloorName("");
         setNewZones([]);
 
-        window.location.href = "/admin/mapconfig"; // Redirect to map configuration page
+        window.location.href = "/admin/config/map"; // Redirect to map configuration page
     };
 
     const handleEditZone = (index) => {
@@ -220,7 +220,7 @@ const AddFloor = () => {
                         onClick={() => {
                             setNewFloorName("");
                             setNewZones([]);
-                            window.location.href = "/admin/mapconfig";
+                            window.location.href = "/admin/config/map";
                         }}
                         className="w-50"
                     >

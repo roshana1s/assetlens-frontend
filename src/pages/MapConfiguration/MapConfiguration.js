@@ -83,7 +83,7 @@ const MapConfiguration = () => {
                                         style={{ display: "flex", gap: "10px" }}
                                     >
                                         <a
-                                            href={`mapconfig/editfloor/${floor.floor_id}`}
+                                            href={`config/map/editfloor/${floor.floor_id}`}
                                             style={{ cursor: "pointer" }}
                                         >
                                             <svg
@@ -144,7 +144,7 @@ const MapConfiguration = () => {
                             borderRadius: "5px",
                             boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
                         }}
-                        href={"/admin/mapconfig/addfloor"}
+                        href={"/admin/config/map/addfloor"}
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

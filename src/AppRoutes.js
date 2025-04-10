@@ -22,9 +22,9 @@ const AppRouter = () => {
                 ></Route>
 
                 <Route path="/admin" element={<OrgAdminLayout />}>
-                    <Route path="mapconfig" element={<MapConfiguration />} />
-                    <Route path="mapconfig/addfloor" element={<AddFloor />} />
-                    <Route path="mapconfig/editfloor/:floor_id" element={<EditFloor />} />
+                    <Route path="config/map" element={<MapConfiguration />} />
+                    <Route path="config/map/addfloor" element={<AddFloor />} />
+                    <Route path="config/map/editfloor/:floor_id" element={<EditFloor />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />

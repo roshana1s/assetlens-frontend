@@ -123,7 +123,7 @@ const EditFloor = () => {
                 `http://localhost:8000/maps/1/update-floor/${floor_id}`,
                 updatedFloor
             );
-            console.log("Floor updated successfully:");
+            console.log("Floor updated successfully:", response.data);
             alert("Floor updated successfully!");
         } catch (err) {
             if (err.response && err.response.status === 400) {
@@ -135,7 +135,7 @@ const EditFloor = () => {
             }
         }
 
-        window.location.href = "/admin/mapconfig"; // Redirect to map configuration page
+        window.location.href = "/admin/config/map"; // Redirect to map configuration page
     };
 
     return (

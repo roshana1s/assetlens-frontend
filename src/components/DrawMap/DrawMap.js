@@ -13,7 +13,7 @@ import GridToggleButton from "../GridToggleButton/GridToggleButton";
 
 const DrawMap = ({ zones }) => {
     const [gridSize, setGridSize] = useState({ width: 1000, height: 320 });
-    const [showGrid, setShowGrid] = useState(true);
+    const [showGrid, setShowGrid] = useState(false);
     const mapDivRef = useRef(null);
 
     const createGridLines = (width, height, step) => {
@@ -94,11 +94,11 @@ const DrawMap = ({ zones }) => {
                 maxZoom={4} // Max zoom to prevent zooming in too much
             >
                 <StaticZoomMap />
-                <ResetViewButton />
                 <GridToggleButton
                     showGrid={showGrid}
                     setShowGrid={setShowGrid}
                 />
+                <ResetViewButton />
                 {showGrid &&
                     gridLines.map((line, index) => (
                         <Polyline
