@@ -4,6 +4,8 @@ import DrawMap from "../../components/DrawMap/DrawMap";
 import axios from "axios";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./MapConfiguration.css";
 
 const MapConfiguration = () => {
@@ -23,13 +25,16 @@ const MapConfiguration = () => {
             setMapDetails((prev) =>
                 prev.filter((floor) => floor.floor_id !== floor_id)
             );
+            toast.success("Floor deleted successfully!");
         } catch (err) {
-            console.log(err.message);
+            console.error(err.message);
+            toast.error("Failed to delete the floor. Please try again.");
         }
     };
 
     const handleDeleteFloor = (floor_id) => {
         setFloorToDelete(floor_id);
+        setShow(true); // Show confirmation modal
     };
 
     useEffect(() => {
@@ -47,7 +52,8 @@ const MapConfiguration = () => {
                 console.log(response.data);
                 setMapDetails(response.data);
             } catch (err) {
-                console.log(err.message);
+                console.error(err.message);
+                toast.error("Failed to load map details. Please try again.");
             }
         };
 
@@ -56,84 +62,70 @@ const MapConfiguration = () => {
 
     return (
         <>
+            {/* Toast Container */}
+            <ToastContainer position="top-right" autoClose={3000} />
+
             <div style={{ display: "flex" }}>
-                <div
-                    style={{
-                        width: "25%",
-                        padding: "10px",
-                        boxShadow: "0 12px 36px rgba(0, 0, 0, 0.2)",
-                        borderRadius: "12px",
-                        overflow: "hidden",
-                        margin: "8px 0 8px 8px",
-                    }}
-                >
+                <div className="map-config-container">
                     <span className="header-text">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="16"
                             height="16"
                             fill="currentColor"
-                            class="bi bi-map"
+                            className="bi bi-map"
                             viewBox="0 0 16 16"
                         >
                             <path
-                                fill-rule="evenodd"
+                                fillRule="evenodd"
                                 d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.5.5 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103M10 1.91l-4-.8v12.98l4 .8zm1 12.98 4-.8V1.11l-4 .8zm-6-.8V1.11l-4 .8v12.98z"
                             />
                         </svg>
-                        &nbsp;&nbsp;Map Configuration
+                        <span className="ms-2">Map Configuration</span>
                     </span>
-                    <ul>
+                    <span className="text-available">Available Floors: </span>
+                    <ul className="map-floor-list">
                         {mapDetails.length === 0 ? (
-                            <li>No floors available</li>
+                            <li className="text-muted">No floors available</li>
                         ) : (
                             mapDetails.map((floor, index) => (
-                                <li
-                                    key={index}
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                    }}
-                                >
+                                <li className="floor-item" key={index}>
                                     <div
+                                        className={`floor-name ${
+                                            selectedFloor === floor.floor_id
+                                                ? "selected"
+                                                : ""
+                                        }`}
                                         onClick={() =>
                                             setSelectedFloor(floor.floor_id)
                                         }
-                                        style={{ cursor: "pointer" }}
                                     >
                                         {floor.floorName}
                                     </div>
-                                    <div
-                                        style={{ display: "flex", gap: "10px" }}
-                                    >
+                                    <div className="floor-actions">
                                         <a
                                             href={`/admin/config/map/editfloor/${floor.floor_id}`}
-                                            style={{ cursor: "pointer" }}
+                                            className="text-primary"
                                         >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 width="16"
                                                 height="16"
                                                 fill="currentColor"
-                                                class="bi bi-pencil-square"
+                                                className="bi bi-pencil-square"
                                                 viewBox="0 0 16 16"
                                             >
                                                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                                                 <path
-                                                    fill-rule="evenodd"
+                                                    fillRule="evenodd"
                                                     d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"
                                                 />
                                             </svg>
                                         </a>
                                         <i
                                             title="Delete"
-                                            style={{
-                                                cursor: "pointer",
-                                                color: "red",
-                                            }}
+                                            className="text-danger delete-icon"
                                             onClick={() => {
-                                                setShow(true);
                                                 handleDeleteFloor(
                                                     floor.floor_id
                                                 );
@@ -144,7 +136,7 @@ const MapConfiguration = () => {
                                                 width="20"
                                                 height="20"
                                                 fill="currentColor"
-                                                class="bi bi-trash3"
+                                                className="bi bi-trash3"
                                                 viewBox="0 0 16 16"
                                             >
                                                 <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
@@ -156,19 +148,7 @@ const MapConfiguration = () => {
                         )}
                     </ul>
                     <a
-                        style={{
-                            position: "absolute",
-                            bottom: "20px",
-                            left: "20px",
-                            display: "flex",
-                            alignItems: "center",
-                            cursor: "pointer",
-                            backgroundColor: "#007bff",
-                            color: "white",
-                            padding: "10px 15px",
-                            borderRadius: "5px",
-                            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                        }}
+                        className="add-floor-btn"
                         href={"/admin/config/map/addfloor"}
                     >
                         <svg

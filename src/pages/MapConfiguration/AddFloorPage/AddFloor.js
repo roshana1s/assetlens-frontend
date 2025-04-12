@@ -8,6 +8,9 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./AddFloor.css";
 
 const AddFloor = () => {
     const [zoneName, setZoneName] = useState("");
@@ -22,22 +25,23 @@ const AddFloor = () => {
 
     const handleAddCoordinate = () => {
         if (!x || !y) {
-            alert("X and Y coordinates are required.");
+            toast.error("X and Y coordinates are required.");
             return;
         }
         setCoordinates([...coordinates, [parseFloat(x), parseFloat(y)]]);
         setX("");
         setY("");
+        toast.success("Coordinate added successfully!");
     };
 
     const handleAddZone = () => {
         if (!zoneName.trim()) {
-            alert("Zone name cannot be empty.");
+            toast.error("Zone name cannot be empty.");
             return;
         }
 
         if (coordinates.length < 3) {
-            alert("A zone must have at least 3 coordinate pairs.");
+            toast.error("A zone must have at least 3 coordinate pairs.");
             return;
         }
 
@@ -49,9 +53,11 @@ const AddFloor = () => {
             updatedZones[selectedZoneIndex] = newZone;
             setNewZones(updatedZones);
             setSelectedZoneIndex(null); // Clear selection after editing
+            toast.success("Zone updated successfully!");
         } else {
             // Add new zone
             setNewZones([...newZones, newZone]);
+            toast.success("Zone added successfully!");
         }
 
         // Reset inputs
@@ -73,11 +79,12 @@ const AddFloor = () => {
 
     const onRemoveCoordinate = (index) => {
         setCoordinates(coordinates.filter((_, i) => i !== index));
+        toast.info("Coordinate removed.");
     };
 
     const handleCreateNewFloor = async () => {
         if (!newFloorName.trim()) {
-            alert("Floor name cannot be empty.");
+            toast.error("Floor name cannot be empty.");
             return;
         }
 
@@ -92,10 +99,14 @@ const AddFloor = () => {
                 newFloor
             );
             console.log(response.data);
+            toast.success("Floor added successfully!");
         } catch (err) {
             if (err.response && err.response.status === 400) {
-                alert("A zone with the same name already exists. Please use a different name.");
+                toast.error(
+                    "A zone with the same name already exists. Please use a different name."
+                );
             } else {
+                toast.error("An error occurred while saving the floor.");
                 console.log(err.message);
             }
         }
@@ -103,7 +114,9 @@ const AddFloor = () => {
         setNewFloorName("");
         setNewZones([]);
 
-        window.location.href = "/admin/config/map"; // Redirect to map configuration page
+        setTimeout(() => {
+            window.location.href = "/admin/config/map"; // Redirect to map configuration page
+        }, 1500);
     };
 
     const handleEditZone = (index) => {
@@ -120,109 +133,137 @@ const AddFloor = () => {
         if (selectedZoneIndex === index) {
             handleReset(); // Reset inputs if the selected zone is deleted
         }
+        toast.success("Zone deleted successfully!");
     };
 
     return (
         <div style={{ display: "flex" }}>
+            {/* Toast Container */}
+            <ToastContainer position="top-right" autoClose={3000} />
+
             {/* Left Panel */}
-            <div style={{ width: "30%" }}>
-                <Card className="mb-4">
-                    <Card.Body>
-                        <Card.Title>Floor Details</Card.Title>
-                        <Form.Control
-                            type="text"
-                            value={newFloorName}
-                            onChange={(e) => setNewFloorName(e.target.value)}
-                            placeholder="Enter Floor Name"
-                            className="mb-3"
+            <div className="floor-details-panel">
+                {/* Header (static) */}
+                <span className="header-text">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        className="bi bi-map"
+                        viewBox="0 0 16 16"
+                    >
+                        <path
+                            fillRule="evenodd"
+                            d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.5.5 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103M10 1.91l-4-.8v12.98l4 .8zm1 12.98 4-.8V1.11l-4 .8zm-6-.8V1.11l-4 .8v12.98z"
                         />
-                    </Card.Body>
-                </Card>
+                    </svg>
+                    <span className="ms-2">Map Configuration - Add Floor</span>
+                </span>
 
-                <Card>
-                    <Card.Body>
-                        <Card.Title>Zones</Card.Title>
-                        <Accordion>
-                            {newZones.map((zone, index) => (
-                                <Accordion.Item
-                                    eventKey={index.toString()}
-                                    key={index}
-                                >
-                                    <Accordion.Header>
-                                        {zone.name}
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <p>
-                                            <strong>Color:</strong>{" "}
-                                            <span
-                                                style={{
-                                                    display: "inline-block",
-                                                    width: "20px",
-                                                    height: "20px",
-                                                    backgroundColor: zone.color,
-                                                    border: "1px solid #000",
-                                                }}
-                                            ></span>
-                                        </p>
-                                        <p>
-                                            <strong>Coordinates:</strong>
-                                        </p>
-                                        <ul>
-                                            {zone.coordinates.map(
-                                                (coord, i) => (
-                                                    <li key={i}>
-                                                        {coord[0]}, {coord[1]}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                        <Button
-                                            variant="primary"
-                                            onClick={() =>
-                                                handleEditZone(index)
-                                            }
-                                            className="me-2"
-                                        >
-                                            Edit
-                                        </Button>
-                                        <Button
-                                            variant="danger"
-                                            onClick={() =>
-                                                handleDeleteZone(index)
-                                            }
-                                        >
-                                            Delete
-                                        </Button>
-                                    </Accordion.Body>
-                                </Accordion.Item>
-                            ))}
-                        </Accordion>
-                        <Button
-                            variant="info"
-                            className="mt-3 w-100"
-                            onClick={() => setShowZoneModal(true)}
-                        >
-                            Add New Zone
-                        </Button>
-                    </Card.Body>
-                </Card>
+                {/* Scrollable Content */}
+                <div className="scrollable-content">
+                    <Card className="mb-4 floor-card">
+                        <Card.Body>
+                            <Card.Title className="floor-card-title">
+                                Floor Details
+                            </Card.Title>
+                            <Form.Control
+                                type="text"
+                                value={newFloorName}
+                                onChange={(e) =>
+                                    setNewFloorName(e.target.value)
+                                }
+                                placeholder="Enter Floor Name"
+                                className="mb-3 floor-input"
+                            />
+                        </Card.Body>
+                    </Card>
 
-                <div className="mt-4">
+                    <Card className="floor-card">
+                        <Card.Body>
+                            <Card.Title className="floor-card-title">
+                                Zones
+                            </Card.Title>
+                            <Accordion>
+                                {newZones.map((zone, index) => (
+                                    <Accordion.Item
+                                        eventKey={index.toString()}
+                                        key={index}
+                                    >
+                                        <Accordion.Header>
+                                            {zone.name}
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            <p>
+                                                <strong>Color:</strong>
+                                                <span
+                                                    className="zone-color-box"
+                                                    style={{
+                                                        backgroundColor:
+                                                            zone.color,
+                                                    }}
+                                                ></span>
+                                            </p>
+                                            <p>
+                                                <strong>Coordinates:</strong>
+                                            </p>
+                                            <ul className="zone-coordinates-list">
+                                                {zone.coordinates.map(
+                                                    (coord, i) => (
+                                                        <li key={i}>
+                                                            {coord[0]},{" "}
+                                                            {coord[1]}
+                                                        </li>
+                                                    )
+                                                )}
+                                            </ul>
+                                            <Button
+                                                variant="primary"
+                                                onClick={() =>
+                                                    handleEditZone(index)
+                                                }
+                                                className="me-2 zone-edit-btn"
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                variant="danger"
+                                                onClick={() =>
+                                                    handleDeleteZone(index)
+                                                }
+                                                className="zone-delete-btn"
+                                            >
+                                                Delete
+                                            </Button>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                ))}
+                            </Accordion>
+                            <Button
+                                variant="info"
+                                className="mt-3 w-100 add-zone-btn"
+                                onClick={() => setShowZoneModal(true)}
+                            >
+                                Add New Zone
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                </div>
+
+                {/* Buttons (static) */}
+                <div className="floor-action-buttons">
                     <Button
                         variant="success"
                         onClick={handleCreateNewFloor}
-                        className="me-2 w-50"
+                        className="create-floor-btn"
                     >
                         Create Floor
                     </Button>
                     <Button
                         variant="secondary"
-                        onClick={() => {
-                            setNewFloorName("");
-                            setNewZones([]);
-                            window.location.href = "/admin/config/map";
-                        }}
-                        className="w-50"
+                        onClick={() => window.location.href="/admin/config/map"}
+                        className="cancel-btn"
                     >
                         Cancel
                     </Button>
