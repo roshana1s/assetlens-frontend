@@ -16,6 +16,7 @@ const ChatBot = () => {
                 const response = await axios.get(
                     `http://localhost:8000/chat/1/chat-history/${user_id}`
                 );
+                
                 setMessages(response.data);
             } catch (error) {
                 console.error("Error fetching chat history:", error);
@@ -42,20 +43,33 @@ const ChatBot = () => {
 
         // Add user message
         const userMsg = {
-            sender: "user",
-            text: newMessage,
+            type: "user",
+            message: newMessage,
         };
         setMessages([...messages, userMsg]);
-        setNewMessage("");
 
-        // Simulate bot response after 1 second
-        setTimeout(() => {
-            const botMsg = {
-                sender: "bot",
-                text: "I'll analyze the manifestos and provide you with a comparison shortly.",
-            };
-            setMessages((prev) => [...prev, botMsg]);
-        }, 1000);
+        // Send message to the agent
+        const sendMessage = async (message) => {
+            try {
+                console.log(message);
+                const response = await axios.post(
+                    "http://localhost:8000/chat/1/chatbot/u0003",
+                    {
+                        user_query: message,
+                    }
+                );
+                const botMsg = {
+                    type: "AssetLens Virtual Assistant",
+                    message: response.data.answer,
+                }
+                setMessages((prev) => [...prev, botMsg]);
+            } catch (error) {
+                console.error("Error sending message:", error);
+            }
+        };
+
+        sendMessage(newMessage);
+        setNewMessage("");
     };
 
     return (
@@ -65,7 +79,7 @@ const ChatBot = () => {
                     <div className="chatbot-header">
                         <div className="chatbot-title">
                             <FaRobot className="chatbot-icon" />
-                            <span>Election Assistant</span>
+                            <span>AssetLens Virtual Assistant</span>
                         </div>
                         <button className="close-btn" onClick={toggleChat}>
                             <FaTimes />
@@ -79,13 +93,13 @@ const ChatBot = () => {
                             <div
                                 key={index}
                                 className={`message ${
-                                    message.sender === "bot"
-                                        ? "bot-message"
-                                        : "user-message"
+                                    message.type === "user"
+                                        ? "user-message"
+                                        : "bot-message"
                                 }`}
                             >
                                 <div className="message-content">
-                                    {message.text}
+                                    {message.message}
                                 </div>
                             </div>
                         ))}
