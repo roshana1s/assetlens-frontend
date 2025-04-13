@@ -55,7 +55,7 @@ export const createUser = async (orgId, userData) => {
       name: userData.name,
       role_id: userData.role_id,  // Changed from 'void_id' to 'role_id'
       image_link: userData.image_link || '',  // Changed from 'image_list' to 'image_link'
-      assigned_assets: userData.assets||userData.selectedAssets || []
+      assigned_assets: userData.assets ||userData.selectedAseets || []
     };
 
     console.log('Final Payload:', payload);

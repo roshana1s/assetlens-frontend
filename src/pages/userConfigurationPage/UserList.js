@@ -13,6 +13,7 @@ const UserList = ({ orgId = 1 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [notification, setNotification] = useState(null);
   const [allAssets, setAllAssets] = useState([]);
+  const [showAddForm, setShowAddForm] = useState(false);
   
   // Modal states
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -114,43 +115,43 @@ const UserList = ({ orgId = 1 }) => {
 
   // Add new role handler
   const handleAddRole = async () => {
-  const roleName = newRoleName.trim();
+    const roleName = newRoleName.trim();
 
-  // Client-side validation
-  if (!roleName) {
-    setNotification({ type: 'error', message: 'Role name cannot be empty' });
-    return;
-  }
+    // Client-side validation
+    if (!roleName) {
+      setNotification({ type: 'error', message: 'Role name cannot be empty' });
+      return;
+    }
 
-  if (roleName.length < 3) {
-    setNotification({ type: 'error', message: 'Minimum 3 characters required' });
-    return;
-  }
+    if (roleName.length < 3) {
+      setNotification({ type: 'error', message: 'Minimum 3 characters required' });
+      return;
+    }
 
-  try {
-    const result = await createRole(orgId, roleName);
-    
-    // Update UI
-    setRoles(prev => [...prev, {
-      role_id: result.role_id || `new-${Date.now()}`,
-      role_name: roleName,
-      is_admin: false,
-      is_deleted: false
-    }]);
-    
-    setNotification({ type: 'success', message: `Created role: ${roleName}` });
-    setNewRoleName('');
-    setShowAddForm(false);
-    
-  } catch (error) {
-    setNotification({
-      type: 'error',
-      message: error.message.includes('format') 
-        ? 'Backend rejected the role data format'
-        : error.message
-    });
-  }
-};
+    try {
+      const result = await createRole(orgId, roleName);
+      
+      // Update UI
+      setRoles(prev => [...prev, {
+        role_id: result.role_id || `new-${Date.now()}`,
+        role_name: roleName,
+        is_admin: false,
+        is_deleted: false
+      }]);
+      
+      setNotification({ type: 'success', message: `Created role: ${roleName}` });
+      setNewRoleName('');
+      setShowAddForm(false);
+      
+    } catch (error) {
+      setNotification({
+        type: 'error',
+        message: error.message.includes('format') 
+          ? 'Backend rejected the role data format'
+          : error.message
+      });
+    }
+  };
 
   // Delete role handler
   const handleDeleteRole = async (roleId) => {
@@ -344,13 +345,15 @@ const UserList = ({ orgId = 1 }) => {
     }
 
     try {
+      // Fix: Ensure we're using the correct property name for assets
       const response = await createUser(orgId, {
         name: addForm.name,
         email: addForm.email,
         password: addForm.password,
         role_id: addForm.role_id,
         image_link: addForm.image_link,
-        assets: addForm.selectedAssets
+        assets: addForm.selectedAssets, // Key fix: Ensure the assets are properly provided
+        assigned_assets: addForm.selectedAssets // Adding this as backup since API might check both
       });
 
       // Success handling
@@ -572,9 +575,6 @@ const UserList = ({ orgId = 1 }) => {
               </div>
               
               <div className="modern-add-role">
-                <button className="modern-add-role-btn" onClick={handleAddRole}>
-                  <span className="add-icon">+</span> Add Role
-                </button>
                 <input
                   type="text"
                   placeholder="Enter new role name"
@@ -582,6 +582,9 @@ const UserList = ({ orgId = 1 }) => {
                   onChange={(e) => setNewRoleName(e.target.value)}
                   className="modern-role-input"
                 />
+                <button className="modern-add-role-btn" onClick={handleAddRole}>
+                  <span className="add-icon">+</span> Add Role
+                </button>
               </div>
             </div>
           </div>
@@ -770,80 +773,80 @@ const UserList = ({ orgId = 1 }) => {
                 />
               </div>
               <div className="form-group">
-              <label>Email (main)</label>
-              <input
-                type="email"
-                value={addForm.email}
-                onChange={(e) => setAddForm({...addForm, email: e.target.value})}
-                className="modal-input"
-                placeholder="user@example.com"
-              />
-            </div>
+                <label>Email (main)</label>
+                <input
+                  type="email"
+                  value={addForm.email}
+                  onChange={(e) => setAddForm({...addForm, email: e.target.value})}
+                  className="modal-input"
+                  placeholder="user@example.com"
+                />
+              </div>
               <div className="form-group">
-              <label>Role (void_id)</label>
-              <select
-                value={addForm.role_id}
-                onChange={(e) => setAddForm({...addForm, role_id: e.target.value})}
-                className="modal-input"
-                required
-              >
-                <option value="">Select a role</option>
-                {roles.map(role => (
-                  <option key={role.role_id} value={role.role_id}>
-                    {role.role_name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <label>Role (void_id)</label>
+                <select
+                  value={addForm.role_id}
+                  onChange={(e) => setAddForm({...addForm, role_id: e.target.value})}
+                  className="modal-input"
+                  required
+                >
+                  <option value="">Select a role</option>
+                  {roles.map(role => (
+                    <option key={role.role_id} value={role.role_id}>
+                      {role.role_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-              {/* New Assets Section in Add User Form */}
+              {/* Assets Section in Add User Form */}
               <div className="assets-section">
-              <h3 className="section-title">Assign Assets</h3>
-              <div className="assets-checkbox-container">
-                {allAssets.length > 0 ? (
-                  <div className="asset-checkboxes">
-                    {allAssets.map(asset => (
-                      <div key={asset.id} className="asset-checkbox-item">
-                        <input
-                          type="checkbox"
-                          id={`asset-${asset.id}`}
-                          checked={addForm.selectedAssets.includes(asset.id)}
-                          onChange={() => handleAddAssetChange(asset.id)}
-                          className="asset-checkbox"
-                        />
-                        <label htmlFor={`asset-${asset.id}`}>{asset.name}</label>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="no-assets-message">No assets available</p>
-                )}
+                <h3 className="section-title">Assign Assets</h3>
+                <div className="assets-checkbox-container">
+                  {allAssets.length > 0 ? (
+                    <div className="asset-checkboxes">
+                      {allAssets.map(asset => (
+                        <div key={asset.id} className="asset-checkbox-item">
+                          <input
+                            type="checkbox"
+                            id={`asset-${asset.id}`}
+                            checked={addForm.selectedAssets.includes(asset.id)}
+                            onChange={() => handleAddAssetChange(asset.id)}
+                            className="asset-checkbox"
+                          />
+                          <label htmlFor={`asset-${asset.id}`}>{asset.name}</label>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-assets-message">No assets available</p>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="image-upload-section">
-              <label>Profile Image (image_list)</label>
-              <div 
-                className="image-drop-zone"
-                onClick={() => fileInputRef.current.click()}
-              >
-                {addForm.image_link ? (
-                  <img src={addForm.image_link} alt="Preview" className="preview-image" />
-                ) : (
-                  <>
-                    <div className="drop-icon">+</div>
-                    <p>Drop image here</p>
-                    <p>PNG/JPEG, Max 20MB</p>
-                  </>
-                )}
+              <div className="image-upload-section">
+                <label>Profile Image (image_list)</label>
+                <div 
+                  className="image-drop-zone"
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  {addForm.image_link ? (
+                    <img src={addForm.image_link} alt="Preview" className="preview-image" />
+                  ) : (
+                    <>
+                      <div className="drop-icon">+</div>
+                      <p>Drop image here</p>
+                      <p>PNG/JPEG, Max 20MB</p>
+                    </>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={(e) => handleImageUpload(e, 'add')}
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                />
               </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={(e) => handleImageUpload(e, 'add')}
-                accept="image/*"
-                style={{ display: 'none' }}
-              />
-            </div>
 
 
               <div className="add-modal-actions">
