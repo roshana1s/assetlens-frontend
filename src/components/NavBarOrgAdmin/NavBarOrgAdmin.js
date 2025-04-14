@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./NavBar.css";
+import "./NavBarOrgAdmin.css";
 
-const NavBar = () => {
+const NavBarOrgAdmin = () => {
     const [showAlerts, setShowAlerts] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
 
@@ -230,4 +230,4 @@ const NavBar = () => {
     );
 };
 
-export default NavBar;
+export default NavBarOrgAdmin;
