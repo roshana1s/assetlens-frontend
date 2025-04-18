@@ -1,0 +1,73 @@
+/* Outer container */
+.floor-details-panel {
+    position: relative;
+    width: 25%;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+    margin: 8px 0 8px 8px;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header text (static) */
+.header-text {
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+/* Scrollable content */
+.scrollable-content {
+  flex: 1; /* Take up remaining space between header and buttons */
+  overflow-y: auto; /* Enable vertical scrolling */
+  padding-right: 8px; /* Add padding for scrollbar */
+}
+
+/* Form group styling */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.combobox {
+  width: 100%;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.apply-filters-btn{
+  margin-top: 20px;
+}
+
+/* Date and time group */
+.date-time-group {
+  display: flex;
+  gap: 5px; /* Add spacing between date and time inputs */
+}
+
+.date-time-group > div {
+  flex: 1; /* Ensure both date and time inputs take equal width */
+  display: flex;
+  flex-direction: column; /* Stack label and input vertically */
+}
+
+.date-time-group > div label {
+  margin-bottom: 8px; /* Add spacing between label and input */
+  font-weight: bold; /* Make the label bold for better visibility */
+}
+
