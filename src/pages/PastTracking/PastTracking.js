@@ -5,10 +5,12 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import "./PastTracking.css";
 import Button from "react-bootstrap/Button";
-import DrawMap from "../../components/DrawMap/DrawMap";
+import DrawMapWithAssets from "../../components/DrawMapWithAssets/DrawMapWithAssets";
+import {toast, ToastContainer} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const PastTracking = () => {
-    const [floorId, setFloorId] = useState("ALL");
+    const [floorId, setFloorId] = useState("");
     const [zoneId, setZoneId] = useState("ALL");
     const [assetId, setAssetId] = useState("ALL");
     const [startDate, setStartDate] = useState(null);
@@ -20,74 +22,77 @@ const PastTracking = () => {
 
     const [locations, setLocations] = useState([]);
 
+    const [mapDetails, setMapDetails] = useState({});
+
     useEffect(() => {
-        // Fetch initial filter details from the API
-        const fetchInitialFilterDetails = async () => {
+        const fetchDataAndFilters = async (org_id) => {
             try {
-                const response = await axios.get(
+                // Fetch map details
+                const mapResponse = await axios.get(
+                    `http://localhost:8000/maps/${org_id}/get-map`
+                );
+
+                setMapDetails(mapResponse.data);
+
+                // Fetch initial filter details
+                const filterResponse = await axios.get(
                     `http://localhost:8000/past-tracking/1/u0003/get-past-tracking-filters-initial`
                 );
-                setInitialFilterDetails(response.data);
+                setInitialFilterDetails(filterResponse.data);
+            } catch (err) {
+                console.error("Error fetching data:", err.message);
+            }
+        };
 
-                // Make the first API call with default filters
-                const defaultFilters = {
-                    floor_id: "ALL",
-                    zone_id: "ALL",
-                    asset_id: "ALL",
-                    start_date: null,
-                    start_time: null,
-                    end_date: null,
-                    end_time: null,
-                };
-                
-                fetchLocations(defaultFilters);
+        fetchDataAndFilters(1); // Pass the organization ID (e.g., 1)
+    }, []);
+
+    // Fetch locations based on filters
+    const fetchLocations = async (filters) => {
+        try {
+            const response = await axios.post(
+                `http://localhost:8000/past-tracking/1/past-tracking-locations`,
+                filters
+            );
+            setLocations(response.data);
+            console.log("Locations:", response.data);
         } catch (error) {
-            console.error("Error fetching initial filter details:", error);
+            console.error("Error fetching locations:", error);
         }
     };
 
-    fetchInitialFilterDetails();
-}, []);
+    const handleSubmit = () => {
+        if (!floorId) {
+            toast.error("Please select a floor");
+            return;
+        }
 
-// Fetch locations based on filters
-const fetchLocations = async (filters) => {
-    try {
-        const response = await axios.post(
-            `http://localhost:8000/past-tracking/1/past-tracking-locations`,
-            filters
-        );
-        setLocations(response.data);
-        console.log("Locations:", response.data);
-    } catch (error) {
-        console.error("Error fetching locations:", error);
-    }
-};
+        const filterData = {
+            floor_id: floorId,
+            zone_id: zoneId,
+            asset_id: assetId,
+            start_date: startDate
+                ? startDate.toISOString().split("T")[0]
+                : null, // Convert to 'YYYY-MM-DD'
+            start_time: startTime ? `${startTime}:00` : null, // Append seconds for Python time object
+            end_date: endDate ? endDate.toISOString().split("T")[0] : null, // Convert to 'YYYY-MM-DD'
+            end_time: endTime ? `${endTime}:00` : null, // Append seconds for Python time object
+        };
 
-const handleSubmit = () => {
-    const filterData = {
-        floor_id: floorId,
-        zone_id: zoneId,
-        asset_id: assetId,
-        start_date: startDate ? startDate.toISOString().split("T")[0] : null, // Convert to 'YYYY-MM-DD'
-        start_time: startTime ? `${startTime}:00` : null, // Append seconds for Python time object
-        end_date: endDate ? endDate.toISOString().split("T")[0] : null, // Convert to 'YYYY-MM-DD'
-        end_time: endTime ? `${endTime}:00` : null, // Append seconds for Python time object
+        console.log("Filter Data:", filterData);
+
+        // Call the API with the filter data
+        fetchLocations(filterData);
     };
-
-    console.log("Filter Data:", filterData);
-
-    // Call the API with the filter data
-    fetchLocations(filterData);
-};
 
     const matchedFloor = (initialFilterDetails.floors || []).find(
         (floor) => floor.floor_id === floorId
     );
 
-    console.log(zoneId);
     return (
         <div style={{ display: "flex" }}>
             {/* Left Panel */}
+            <ToastContainer position="top-right" autoClose={3000} />
             <div className="floor-details-panel">
                 <span className="header-text">
                     <svg
@@ -111,10 +116,9 @@ const handleSubmit = () => {
                     <div className="form-group">
                         <label htmlFor="floor-select">Select Floor</label>
                         <Combobox
+                            placeholder="Select Floor"
                             id="floor-select"
-                            defaultValue={"ALL"}
                             data={[
-                                "ALL",
                                 ...(initialFilterDetails.floors || []).map(
                                     (floor) => floor.floorName
                                 ),
@@ -123,7 +127,7 @@ const handleSubmit = () => {
                                 setFloorId(
                                     initialFilterDetails.floors?.find(
                                         (floor) => floor.floorName === value
-                                    )?.floor_id || "ALL"
+                                    )?.floor_id
                                 )
                             }
                         />
@@ -231,7 +235,20 @@ const handleSubmit = () => {
                     Apply Filters
                 </Button>
             </div>
-            <DrawMap zones={[]} />
+            <DrawMapWithAssets
+                zones={
+                    floorId !== ""
+                        ? mapDetails.find((floor) => floor.floor_id === floorId)
+                              ?.zones || []
+                        : []
+                }
+                assetLocations={locations.flatMap((location) =>
+                    location.locations.map((loc) => ({
+                        asset_id: loc.asset_id,
+                        coordinate: loc.coordinate,
+                    }))
+                )}
+            />
         </div>
     );
 };
