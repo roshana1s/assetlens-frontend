@@ -6,8 +6,16 @@ import axios from "axios";
 import "./PastTracking.css";
 import Button from "react-bootstrap/Button";
 import DrawMapWithAssets from "../../components/DrawMapWithAssets/DrawMapWithAssets";
-import {toast, ToastContainer} from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+    BsSkipStartFill,
+    BsChevronLeft,
+    BsPlayFill,
+    BsPauseFill,
+    BsChevronRight,
+    BsSkipEndFill,
+} from "react-icons/bs";
 
 const PastTracking = () => {
     const [floorId, setFloorId] = useState("");
@@ -19,22 +27,19 @@ const PastTracking = () => {
     const [endTime, setEndTime] = useState(null);
 
     const [initialFilterDetails, setInitialFilterDetails] = useState({});
-
-    const [locations, setLocations] = useState([]);
-
+    const [timelineFrames, setTimelineFrames] = useState([]);
+    const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
     const [mapDetails, setMapDetails] = useState({});
 
     useEffect(() => {
         const fetchDataAndFilters = async (org_id) => {
             try {
-                // Fetch map details
                 const mapResponse = await axios.get(
                     `http://localhost:8000/maps/${org_id}/get-map`
                 );
-
                 setMapDetails(mapResponse.data);
 
-                // Fetch initial filter details
                 const filterResponse = await axios.get(
                     `http://localhost:8000/past-tracking/1/u0003/get-past-tracking-filters-initial`
                 );
@@ -44,18 +49,37 @@ const PastTracking = () => {
             }
         };
 
-        fetchDataAndFilters(1); // Pass the organization ID (e.g., 1)
+        fetchDataAndFilters(1);
     }, []);
 
-    // Fetch locations based on filters
+    useEffect(() => {
+        let interval;
+        if (isPlaying) {
+            interval = setInterval(() => {
+                setCurrentFrameIndex((prev) => {
+                    if (prev >= timelineFrames.length - 1) {
+                        setIsPlaying(false);
+                        return prev;
+                    }
+                    return prev + 1;
+                });
+            }, 2000);
+        }
+        return () => clearInterval(interval);
+    }, [isPlaying, timelineFrames.length]);
+
     const fetchLocations = async (filters) => {
         try {
             const response = await axios.post(
                 `http://localhost:8000/past-tracking/1/past-tracking-locations`,
                 filters
             );
-            setLocations(response.data);
-            console.log("Locations:", response.data);
+            const sortedFrames = response.data.sort(
+                (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+            );
+            setTimelineFrames(sortedFrames);
+            setCurrentFrameIndex(0);
+            setIsPlaying(false);
         } catch (error) {
             console.error("Error fetching locations:", error);
         }
@@ -71,17 +95,12 @@ const PastTracking = () => {
             floor_id: floorId,
             zone_id: zoneId,
             asset_id: assetId,
-            start_date: startDate
-                ? startDate.toISOString().split("T")[0]
-                : null, // Convert to 'YYYY-MM-DD'
-            start_time: startTime ? `${startTime}:00` : null, // Append seconds for Python time object
-            end_date: endDate ? endDate.toISOString().split("T")[0] : null, // Convert to 'YYYY-MM-DD'
-            end_time: endTime ? `${endTime}:00` : null, // Append seconds for Python time object
+            start_date: startDate?.toISOString().split("T")[0],
+            start_time: startTime ? `${startTime}:00` : null,
+            end_date: endDate?.toISOString().split("T")[0],
+            end_time: endTime ? `${endTime}:00` : null,
         };
 
-        console.log("Filter Data:", filterData);
-
-        // Call the API with the filter data
         fetchLocations(filterData);
     };
 
@@ -89,9 +108,13 @@ const PastTracking = () => {
         (floor) => floor.floor_id === floorId
     );
 
+    const currentFrame = timelineFrames[currentFrameIndex] || {};
+    const currentTimestamp = currentFrame.timestamp
+        ? new Date(currentFrame.timestamp).toLocaleString()
+        : "No data available";
+
     return (
         <div style={{ display: "flex" }}>
-            {/* Left Panel */}
             <ToastContainer position="top-right" autoClose={3000} />
             <div className="floor-details-panel">
                 <span className="header-text">
@@ -111,122 +134,188 @@ const PastTracking = () => {
                     <span className="ms-2">Past Tracking</span>
                 </span>
 
-                {/* Scrollable Content */}
                 <div className="scrollable-content">
-                    <div className="form-group">
-                        <label htmlFor="floor-select">Select Floor</label>
-                        <Combobox
-                            placeholder="Select Floor"
-                            id="floor-select"
-                            data={[
-                                ...(initialFilterDetails.floors || []).map(
-                                    (floor) => floor.floorName
-                                ),
-                            ]}
-                            onChange={(value) =>
-                                setFloorId(
-                                    initialFilterDetails.floors?.find(
-                                        (floor) => floor.floorName === value
-                                    )?.floor_id
-                                )
-                            }
-                        />
-                    </div>
-
-                    {/* Zone Combobox */}
-                    <div className="form-group">
-                        <label htmlFor="zone-select">Select Zone</label>
-
-                        <Combobox
-                            id="zone-select"
-                            defaultValue={"ALL"}
-                            data={[
-                                "ALL",
-                                ...(matchedFloor?.zones || []).map(
-                                    (zone) => zone.name
-                                ),
-                            ]}
-                            onChange={(value) =>
-                                setZoneId(
-                                    matchedFloor?.zones?.find(
-                                        (zone) => zone.name === value
-                                    )?.zone_id || "ALL"
-                                )
-                            }
-                        />
-                    </div>
-
-                    {/* Asset Combobox */}
-                    <div className="form-group">
-                        <label htmlFor="asset-select">Select Asset</label>
-                        <Combobox
-                            id="asset-select"
-                            defaultValue={"ALL"}
-                            data={[
-                                "ALL",
-                                ...(initialFilterDetails.assets || []).map(
-                                    (asset) => asset.name
-                                ),
-                            ]}
-                            onChange={(value) =>
-                                setAssetId(
-                                    initialFilterDetails.assets?.find(
-                                        (asset) => asset.name === value
-                                    )?.asset_id || "ALL"
-                                )
-                            }
-                        />
-                    </div>
-
-                    {/* Start Date and Time */}
-                    <div className="form-group date-time-group">
-                        <div>
-                            <label htmlFor="start-date">Start Date</label>
-                            <DatePicker
-                                id="start-date"
-                                selected={startDate}
-                                onChange={(date) => setStartDate(date)}
-                                className="form-control"
-                                placeholderText="Select Start Date"
+                    {/* Scrollable Content */}
+                    <div className="scrollable-content">
+                        <div className="form-group">
+                            <label htmlFor="floor-select">Select Floor</label>
+                            <Combobox
+                                placeholder="Select Floor"
+                                id="floor-select"
+                                data={[
+                                    ...(initialFilterDetails.floors || []).map(
+                                        (floor) => floor.floorName
+                                    ),
+                                ]}
+                                onChange={(value) =>
+                                    setFloorId(
+                                        initialFilterDetails.floors?.find(
+                                            (floor) => floor.floorName === value
+                                        )?.floor_id
+                                    )
+                                }
                             />
                         </div>
-                        <div>
-                            <label htmlFor="start-time">Start Time</label>
-                            <input
-                                id="start-time"
-                                type="time"
-                                className="form-control"
-                                value={startTime || ""}
-                                onChange={(e) => setStartTime(e.target.value)}
-                            />
-                        </div>
-                    </div>
 
-                    {/* End Date and Time */}
-                    <div className="form-group date-time-group">
-                        <div>
-                            <label htmlFor="end-date">End Date</label>
-                            <DatePicker
-                                id="end-date"
-                                selected={endDate}
-                                onChange={(date) => setEndDate(date)}
-                                className="form-control"
-                                placeholderText="Select End Date"
+                        {/* Zone Combobox */}
+                        <div className="form-group">
+                            <label htmlFor="zone-select">Select Zone</label>
+
+                            <Combobox
+                                id="zone-select"
+                                defaultValue={"ALL"}
+                                data={[
+                                    "ALL",
+                                    ...(matchedFloor?.zones || []).map(
+                                        (zone) => zone.name
+                                    ),
+                                ]}
+                                onChange={(value) =>
+                                    setZoneId(
+                                        matchedFloor?.zones?.find(
+                                            (zone) => zone.name === value
+                                        )?.zone_id || "ALL"
+                                    )
+                                }
                             />
                         </div>
-                        <div>
-                            <label htmlFor="end-time">End Time</label>
-                            <input
-                                id="end-time"
-                                type="time"
-                                className="form-control"
-                                value={endTime || ""}
-                                onChange={(e) => setEndTime(e.target.value)}
+
+                        {/* Asset Combobox */}
+                        <div className="form-group">
+                            <label htmlFor="asset-select">Select Asset</label>
+                            <Combobox
+                                id="asset-select"
+                                defaultValue={"ALL"}
+                                data={[
+                                    "ALL",
+                                    ...(initialFilterDetails.assets || []).map(
+                                        (asset) => asset.name
+                                    ),
+                                ]}
+                                onChange={(value) =>
+                                    setAssetId(
+                                        initialFilterDetails.assets?.find(
+                                            (asset) => asset.name === value
+                                        )?.asset_id || "ALL"
+                                    )
+                                }
                             />
+                        </div>
+
+                        {/* Start Date and Time */}
+                        <div className="form-group date-time-group">
+                            <div>
+                                <label htmlFor="start-date">Start Date</label>
+                                <DatePicker
+                                    id="start-date"
+                                    selected={startDate}
+                                    onChange={(date) => setStartDate(date)}
+                                    className="form-control"
+                                    placeholderText="Select Start Date"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="start-time">Start Time</label>
+                                <input
+                                    id="start-time"
+                                    type="time"
+                                    className="form-control"
+                                    value={startTime || ""}
+                                    onChange={(e) =>
+                                        setStartTime(e.target.value)
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        {/* End Date and Time */}
+                        <div className="form-group date-time-group">
+                            <div>
+                                <label htmlFor="end-date">End Date</label>
+                                <DatePicker
+                                    id="end-date"
+                                    selected={endDate}
+                                    onChange={(date) => setEndDate(date)}
+                                    className="form-control"
+                                    placeholderText="Select End Date"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="end-time">End Time</label>
+                                <input
+                                    id="end-time"
+                                    type="time"
+                                    className="form-control"
+                                    value={endTime || ""}
+                                    onChange={(e) => setEndTime(e.target.value)}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
-                {/* Submit Button */}
+
+                <div className="timeline-controls">
+                    <div className="current-time mb-3">{currentTimestamp}</div>
+
+                    <div className="controls-group">
+                        <Button
+                            variant="outline-primary"
+                            onClick={() => setCurrentFrameIndex(0)}
+                            disabled={currentFrameIndex === 0}
+                        >
+                            <BsSkipStartFill />
+                        </Button>
+                        <Button
+                            variant="outline-primary"
+                            onClick={() =>
+                                setCurrentFrameIndex(
+                                    Math.max(currentFrameIndex - 1, 0)
+                                )
+                            }
+                            disabled={currentFrameIndex === 0}
+                        >
+                            <BsChevronLeft />
+                        </Button>
+                        <Button
+                            variant={isPlaying ? "danger" : "success"}
+                            onClick={() => setIsPlaying(!isPlaying)}
+                            disabled={
+                                timelineFrames.length === 0 ||
+                                currentFrameIndex >= timelineFrames.length - 1
+                            }
+                        >
+                            {isPlaying ? <BsPauseFill /> : <BsPlayFill />}
+                        </Button>
+                        <Button
+                            variant="outline-primary"
+                            onClick={() =>
+                                setCurrentFrameIndex(
+                                    Math.min(
+                                        currentFrameIndex + 1,
+                                        timelineFrames.length - 1
+                                    )
+                                )
+                            }
+                            disabled={
+                                currentFrameIndex >= timelineFrames.length - 1
+                            }
+                        >
+                            <BsChevronRight />
+                        </Button>
+                        <Button
+                            variant="outline-primary"
+                            onClick={() =>
+                                setCurrentFrameIndex(timelineFrames.length - 1)
+                            }
+                            disabled={
+                                currentFrameIndex >= timelineFrames.length - 1
+                            }
+                        >
+                            <BsSkipEndFill />
+                        </Button>
+                    </div>
+                </div>
+
                 <Button
                     variant="primary"
                     className="apply-filters-btn"
@@ -235,6 +324,7 @@ const PastTracking = () => {
                     Apply Filters
                 </Button>
             </div>
+
             <DrawMapWithAssets
                 zones={
                     floorId !== ""
@@ -242,12 +332,7 @@ const PastTracking = () => {
                               ?.zones || []
                         : []
                 }
-                assetLocations={locations.flatMap((location) =>
-                    location.locations.map((loc) => ({
-                        asset_id: loc.asset_id,
-                        coordinate: loc.coordinate,
-                    }))
-                )}
+                assetLocations={currentFrame.locations || []}
             />
         </div>
     );

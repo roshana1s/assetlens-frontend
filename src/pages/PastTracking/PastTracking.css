@@ -13,7 +13,7 @@
 
 /* Header text (static) */
 .header-text {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   font-size: 1.2rem;
   font-weight: bold;
   color: #333;
@@ -50,10 +50,6 @@
   border: 1px solid #ccc;
 }
 
-.apply-filters-btn{
-  margin-top: 20px;
-}
-
 /* Date and time group */
 .date-time-group {
   display: flex;
@@ -71,3 +67,40 @@
   font-weight: bold; /* Make the label bold for better visibility */
 }
 
+/* Timeline controls */
+.timeline-controls {
+  margin-top: 15px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.current-time {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+}
+
+.controls-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.controls-group button {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Adjust existing styles for new layout */
+.scrollable-content {
+  max-height: 80vh; /* Limit height to make space for timeline controls */
+}
+
+.apply-filters-btn {
+  margin-top: 8px;
+  width: 100%;
+}
