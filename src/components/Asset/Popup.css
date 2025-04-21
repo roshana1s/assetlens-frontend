@@ -1,0 +1,64 @@
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .popup-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    min-width: 300px;
+    text-align: center;
+    position: relative;
+  }
+  
+  .close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.7rem;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .popup-buttons {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .confirm-btn,
+  .cancel-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .confirm-btn {
+    background-color: red;
+    color: white;
+  }
+  
+  .cancel-btn {
+    background-color: grey;
+    color: white;
+  }
+  
+  input {
+    width: 100%;
+    padding: 0.4rem;
+    margin-top: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  

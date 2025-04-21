@@ -1,12 +1,9 @@
-import "./App.css";
-import AppRouter from "./AppRoutes";
+import React from "react";
+import AppRoutes from "./AppRoutes";
+import "./App.css"; 
 
-const App = () => {
-    return (
-        <div className="App">
-            <AppRouter />
-        </div>
-    );
-};
+function App() {
+  return <AppRoutes />;
+}
 
 export default App;
