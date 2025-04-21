@@ -15,7 +15,7 @@ import ForgotPassword from "./pages/LoginPage/ForgotPassword";
 import ResetPassword from "./pages/LoginPage/ResetPassword";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import HeatmapPage from "./pages/Dashboard/Heatmap/HeatmapPage";
-
+import ProfilePage from "./pages/ProfilePage/ProfilePage"; 
 
 const AppRouter = () => {
   return (
@@ -30,7 +30,7 @@ const AppRouter = () => {
           <Route path="place-order" element={<PlaceOrderPage />} />
         </Route>
 
-        {/* AssetLens Admin Routes  */}
+        {/* AssetLens Admin Routes */}
         <Route
           path="/dashboard/assetlens"
           element={
@@ -40,6 +40,7 @@ const AppRouter = () => {
           }
         >
           <Route index element={<AssetLensAdminDashboard />} />
+          <Route path="profile" element={<ProfilePage />} /> 
         </Route>
 
         {/* Organization Admin Routes */}
@@ -56,6 +57,7 @@ const AppRouter = () => {
         >
           <Route index element={<OrgAdminDashboard />} />
           <Route path="heatmap" element={<HeatmapPage />} />
+          <Route path="profile" element={<ProfilePage />} /> 
         </Route>
 
         {/* Organization User Routes */}
@@ -63,14 +65,15 @@ const AppRouter = () => {
           path="/dashboard/org/:orgId/user"
           element={
             <ProtectedRoute 
-            requiredRole={["user"]}
-            orgAccess={true}>
-              
+              requiredRole={["user"]}
+              orgAccess={true}
+            >
               <OrgUserLayout />
             </ProtectedRoute>
           }
         >
           <Route index element={<OrgUserDashboard />} />
+          <Route path="profile" element={<ProfilePage />} /> 
         </Route>
 
         {/* Error Pages */}
