@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaRobot, FaTimes, FaPaperPlane } from "react-icons/fa";
 import axios from "axios";
 import "./ChatBot.css";
+import parse from "html-react-parser";
 
 const ChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +17,7 @@ const ChatBot = () => {
                 const response = await axios.get(
                     `http://localhost:8000/chat/1/chat-history/${user_id}`
                 );
-                
+
                 setMessages(response.data);
             } catch (error) {
                 console.error("Error fetching chat history:", error);
@@ -61,7 +62,7 @@ const ChatBot = () => {
                 const botMsg = {
                     type: "AssetLens Virtual Assistant",
                     message: response.data.answer,
-                }
+                };
                 setMessages((prev) => [...prev, botMsg]);
             } catch (error) {
                 console.error("Error sending message:", error);
@@ -99,7 +100,7 @@ const ChatBot = () => {
                                 }`}
                             >
                                 <div className="message-content">
-                                    {message.message}
+                                    {parse(message.message)}
                                 </div>
                             </div>
                         ))}

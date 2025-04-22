@@ -8,6 +8,7 @@
     "bootstrap": "^5.3.5",
     "cra-template": "1.2.0",
     "fabric": "^6.5.4",
+    "html-react-parser": "^5.2.3",
     "leaflet": "^1.9.4",
     "leaflet-rotate": "^0.2.8",
     "react": "^19.0.0",
