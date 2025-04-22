@@ -7,9 +7,9 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
     name: asset.name || "",
     category_id: asset.category?.category_id || "",
     RFID: asset.RFID || "",
-    assigned_to: asset.assigned_to?.map(u => u.user_id) || [],
-    bound_to_zone: asset.bound_to_zone?.map(z => z.zone_id) || [],
-    image_link: asset.image_link || ""
+    assigned_to: asset.assigned_to?.map((u) => u.user_id) || [],
+    bound_to_zone: asset.bound_to_zone?.map((z) => z.zone_id) || [],
+    image_link: asset.image_link || "",
   });
 
   const [categories, setCategories] = useState([]);
@@ -31,7 +31,11 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
         setCategories(catRes.data);
         setUsers(userRes.data.data || userRes.data);
         const zonesData = mapRes.data.data || mapRes.data;
-        setZones(Array.isArray(zonesData) ? zonesData.flatMap(floor => floor.zones || []) : []);
+        setZones(
+          Array.isArray(zonesData)
+            ? zonesData.flatMap((floor) => floor.zones || [])
+            : []
+        );
       } catch (err) {
         console.error("Failed loading metadata:", err);
       }
@@ -43,47 +47,49 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.match('image.*')) {
-      setError("Please select an image file (JPEG, PNG, etc.)");
+    if (!file.type.match("image.*")) {
+      setError("Only image files are allowed");
       return;
     }
+
     if (file.size > 5 * 1024 * 1024) {
-      setError("Image size must be less than 5MB");
+      setError("Image size should be less than 5MB");
       return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData((prev) => ({
+        ...prev,
+        image_link: reader.result,
+      }));
+    };
+    reader.readAsDataURL(file);
     setImageFile(file);
     setError(null);
   };
 
-  const uploadToImgur = async (file) => {
-    try {
-      const imgData = new FormData();
-      imgData.append("image", file);
-      const res = await axios.post("https://api.imgur.com/3/image", imgData, {
-        headers: {
-          Authorization: "Client-ID YOUR_IMGUR_CLIENT_ID",
-        },
-      });
-      return res.data.data.link;
-    } catch (err) {
-      console.error("Imgur upload failed:", err);
-      throw new Error("Failed to upload image.");
-    }
+  const removeImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      image_link: "",
+    }));
+    setImageFile(null);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleMultiSelect = (e, fieldName) => {
-    const selected = Array.from(e.target.selectedOptions, opt => opt.value);
-    setFormData(prev => ({
+    const selected = Array.from(e.target.selectedOptions, (opt) => opt.value);
+    setFormData((prev) => ({
       ...prev,
-      [fieldName]: selected
+      [fieldName]: selected,
     }));
   };
 
@@ -92,34 +98,32 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
     setLoading(true);
 
     try {
-      let imageUrl = formData.image_link;
-      if (imageFile) {
-        imageUrl = await uploadToImgur(imageFile);
-      }
-
       const payload = {};
 
       if (formData.name && formData.name !== asset.name) payload.name = formData.name;
-      if (formData.category_id && formData.category_id !== asset.category?.category_id)
+      if (
+        formData.category_id &&
+        formData.category_id !== asset.category?.category_id
+      )
         payload.category_id = formData.category_id;
       if (formData.RFID && formData.RFID !== asset.RFID) payload.RFID = formData.RFID;
 
       if (
         JSON.stringify(formData.assigned_to) !==
-        JSON.stringify(asset.assigned_to?.map(u => u.user_id))
+        JSON.stringify(asset.assigned_to?.map((u) => u.user_id))
       ) {
         payload.assigned_to = formData.assigned_to;
       }
 
       if (
         JSON.stringify(formData.bound_to_zone) !==
-        JSON.stringify(asset.bound_to_zone?.map(z => z.zone_id))
+        JSON.stringify(asset.bound_to_zone?.map((z) => z.zone_id))
       ) {
         payload.bound_to_zone = formData.bound_to_zone;
       }
 
-      if (imageFile || imageUrl !== asset.image_link) {
-        payload.image_link = imageUrl;
+      if (formData.image_link !== asset.image_link) {
+        payload.image_link = formData.image_link;
       }
 
       if (Object.keys(payload).length > 0) {
@@ -132,7 +136,11 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
       onSuccess ? onSuccess() : onClose();
     } catch (err) {
       console.error("Update error:", err);
-      setError(err.response?.data?.detail || err.message || "Failed to update asset.");
+      setError(
+        err.response?.data?.detail ||
+          err.message ||
+          "Failed to update asset."
+      );
     } finally {
       setLoading(false);
     }
@@ -149,7 +157,7 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder={asset.name || "Enter name"}
+            placeholder="Enter asset name"
           />
         </div>
 
@@ -159,7 +167,7 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
             name="RFID"
             value={formData.RFID}
             onChange={handleChange}
-            placeholder={asset.RFID || "Enter RFID"}
+            placeholder="Enter RFID"
           />
         </div>
 
@@ -171,7 +179,7 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
             onChange={handleChange}
           >
             <option value="">-- Select Category --</option>
-            {categories.map(cat => (
+            {categories.map((cat) => (
               <option key={cat.category_id} value={cat.category_id}>
                 {cat.name}
               </option>
@@ -187,7 +195,7 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
             onChange={(e) => handleMultiSelect(e, "assigned_to")}
             className="multi-select"
           >
-            {users.map(user => (
+            {users.map((user) => (
               <option key={user.user_id} value={user.user_id}>
                 {user.name || user.username}
               </option>
@@ -203,7 +211,7 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
             onChange={(e) => handleMultiSelect(e, "bound_to_zone")}
             className="multi-select"
           >
-            {zones.map(zone => (
+            {zones.map((zone) => (
               <option key={zone.zone_id} value={zone.zone_id}>
                 {zone.name}
               </option>
@@ -215,7 +223,7 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
           <label>Asset Image</label>
           <div className="image-upload-container">
             <label className="file-upload-btn">
-              {imageFile ? imageFile.name : "Change Image"}
+              {imageFile ? imageFile.name : "Choose File"}
               <input
                 type="file"
                 accept="image/*"
@@ -223,22 +231,21 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
                 style={{ display: "none" }}
               />
             </label>
-            {(formData.image_link || imageFile) && (
+
+            {formData.image_link && (
               <div className="image-preview-container">
                 <img
-                  src={imageFile ? URL.createObjectURL(imageFile) : formData.image_link}
+                  src={formData.image_link}
                   alt="Preview"
                   className="image-preview"
                 />
-                {formData.image_link && !imageFile && (
-                  <button
-                    type="button"
-                    className="remove-image-btn"
-                    onClick={() => setFormData(prev => ({ ...prev, image_link: "" }))}
-                  >
-                    Remove
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className="remove-image-btn"
+                  onClick={removeImage}
+                >
+                  ×
+                </button>
               </div>
             )}
           </div>

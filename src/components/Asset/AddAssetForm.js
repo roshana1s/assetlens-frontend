@@ -4,10 +4,11 @@ import "./AddAssetForm.css";
 
 const AddAssetForm = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    category_id: '',
-    RFID: ''
+    name: "",
+    category_id: "",
+    RFID: "",
   });
+
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
@@ -16,64 +17,48 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/categories/1');
+        const res = await axios.get("http://localhost:8000/categories/1");
         setCategories(res.data);
       } catch (err) {
-        console.error('Error fetching categories:', err);
-        setError('Failed to load categories');
+        console.error("Error fetching categories:", err);
+        setError("Failed to load categories");
       }
     };
     fetchCategories();
   }, []);
+  
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
-    // Validate file type
-    if (!file.type.match('image.*')) {
+
+    if (!file.type.match("image.*")) {
       setError("Please select an image file (JPEG, PNG, etc.)");
       return;
     }
-    
-    // Validate file size (5MB max)
+
     if (file.size > 5 * 1024 * 1024) {
       setError("Image size must be less than 5MB");
       return;
     }
-    
+
     setImageFile(file);
     setError(null);
   };
 
-  const uploadToImgur = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append('image', file);
-      
-      const response = await axios.post(
-        'https://api.imgur.com/3/image',
-        formData,
-        {
-          headers: {
-            'Authorization': `Client-ID YOUR_IMGUR_CLIENT_ID`,
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      );
-      
-      return response.data.data.link;
-    } catch (err) {
-      console.error("Imgur upload failed:", err);
-      throw new Error("Failed to upload image. Please try again.");
-    }
-  };
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -81,9 +66,8 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
-      // Validate required fields
       if (!formData.name.trim()) {
         throw new Error("Asset name is required");
       }
@@ -91,44 +75,56 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
         throw new Error("Category is required");
       }
 
-      let imageUrl = '';
-      
-      // Upload image if exists
+      let base64Image = "";
       if (imageFile) {
-        imageUrl = await uploadToImgur(imageFile);
+        base64Image = await toBase64(imageFile);
       }
 
-      // Prepare the asset data
       const assetData = {
         name: formData.name,
         category_id: formData.category_id,
-        ...(formData.RFID && { RFID: formData.RFID }), // Only include if exists
-        ...(imageUrl && { image_link: imageUrl }) // Only include if image exists
+        RFID: formData.RFID || "",
+        assigned_to: [],
+        bound_to_floor: [],
+        bound_to_zone: [],
+        image_link: base64Image || "",
+        geofencing: false,
+        is_deleted: false,
       };
 
-      // Create the asset
-      await axios.post('http://localhost:8000/assets/1', assetData, {
+      await axios.post("http://localhost:8000/assets/1", assetData, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       });
-      
+
       onSuccess();
     } catch (err) {
-      console.error('Error adding asset:', err);
-      setError(err.response?.data?.detail || err.message || 'Failed to add asset');
+      console.error("Error adding asset:", err);
+      setError(err.response?.data?.detail || err.message || "Failed to add asset");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    
     <div className="add-asset-modal">
       <div className="add-asset-content">
-        <button className="close-btn" onClick={onClose}>×</button>
+        <button className="close-btn" onClick={onClose}>
+          ×
+        </button>
         <h2>Add New Asset</h2>
-        {error && <div className="error-message">{error}</div>}
+
+        {error && (
+          <div className="error-message">
+            {typeof error === "string"
+              ? error
+              : Array.isArray(error)
+              ? error.map((e, i) => <div key={i}>{e.msg}</div>)
+              : JSON.stringify(error)}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Asset Name *</label>
@@ -139,7 +135,7 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label>Category *</label>
             <select
@@ -149,14 +145,14 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
               required
             >
               <option value="">Select Category</option>
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <option key={cat.category_id} value={cat.category_id}>
                   {cat.name}
                 </option>
               ))}
             </select>
           </div>
-          
+
           <div className="form-group">
             <label>RFID (Optional)</label>
             <input
@@ -166,7 +162,7 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
               placeholder="Optional"
             />
           </div>
-          
+
           <div className="form-group">
             <label>Asset Image (Optional)</label>
             <div className="image-upload-container">
@@ -176,15 +172,15 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                 />
               </label>
               {imageFile && (
                 <div className="image-preview-container">
-                  <img 
-                    src={URL.createObjectURL(imageFile)} 
-                    alt="Preview" 
-                    className="image-preview" 
+                  <img
+                    src={URL.createObjectURL(imageFile)}
+                    alt="Preview"
+                    className="image-preview"
                   />
                 </div>
               )}
@@ -193,13 +189,13 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
               Max file size: 5MB. Supported formats: JPEG, PNG, GIF
             </p>
           </div>
-          
+
           <div className="form-actions">
             <button type="button" onClick={onClose} className="cancel-btn">
               Cancel
             </button>
             <button type="submit" className="save-btn" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Asset'}
+              {loading ? "Adding..." : "Add Asset"}
             </button>
           </div>
         </form>

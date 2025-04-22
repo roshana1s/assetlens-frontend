@@ -8,7 +8,7 @@ const AppRoutes = () => {
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/assets" element={<AssetConfigPage />} /> {/* ✅ new route */}
+        <Route path="/assets" element={<AssetConfigPage />} /> {/* new route */}
       </Routes>
     </Router>
   );
