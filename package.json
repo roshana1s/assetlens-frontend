@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@babel/standalone": "^7.27.0",
     "@react-leaflet/core": "^3.0.0",
     "axios": "^1.7.9",
     "bootstrap": "^5.3.5",

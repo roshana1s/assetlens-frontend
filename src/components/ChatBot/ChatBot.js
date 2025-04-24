@@ -3,12 +3,48 @@ import { FaRobot, FaTimes, FaPaperPlane } from "react-icons/fa";
 import axios from "axios";
 import "./ChatBot.css";
 import parse from "html-react-parser";
+import { Button, Card } from "react-bootstrap";
+import * as Babel from "@babel/standalone";
 
 const ChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
     const messagesContainerRef = useRef(null);
+
+    function compileJSX(jsxString) {
+        // Trim and check if it looks like JSX
+        const trimmed = jsxString.trim();
+
+        const isJSX =
+            trimmed.startsWith("<") ||
+            trimmed.startsWith("(") ||
+            trimmed.startsWith("<>") ||
+            trimmed.includes("<") || // covers fragments and components
+            trimmed.includes("</");
+
+        if (!isJSX) {
+            // It's just plain text — return as-is
+            return trimmed;
+        }
+
+        // Else, try compiling it as JSX
+        try {
+            const code = Babel.transform(`(${jsxString})`, {
+                presets: ["react"],
+            }).code;
+
+            // eslint-disable-next-line no-new-func
+            return new Function("React", "Card", "Button", `return ${code}`)(
+                React,
+                Card,
+                Button
+            );
+        } catch (err) {
+            console.error("JSX Compilation Error:", err);
+            return "⚠️ Error rendering message";
+        }
+    }
 
     useEffect(() => {
         // get chat history
@@ -100,7 +136,7 @@ const ChatBot = () => {
                                 }`}
                             >
                                 <div className="message-content">
-                                    {parse(message.message)}
+                                    {compileJSX(message.message)}
                                 </div>
                             </div>
                         ))}
