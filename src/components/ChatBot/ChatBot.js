@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaRobot, FaTimes, FaPaperPlane } from "react-icons/fa";
 import axios from "axios";
 import "./ChatBot.css";
-import parse from "html-react-parser";
 import { Button, Card } from "react-bootstrap";
 import * as Babel from "@babel/standalone";
 
@@ -11,6 +10,24 @@ const ChatBot = () => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
     const messagesContainerRef = useRef(null);
+
+    function sanitizeJSX(input) {
+        return input
+            .replace(/<(?=\s|$)/g, "") // Remove stray <
+            .replace(/<\/?([a-zA-Z0-9.]+)(\s*[^>]*)>/g, (match, tag, rest) => {
+                if (match.startsWith("</")) return `</${tag}>`;
+                return `<${tag}${rest}>`;
+            })
+            .replace(/<\/([a-zA-Z0-9.]+)\s+>/g, "</$1>") // fix trailing spaces
+            .replace(
+                /(<(br|hr|img|input|meta|link|source)[^>]*)(?<!\/)>/g,
+                "$1 />"
+            )
+            .replace(/&nbsp;/g, " ")
+            .replace(/<([a-z.]+)([^>]*)>(\s*)<\/\1>/gi, "") // remove empty tags
+            .replace(/<[^>]*$/, "") // remove unclosed trailing tag
+            .trim();
+    }
 
     function compileJSX(jsxString) {
         // Trim and check if it looks like JSX
@@ -28,6 +45,7 @@ const ChatBot = () => {
             return trimmed;
         }
 
+        jsxString = sanitizeJSX(jsxString);
         // Else, try compiling it as JSX
         try {
             const code = Babel.transform(`(${jsxString})`, {
