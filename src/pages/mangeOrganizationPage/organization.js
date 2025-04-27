@@ -4,6 +4,8 @@ import './organization.css';
 
 const ManageOrganizationPage = () => {
   const [organizations, setOrganizations] = useState([]);
+  const [filteredOrganizations, setFilteredOrganizations] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -21,11 +23,22 @@ const ManageOrganizationPage = () => {
     fetchOrganizations();
   }, []);
 
+  useEffect(() => {
+    const results = organizations.filter(org =>
+      org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      org.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      org.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (org.description && org.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+    setFilteredOrganizations(results);
+  }, [searchTerm, organizations]);
+
   const fetchOrganizations = async () => {
     try {
       setLoading(true);
       const data = await OrganizationAPI.getAllOrganizations();
       setOrganizations(data);
+      setFilteredOrganizations(data);
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -43,13 +56,12 @@ const ManageOrganizationPage = () => {
     try {
       setError(null);
       
-      // Prepare the organization data
       const orgData = {
         name: formData.name,
         location: formData.location,
         email: formData.email,
-        phone: formData.phone || "string", // Match your DB structure
-        description: formData.description || "string" // Match your DB structure
+        phone: formData.phone || "string",
+        description: formData.description || "string"
       };
   
       if (currentOrg) {
@@ -62,7 +74,6 @@ const ManageOrganizationPage = () => {
       resetForm();
       await fetchOrganizations();
     } catch (err) {
-      // Display user-friendly error message
       setError(err.toString().replace('Error: ', ''));
       console.error('Submission error:', err);
     }
@@ -105,15 +116,27 @@ const ManageOrganizationPage = () => {
   };
 
   return (
-    <div className="org-container">
+    <div className="org-management-container">
       <div className="org-header">
         <h1>Organization Management</h1>
-        <button 
-          className="btn-primary"
-          onClick={() => setShowModal(true)}
-        >
-          Add Organization
-        </button>
+        <div className="header-actions">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search organizations..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+            <span className="search-icon">🔍</span>
+          </div>
+          <button 
+            className="btn-primary"
+            onClick={() => setShowModal(true)}
+          >
+            Add Organization
+          </button>
+        </div>
       </div>
 
       {error && <div className="error-alert">{error}</div>}
@@ -191,37 +214,55 @@ const ManageOrganizationPage = () => {
       )}
 
       {loading ? (
-        <div className="loading">Loading organizations...</div>
+        <div className="loading-message">
+          <div className="spinner"></div>
+          Loading organizations...
+        </div>
       ) : (
-        <div className="org-table-container">
-          <table className="org-table">
+        <div className="org-table-wrapper">
+          <table className="org-data-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Email</th>
-                <th>Actions</th>
+                <th className="table-header">ID</th>
+                <th className="table-header">Organization</th>
+                <th className="table-header">Location</th>
+                <th className="table-header">Contact Email</th>
+                <th className="table-header actions-header">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {organizations.length > 0 ? (
-                organizations.map(org => (
-                  <tr key={org.org_id}>
-                    <td>{org.org_id}</td>
-                    <td>{org.name}</td>
-                    <td>{org.location}</td>
-                    <td>{org.email}</td>
-                    <td className="action-buttons">
+              {filteredOrganizations.length > 0 ? (
+                filteredOrganizations.map(org => (
+                  <tr key={org.org_id} className="org-row">
+                    <td className="org-id">{org.org_id}</td>
+                    <td className="org-name">
+                      <div className="org-name-wrapper">
+                        <span className="org-name-text">{org.name}</span>
+                        {org.description && org.description !== "string" && (
+                          <span className="org-description">{org.description}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="org-location">
+                      {org.location === "string" ? "Not specified" : org.location}
+                    </td>
+                    <td className="org-email">
+                      <a href={`mailto:${org.email}`} className="email-link">
+                        {org.email}
+                      </a>
+                    </td>
+                    <td className="org-actions">
                       <button 
                         onClick={() => handleEdit(org)}
-                        className="btn-edit"
+                        className="action-btn edit-btn"
+                        title="Edit organization"
                       >
                         Edit
                       </button>
                       <button 
                         onClick={() => handleDelete(org.org_id)}
-                        className="btn-delete"
+                        className="action-btn delete-btn"
+                        title="Delete organization"
                       >
                         Delete
                       </button>
@@ -229,8 +270,22 @@ const ManageOrganizationPage = () => {
                   </tr>
                 ))
               ) : (
-                <tr>
-                  <td colSpan="5" className="no-data">No organizations found</td>
+                <tr className="no-results-row">
+                  <td colSpan="5">
+                    <div className="no-results-message">
+                      {searchTerm ? (
+                        <>
+                          <i className="fas fa-search"></i>
+                          <span>No organizations match your search</span>
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-info-circle"></i>
+                          <span>No organizations available</span>
+                        </>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               )}
             </tbody>
