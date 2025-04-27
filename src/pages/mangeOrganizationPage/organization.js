@@ -41,16 +41,30 @@ const ManageOrganizationPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setError(null);
+      
+      // Prepare the organization data
+      const orgData = {
+        name: formData.name,
+        location: formData.location,
+        email: formData.email,
+        phone: formData.phone || "string", // Match your DB structure
+        description: formData.description || "string" // Match your DB structure
+      };
+  
       if (currentOrg) {
-        await OrganizationAPI.updateOrganization(currentOrg.org_id, formData);
+        await OrganizationAPI.updateOrganization(currentOrg.org_id, orgData);
       } else {
-        await OrganizationAPI.addOrganization(formData);
+        await OrganizationAPI.addOrganization(orgData);
       }
+      
       setShowModal(false);
       resetForm();
       await fetchOrganizations();
     } catch (err) {
-      setError(err.message);
+      // Display user-friendly error message
+      setError(err.toString().replace('Error: ', ''));
+      console.error('Submission error:', err);
     }
   };
 

@@ -11,18 +11,40 @@ export const OrganizationAPI = {
   },
 
   addOrganization: async (organization) => {
-    const response = await fetch(`${API_BASE_URL}/organizations/organizations/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(organization),
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to add organization');
+    try {
+      // Prepare data in exact backend format
+      const requestData = {
+        name: organization.name,
+        location: organization.location,
+        email: organization.email,
+        phone: organization.phone || "string", // Default if empty
+        description: organization.description || "string", // Default if empty
+        is_deleted: false
+      };
+  
+      const response = await fetch(`${API_BASE_URL}/organizations/organizations/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        // Show detailed validation errors if available
+        if (errorData.detail) {
+          const errorMessages = errorData.detail.map(err => `${err.loc[1]}: ${err.msg}`).join(', ');
+          throw new Error(`Validation failed: ${errorMessages}`);
+        }
+        throw new Error(errorData.message || 'Failed to add organization');
+      }
+  
+      return await response.json();
+    } catch (err) {
+      console.error('Add organization error:', err);
+      throw new Error(typeof err.message === 'string' ? err.message : 'Unknown error occurred');
     }
-    return await response.json();
   },
 
   updateOrganization: async (orgId, organization) => {
