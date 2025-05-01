@@ -27,7 +27,7 @@ const AssetCard = ({ asset, onGeofencingUpdate, refreshAssets }) => {
   };
 
   const handleDelete = () => setShowConfirmPopup(true);
-  const handleEdit = () => setShowEditForm((prev) => !prev);
+  const handleEdit = () => setShowEditForm((prev) => !prev); // dropdown toggle
 
   const confirmDelete = async () => {
     try {
@@ -71,7 +71,7 @@ const AssetCard = ({ asset, onGeofencingUpdate, refreshAssets }) => {
               <FaTrash />
             </button>
           </div>
-          
+
           <div className="toggle-container">
             <label className="switch-label">
               <input
@@ -85,10 +85,14 @@ const AssetCard = ({ asset, onGeofencingUpdate, refreshAssets }) => {
         </div>
       </div>
 
+      {/* dropdown edit form under asset card */}
       {showEditForm && (
-        <EditAssetForm asset={asset} onClose={handleEditSuccess} />
+        <div style={{ marginTop: "10px" }}>
+          <EditAssetForm asset={asset} onClose={handleEditSuccess} />
+        </div>
       )}
 
+      {/* delete popups */}
       {showConfirmPopup && (
         <DeleteConfirmationPopup
           asset={asset}

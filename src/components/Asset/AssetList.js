@@ -1,7 +1,7 @@
 import React from "react";
 import AssetCard from "./AssetCard";
 
-const AssetList = ({ assets, onGeofencingUpdate, refreshAssets }) => {
+const AssetList = ({ assets, onGeofencingUpdate, refreshAssets, onEditAsset }) => {
   return (
     <div className="asset-list">
       {assets.length > 0 ? (
@@ -11,6 +11,7 @@ const AssetList = ({ assets, onGeofencingUpdate, refreshAssets }) => {
             asset={asset}
             onGeofencingUpdate={onGeofencingUpdate}
             refreshAssets={refreshAssets}
+            onEditAsset={onEditAsset} // 🔥 pass here
           />
         ))
       ) : (
