@@ -73,16 +73,16 @@
   font-size: 1.25rem;;
 }
 
-.alert-icon, .notification-icon{
+.profile-icon {
+  color: black;
+  font-size: 1.25rem;
+}
+
+.alert-icon, .notification-icon, .profile-icon{
   width: 22px;
   height: 22px;
 }
 
-.profile-icon img.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-}
 
 .popup-box {
   position: absolute;
@@ -94,7 +94,7 @@
   padding: 0.75rem 1rem;
   min-width: 180px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  z-index: 999;
+  z-index: 99999;
 }
 
 .dropdown-menu {     
