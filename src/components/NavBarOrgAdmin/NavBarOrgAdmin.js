@@ -119,6 +119,7 @@ const NavBarOrgAdmin = () => {
 
                     <Dropdown>
                         <Dropdown.Toggle
+                            variant="outline-link"
                             className={
                                 isConfigActive ? "nav-link active" : "nav-link"
                             }
