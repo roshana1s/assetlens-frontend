@@ -44,7 +44,6 @@ const AssetConfigPage = () => {
       const updatedAssets = res.data;
       setAssets(updatedAssets);
 
-      // Apply current filters
       let filtered = updatedAssets;
       if (selectedCategories.length > 0) {
         filtered = filtered.filter((asset) =>
@@ -116,15 +115,18 @@ const AssetConfigPage = () => {
     <div className="asset-config-container">
       {/* Left Content */}
       <div className="asset-list-content">
-        <div className="asset-list-header">
-          <h1>Asset Configuration</h1>
-          <input
-            type="text"
-            placeholder="Search assets..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="search-bar"
-          />
+        <div className="asset-list-header">   
+          <div className="header-controls">
+            <h1>Asset Configuration</h1>
+            <input
+              type="text"
+              placeholder="Search assets..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="search-bar"
+            />
+            <span className="geofencing-label">Enable Geofencing</span>
+          </div>
         </div>
 
         {loading ? (

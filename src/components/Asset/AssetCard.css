@@ -4,7 +4,7 @@
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 16px;
+  padding: 10px;
   margin-bottom: 12px;
   transition: all 0.2s ease;
   border: 1px solid #eaeaea;
@@ -60,36 +60,31 @@
 .asset-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 70px;
 }
 
 .asset-icons {
-  display: none;
+  display: flex;
   gap: 8px;
 }
 
-.asset-left:hover ~ .asset-right .asset-icons {
-  display: flex;
-}
-
-.asset-icons:hover {
-  display: flex;
-}
-
-.icon-btn {
+.edit-icon-btn, .delete-icon-btn {
   background: none;
   border: none;
   cursor: pointer;
   color: #555555;
-  font-size: 16px;
+  font-size: 19px;
   padding: 6px;
   border-radius: 4px;
   transition: all 0.2s ease;
 }
 
-.icon-btn:hover {
+.edit-icon-btn:hover {
   color: #2196f3;
-  background-color: #f0f8ff;
+}
+
+.delete-icon-btn:hover {
+  color: hsl(0, 96%, 48%);
 }
 
 .switch-label {
@@ -135,4 +130,29 @@
 
 .switch-label input:checked + .slider:before {
   transform: translateX(20px);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
 }
