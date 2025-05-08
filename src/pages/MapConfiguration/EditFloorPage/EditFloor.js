@@ -12,6 +12,7 @@ import Form from "react-bootstrap/Form";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./EditFloor.css";
+import FetchingData from "../../../components/FetchingData/FetchingData";
 
 const EditFloor = () => {
     const { floor_id } = useParams(); // Get floor_id from the URL
@@ -25,19 +26,24 @@ const EditFloor = () => {
     const [x, setX] = useState("");
     const [y, setY] = useState("");
 
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
         // Fetch floor details using floor_id
         const fetchFloorDetails = async () => {
             try {
+                setLoading(true);
                 const response = await axios.get(
                     `http://localhost:8000/maps/1/get-floor/${floor_id}`
                 );
                 const data = response.data;
                 setFloorName(data.floorName);
                 setZones(data.zones);
+                setLoading(false);
             } catch (err) {
                 toast.error("Error fetching floor details.");
                 console.error(err.message);
+                setLoading(false);
             }
         };
 
@@ -174,7 +180,8 @@ const EditFloor = () => {
                     </svg>
                     <span className="ms-2">Map Configuration - Edit Floor</span>
                 </span>
-
+                {!loading? (
+                    <>
                 {/* Scrollable Content */}
                 <div className="scrollable-content">
                     <Card className="mb-4 floor-card">
@@ -280,6 +287,10 @@ const EditFloor = () => {
                         Cancel
                     </Button>
                 </div>
+                </>
+                ):(
+                    <FetchingData />
+                )}
             </div>
 
             <DrawMap zones={zones} />
