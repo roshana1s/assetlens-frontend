@@ -20,6 +20,8 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
 
     const mapDivRef = useRef(null);
 
+    const role = 'admin';
+
     const createGridLines = (width, height, step) => {
         const lines = [];
         for (let i = 0; i <= width; i += step) {
@@ -178,7 +180,7 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
                                     <button
                                         className="btn btn-sm btn-primary mt-2"
                                         onClick={() =>
-                                            (window.location.href = `/asset/${asset.asset_id}`)
+                                            (window.location.href = `/${role}/asset/${asset.asset_id}`)
                                         }
                                     >
                                         Show more details
