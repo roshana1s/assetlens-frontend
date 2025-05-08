@@ -104,24 +104,3 @@
   margin-top: 8px;
   width: 100%;
 }
-
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* Full screen height */
-  width: 100%;
-}
-
-.loading-content {
-  text-align: center;
-}
-
-.loading-spinner {
-  width: 3rem;
-  height: 3rem;
-}
-
-.loading-text {
-  margin-top: 1rem;
-}
