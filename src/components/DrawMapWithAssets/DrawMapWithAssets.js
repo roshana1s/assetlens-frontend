@@ -20,7 +20,7 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
 
     const mapDivRef = useRef(null);
 
-    const role = 'admin';
+    const role = "admin";
 
     const createGridLines = (width, height, step) => {
         const lines = [];
@@ -142,11 +142,15 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
                 ))}
                 {assetLocations.map((asset, index) => (
                     <CircleMarker
-                        key={index}
+                        key={`${asset.asset_id}-${asset.geofencing_breached}`}
                         center={[asset.coordinate.x, asset.coordinate.y]}
-                        radius={6}
-                        color="#FF0000"
-                        fillColor="#FF0000"
+                        radius={8}
+                        color={
+                            asset.geofencing_breached ? "#FF0000" : "#0000FF"
+                        }
+                        fillColor={
+                            asset.geofencing_breached ? "#FF0000" : "#0000FF"
+                        }
                         fillOpacity={0.8}
                         eventHandlers={{
                             click: () => {
@@ -157,7 +161,9 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
                         <Tooltip direction="bottom" permanent>
                             <span
                                 style={{
-                                    color: "#FF0000",
+                                    color: asset.geofencing_breached
+                                        ? "#FF0000"
+                                        : "#0000FF",
                                     fontSize: "10px",
                                     fontWeight: "bold",
                                 }}
