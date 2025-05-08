@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Combobox from "react-widgets/Combobox";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import "./PastTracking.css";
@@ -22,15 +21,18 @@ const PastTracking = () => {
     const [zoneId, setZoneId] = useState("ALL");
     const [assetId, setAssetId] = useState("ALL");
     const [startDate, setStartDate] = useState(null);
-    const [startTime, setStartTime] = useState(null);
+    const [startTime, setStartTime] = useState("00:00");
     const [endDate, setEndDate] = useState(null);
-    const [endTime, setEndTime] = useState(null);
+    const [endTime, setEndTime] = useState("23:59");
 
     const [initialFilterDetails, setInitialFilterDetails] = useState({});
     const [timelineFrames, setTimelineFrames] = useState([]);
     const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [mapDetails, setMapDetails] = useState({});
+
+    const [initialDataLoad, setInitialDataLoad] = useState(true);
+    const [getData, setGetData] = useState(false);
 
     useEffect(() => {
         const fetchDataAndFilters = async (org_id) => {
@@ -44,6 +46,7 @@ const PastTracking = () => {
                     `http://localhost:8000/past-tracking/1/u0003/get-past-tracking-filters-initial`
                 );
                 setInitialFilterDetails(filterResponse.data);
+                setInitialDataLoad(false);
             } catch (err) {
                 console.error("Error fetching data:", err.message);
             }
@@ -70,6 +73,7 @@ const PastTracking = () => {
 
     const fetchLocations = async (filters) => {
         try {
+            setGetData(true);
             const response = await axios.post(
                 `http://localhost:8000/past-tracking/1/past-tracking-locations`,
                 filters
@@ -80,6 +84,7 @@ const PastTracking = () => {
             setTimelineFrames(sortedFrames);
             setCurrentFrameIndex(0);
             setIsPlaying(false);
+            setGetData(false);
         } catch (error) {
             console.error("Error fetching locations:", error);
         }
@@ -95,9 +100,13 @@ const PastTracking = () => {
             floor_id: floorId,
             zone_id: zoneId,
             asset_id: assetId,
-            start_date: startDate?.toISOString().split("T")[0],
+            start_date: startDate
+                ? new Date(startDate).toISOString().split("T")[0]
+                : null,
             start_time: startTime ? `${startTime}:00` : null,
-            end_date: endDate?.toISOString().split("T")[0],
+            end_date: endDate
+                ? new Date(endDate).toISOString().split("T")[0]
+                : null,
             end_time: endTime ? `${endTime}:00` : null,
         };
 
@@ -133,196 +142,283 @@ const PastTracking = () => {
                     </svg>
                     <span className="ms-2">Past Tracking</span>
                 </span>
+                {!initialDataLoad ? (
+                    <>
+                        <div className="scrollable-content">
+                            {/* Scrollable Content */}
+                            <div className="scrollable-content">
+                                <div className="form-group">
+                                    <label htmlFor="floor-select">
+                                        Select Floor
+                                    </label>
+                                    <Combobox
+                                        placeholder="Select Floor"
+                                        id="floor-select"
+                                        data={[
+                                            ...(
+                                                initialFilterDetails.floors ||
+                                                []
+                                            ).map((floor) => floor.floorName),
+                                        ]}
+                                        onChange={(value) =>
+                                            setFloorId(
+                                                initialFilterDetails.floors?.find(
+                                                    (floor) =>
+                                                        floor.floorName ===
+                                                        value
+                                                )?.floor_id
+                                            )
+                                        }
+                                    />
+                                </div>
 
-                <div className="scrollable-content">
-                    {/* Scrollable Content */}
-                    <div className="scrollable-content">
-                        <div className="form-group">
-                            <label htmlFor="floor-select">Select Floor</label>
-                            <Combobox
-                                placeholder="Select Floor"
-                                id="floor-select"
-                                data={[
-                                    ...(initialFilterDetails.floors || []).map(
-                                        (floor) => floor.floorName
-                                    ),
-                                ]}
-                                onChange={(value) =>
-                                    setFloorId(
-                                        initialFilterDetails.floors?.find(
-                                            (floor) => floor.floorName === value
-                                        )?.floor_id
-                                    )
-                                }
-                            />
-                        </div>
+                                {/* Zone Combobox */}
+                                <div className="form-group">
+                                    <label htmlFor="zone-select">
+                                        Select Zone
+                                    </label>
 
-                        {/* Zone Combobox */}
-                        <div className="form-group">
-                            <label htmlFor="zone-select">Select Zone</label>
+                                    <Combobox
+                                        id="zone-select"
+                                        defaultValue={"ALL"}
+                                        data={[
+                                            "ALL",
+                                            ...(matchedFloor?.zones || []).map(
+                                                (zone) => zone.name
+                                            ),
+                                        ]}
+                                        onChange={(value) =>
+                                            setZoneId(
+                                                matchedFloor?.zones?.find(
+                                                    (zone) =>
+                                                        zone.name === value
+                                                )?.zone_id || "ALL"
+                                            )
+                                        }
+                                        disabled={!floorId}
+                                    />
+                                </div>
 
-                            <Combobox
-                                id="zone-select"
-                                defaultValue={"ALL"}
-                                data={[
-                                    "ALL",
-                                    ...(matchedFloor?.zones || []).map(
-                                        (zone) => zone.name
-                                    ),
-                                ]}
-                                onChange={(value) =>
-                                    setZoneId(
-                                        matchedFloor?.zones?.find(
-                                            (zone) => zone.name === value
-                                        )?.zone_id || "ALL"
-                                    )
-                                }
-                            />
-                        </div>
+                                {/* Asset Combobox */}
+                                <div className="form-group">
+                                    <label htmlFor="asset-select">
+                                        Select Asset
+                                    </label>
+                                    <Combobox
+                                        id="asset-select"
+                                        defaultValue={"ALL"}
+                                        data={[
+                                            "ALL",
+                                            ...(
+                                                initialFilterDetails.assets ||
+                                                []
+                                            ).map((asset) => asset.name),
+                                        ]}
+                                        onChange={(value) =>
+                                            setAssetId(
+                                                initialFilterDetails.assets?.find(
+                                                    (asset) =>
+                                                        asset.name === value
+                                                )?.asset_id || "ALL"
+                                            )
+                                        }
+                                        disabled={!floorId}
+                                    />
+                                </div>
 
-                        {/* Asset Combobox */}
-                        <div className="form-group">
-                            <label htmlFor="asset-select">Select Asset</label>
-                            <Combobox
-                                id="asset-select"
-                                defaultValue={"ALL"}
-                                data={[
-                                    "ALL",
-                                    ...(initialFilterDetails.assets || []).map(
-                                        (asset) => asset.name
-                                    ),
-                                ]}
-                                onChange={(value) =>
-                                    setAssetId(
-                                        initialFilterDetails.assets?.find(
-                                            (asset) => asset.name === value
-                                        )?.asset_id || "ALL"
-                                    )
-                                }
-                            />
-                        </div>
+                                {/* Start Date and Time */}
+                                <div className="form-group date-time-group">
+                                    <div>
+                                        <label htmlFor="start-date">
+                                            Start Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={startDate}
+                                            className="form-control"
+                                            onChange={(e) =>
+                                                setStartDate(e.target.value)
+                                            }
+                                            disabled={!floorId}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="start-time">
+                                            Start Time
+                                        </label>
+                                        <input
+                                            id="start-time"
+                                            type="time"
+                                            className="form-control"
+                                            value={startTime || ""}
+                                            onChange={(e) =>
+                                                setStartTime(e.target.value)
+                                            }
+                                            disabled={!floorId}
+                                        />
+                                    </div>
+                                </div>
 
-                        {/* Start Date and Time */}
-                        <div className="form-group date-time-group">
-                            <div>
-                                <label htmlFor="start-date">Start Date</label>
-                                <DatePicker
-                                    id="start-date"
-                                    selected={startDate}
-                                    onChange={(date) => setStartDate(date)}
-                                    className="form-control"
-                                    placeholderText="Select Start Date"
-                                />
+                                {/* End Date and Time */}
+                                <div className="form-group date-time-group">
+                                    <div>
+                                        <label htmlFor="end-date">
+                                            End Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={endDate}
+                                            className="form-control"
+                                            onChange={(e) =>
+                                                setEndDate(e.target.value)
+                                            }
+                                            disabled={!floorId}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="end-time">
+                                            End Time
+                                        </label>
+                                        <input
+                                            id="end-time"
+                                            type="time"
+                                            className="form-control"
+                                            value={endTime || ""}
+                                            onChange={(e) =>
+                                                setEndTime(e.target.value)
+                                            }
+                                            disabled={!floorId}
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label htmlFor="start-time">Start Time</label>
-                                <input
-                                    id="start-time"
-                                    type="time"
-                                    className="form-control"
-                                    value={startTime || ""}
-                                    onChange={(e) =>
-                                        setStartTime(e.target.value)
-                                    }
-                                />
-                            </div>
                         </div>
 
-                        {/* End Date and Time */}
-                        <div className="form-group date-time-group">
-                            <div>
-                                <label htmlFor="end-date">End Date</label>
-                                <DatePicker
-                                    id="end-date"
-                                    selected={endDate}
-                                    onChange={(date) => setEndDate(date)}
-                                    className="form-control"
-                                    placeholderText="Select End Date"
-                                />
+                        {!getData ? (
+                            <div className="timeline-controls">
+                                <div className="current-time mb-3">
+                                    {currentTimestamp}
+                                </div>
+
+                                <div className="controls-group">
+                                    <Button
+                                        variant="outline-primary"
+                                        onClick={() => setCurrentFrameIndex(0)}
+                                        disabled={currentFrameIndex === 0}
+                                    >
+                                        <BsSkipStartFill />
+                                    </Button>
+                                    <Button
+                                        variant="outline-primary"
+                                        onClick={() =>
+                                            setCurrentFrameIndex(
+                                                Math.max(
+                                                    currentFrameIndex - 1,
+                                                    0
+                                                )
+                                            )
+                                        }
+                                        disabled={currentFrameIndex === 0}
+                                    >
+                                        <BsChevronLeft />
+                                    </Button>
+                                    <Button
+                                        variant={
+                                            isPlaying ? "danger" : "success"
+                                        }
+                                        onClick={() => setIsPlaying(!isPlaying)}
+                                        disabled={
+                                            timelineFrames.length === 0 ||
+                                            currentFrameIndex >=
+                                                timelineFrames.length - 1
+                                        }
+                                    >
+                                        {isPlaying ? (
+                                            <BsPauseFill />
+                                        ) : (
+                                            <BsPlayFill />
+                                        )}
+                                    </Button>
+                                    <Button
+                                        variant="outline-primary"
+                                        onClick={() =>
+                                            setCurrentFrameIndex(
+                                                Math.min(
+                                                    currentFrameIndex + 1,
+                                                    timelineFrames.length - 1
+                                                )
+                                            )
+                                        }
+                                        disabled={
+                                            currentFrameIndex >=
+                                            timelineFrames.length - 1
+                                        }
+                                    >
+                                        <BsChevronRight />
+                                    </Button>
+                                    <Button
+                                        variant="outline-primary"
+                                        onClick={() =>
+                                            setCurrentFrameIndex(
+                                                timelineFrames.length - 1
+                                            )
+                                        }
+                                        disabled={
+                                            currentFrameIndex >=
+                                            timelineFrames.length - 1
+                                        }
+                                    >
+                                        <BsSkipEndFill />
+                                    </Button>
+                                </div>
                             </div>
-                            <div>
-                                <label htmlFor="end-time">End Time</label>
-                                <input
-                                    id="end-time"
-                                    type="time"
-                                    className="form-control"
-                                    value={endTime || ""}
-                                    onChange={(e) => setEndTime(e.target.value)}
-                                />
+                        ) : (
+                            <div className="loading-container">
+                                <div className="loading-content">
+                                    <div
+                                        className="spinner-border text-primary loading-spinner"
+                                        role="status"
+                                    >
+                                        <span className="visually-hidden">
+                                            Fetching data...
+                                        </span>
+                                    </div>
+                                    <div className="loading-text mt-3">
+                                        <span className="text-primary fs-5 fw-semibold">
+                                            Fetching data...
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <Button
+                            variant="primary"
+                            className="apply-filters-btn"
+                            onClick={handleSubmit}
+                        >
+                            Apply Filters
+                        </Button>
+                    </>
+                ) : (
+                    <div className="loading-container">
+                        <div className="loading-content">
+                            <div
+                                className="spinner-border text-primary loading-spinner"
+                                role="status"
+                            >
+                                <span className="visually-hidden">
+                                    Fetching data...
+                                </span>
+                            </div>
+                            <div className="loading-text mt-3">
+                                <span className="text-primary fs-5 fw-semibold">
+                                    Fetching data...
+                                </span>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div className="timeline-controls">
-                    <div className="current-time mb-3">{currentTimestamp}</div>
-
-                    <div className="controls-group">
-                        <Button
-                            variant="outline-primary"
-                            onClick={() => setCurrentFrameIndex(0)}
-                            disabled={currentFrameIndex === 0}
-                        >
-                            <BsSkipStartFill />
-                        </Button>
-                        <Button
-                            variant="outline-primary"
-                            onClick={() =>
-                                setCurrentFrameIndex(
-                                    Math.max(currentFrameIndex - 1, 0)
-                                )
-                            }
-                            disabled={currentFrameIndex === 0}
-                        >
-                            <BsChevronLeft />
-                        </Button>
-                        <Button
-                            variant={isPlaying ? "danger" : "success"}
-                            onClick={() => setIsPlaying(!isPlaying)}
-                            disabled={
-                                timelineFrames.length === 0 ||
-                                currentFrameIndex >= timelineFrames.length - 1
-                            }
-                        >
-                            {isPlaying ? <BsPauseFill /> : <BsPlayFill />}
-                        </Button>
-                        <Button
-                            variant="outline-primary"
-                            onClick={() =>
-                                setCurrentFrameIndex(
-                                    Math.min(
-                                        currentFrameIndex + 1,
-                                        timelineFrames.length - 1
-                                    )
-                                )
-                            }
-                            disabled={
-                                currentFrameIndex >= timelineFrames.length - 1
-                            }
-                        >
-                            <BsChevronRight />
-                        </Button>
-                        <Button
-                            variant="outline-primary"
-                            onClick={() =>
-                                setCurrentFrameIndex(timelineFrames.length - 1)
-                            }
-                            disabled={
-                                currentFrameIndex >= timelineFrames.length - 1
-                            }
-                        >
-                            <BsSkipEndFill />
-                        </Button>
-                    </div>
-                </div>
-
-                <Button
-                    variant="primary"
-                    className="apply-filters-btn"
-                    onClick={handleSubmit}
-                >
-                    Apply Filters
-                </Button>
+                )}
             </div>
 
             <DrawMapWithAssets

@@ -6,6 +6,7 @@ import {
     Polyline,
     useMap,
     CircleMarker,
+    Popup,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -15,6 +16,8 @@ import GridToggleButton from "../GridToggleButton/GridToggleButton";
 const DrawMapWithAssets = ({ zones, assetLocations }) => {
     const [gridSize, setGridSize] = useState({ width: 1000, height: 320 });
     const [showGrid, setShowGrid] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
+
     const mapDivRef = useRef(null);
 
     const createGridLines = (width, height, step) => {
@@ -139,10 +142,15 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
                     <CircleMarker
                         key={index}
                         center={[asset.coordinate.x, asset.coordinate.y]}
-                        radius={5} // Small circle
-                        color="#FF0000" // Circle border color
-                        fillColor="#FF0000" // Circle fill color
+                        radius={6}
+                        color="#FF0000"
+                        fillColor="#FF0000"
                         fillOpacity={0.8}
+                        eventHandlers={{
+                            click: () => {
+                                setShowPopup(true);
+                            },
+                        }}
                     >
                         <Tooltip direction="bottom" permanent>
                             <span
@@ -152,9 +160,32 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
                                     fontWeight: "bold",
                                 }}
                             >
-                                {asset.asset_id}
+                                {asset.name}
                             </span>
                         </Tooltip>
+
+                        {showPopup && (
+                            <Popup
+                                position={[
+                                    asset.coordinate.x,
+                                    asset.coordinate.y,
+                                ]}
+                                onClose={() => setShowPopup(false)}
+                                autoPan={true}
+                            >
+                                <div style={{ textAlign: "center" }}>
+                                    <h6>{asset.name || asset.asset_id}</h6>
+                                    <button
+                                        className="btn btn-sm btn-primary mt-2"
+                                        onClick={() =>
+                                            (window.location.href = `/asset/${asset.asset_id}`)
+                                        }
+                                    >
+                                        Show more details
+                                    </button>
+                                </div>
+                            </Popup>
+                        )}
                     </CircleMarker>
                 ))}
             </MapContainer>

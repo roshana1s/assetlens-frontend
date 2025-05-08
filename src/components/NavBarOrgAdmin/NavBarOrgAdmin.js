@@ -15,11 +15,13 @@ const NavBarOrgAdmin = () => {
     const toggleAlerts = () => {
         setShowAlerts(!showAlerts);
         setShowNotifications(false);
+        setShowProfile(false);
     };
 
     const toggleNotifications = () => {
         setShowNotifications(!showNotifications);
         setShowAlerts(false);
+        setShowProfile(false);
     };
 
     const toggleProfile = () => {
