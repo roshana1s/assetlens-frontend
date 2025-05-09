@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { fetchAllUsers, deleteUser, updateUser, createUser, fetchAllRoles, createRole, deleteRole } from './api';
 import './UserConfiguration.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UserList = ({ orgId = 1 }) => {
   // State management
@@ -11,7 +13,6 @@ const UserList = ({ orgId = 1 }) => {
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [notification, setNotification] = useState(null);
   const [allAssets, setAllAssets] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   
@@ -74,10 +75,7 @@ const UserList = ({ orgId = 1 }) => {
         setAllAssets(uniqueAssets);
       } catch (error) {
         console.error('Error loading data:', error);
-        setNotification({
-          type: 'error',
-          message: 'Failed to load data'
-        });
+        toast.error("Failed to load data")
       } finally {
         setLoading(false);
       }
@@ -119,12 +117,12 @@ const UserList = ({ orgId = 1 }) => {
 
     // Client-side validation
     if (!roleName) {
-      setNotification({ type: 'error', message: 'Role name cannot be empty' });
+      toast.error("Role name cannot be empty")
       return;
     }
 
-    if (roleName.length < 3) {
-      setNotification({ type: 'error', message: 'Minimum 3 characters required' });
+    if (roleName.length < 2) {
+      toast.error("Minimum 2 characters required")
       return;
     }
 
@@ -138,18 +136,12 @@ const UserList = ({ orgId = 1 }) => {
         is_admin: false,
         is_deleted: false
       }]);
-      
-      setNotification({ type: 'success', message: `Created role: ${roleName}` });
+      toast.success(`Created role: ${roleName}`)
       setNewRoleName('');
       setShowAddForm(false);
       
     } catch (error) {
-      setNotification({
-        type: 'error',
-        message: error.message.includes('format') 
-          ? 'Backend rejected the role data format'
-          : error.message
-      });
+      toast.error("Failed to add Role")
     }
   };
 
@@ -160,19 +152,13 @@ const UserList = ({ orgId = 1 }) => {
       const updatedRoles = await fetchAllRoles(orgId);
       setRoles(updatedRoles);
       setRoleToDelete(null);
-      setNotification({
-        type: 'success',
-        message: response.message || 'Role deleted successfully'
-      });
+      toast.success("Role Deleted successfully")
       
       // Remove from selected roles if it was selected
       setSelectedRoles(prev => prev.filter(id => id !== roleId));
     } catch (error) {
       console.error('Error deleting role:', error);
-      setNotification({
-        type: 'error',
-        message: error.message || 'Failed to delete role'
-      });
+      toast.error(error.message || "Failed to delete the role, Role maybe assigned to someone!")
     }
   };
 
@@ -206,16 +192,10 @@ const UserList = ({ orgId = 1 }) => {
       setAllUsers(data);
       setFilteredUsers(data);
       setShowEditModal(false);
-      setNotification({
-        type: 'success',
-        message: 'User updated successfully'
-      });
+      toast.success("User updated successfully")
     } catch (error) {
       console.error('Error updating user:', error);
-      setNotification({
-        type: 'error',
-        message: error.message || 'Failed to update user'
-      });
+      toast.error("User update failed")
     }
   };
 
@@ -242,10 +222,7 @@ const UserList = ({ orgId = 1 }) => {
         
         setShowDeleteModal(false);
         setConfirmationName('');
-        setNotification({
-          type: 'success',
-          message: 'User deleted successfully'
-        });
+        toast.success("User deleted successfully")
         return;
       }
 
@@ -268,10 +245,7 @@ const UserList = ({ orgId = 1 }) => {
 
     } catch (error) {
       console.error('Delete error:', error);
-      setNotification({
-        type: 'error',
-        message: error.message || 'Failed to delete user'
-      });
+      toast.error(error.message || "User delete failed")
       
       if (error.message === "User was already deleted") {
         setShowDeleteModal(false);
@@ -335,12 +309,12 @@ const UserList = ({ orgId = 1 }) => {
   const handleAddConfirm = async () => {
     // Client-side validation
     if (!addForm.name.trim()) {
-      setNotification({ type: 'error', message: 'Full name is required' });
+      toast.error("Full name is required")
       return;
     }
 
     if (!addForm.role_id) {
-      setNotification({ type: 'error', message: 'Role is required' });
+      toast.error("Role is required")
       return;
     }
 
@@ -361,10 +335,7 @@ const UserList = ({ orgId = 1 }) => {
       setAllUsers(data);
       setFilteredUsers(data);
       setShowAddModal(false);
-      setNotification({
-        type: 'success',
-        message: `User ${addForm.name} created successfully`
-      });
+      toast.success("User created successfully")
 
       // Reset form
       setAddForm({
@@ -377,12 +348,7 @@ const UserList = ({ orgId = 1 }) => {
       });
     } catch (error) {
       console.error('Create User Error:', error);
-      setNotification({
-        type: 'error',
-        message: error.message.includes(';') 
-          ? `Validation errors: ${error.message}`
-          : error.message || 'Failed to create user'
-      });
+      toast.error("User create error")
     }
   };
 
@@ -420,18 +386,7 @@ const UserList = ({ orgId = 1 }) => {
 
   return (
     <div className="user-configuration-container">
-      {/* Notification */}
-      {notification && (
-        <div className={`notification ${notification.type}`}>
-          {notification.message}
-          <button 
-            className="close-notification" 
-            onClick={() => setNotification(null)}
-          >
-            ×
-          </button>
-        </div>
-      )}
+      <ToastContainer position="top-right" autoClose={3000} />
 
       {/* Sidebar with Role Filter */}
       <div className="sidebar">
