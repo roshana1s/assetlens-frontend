@@ -47,8 +47,8 @@
 
 .asset-list-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
@@ -58,12 +58,38 @@
   color: #333;
 }
 
+.header-controls {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.asset-list-header .search-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-bar {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+ 
+}
+
+.geofencing-label {
+  font-size: 14px;
+  color: #666;
+}
+
 .add-asset-btn {
   position: fixed;
   left: 20px;
   bottom: 20px;
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background-color: #2196f3;
   color: white;
@@ -85,15 +111,7 @@
 
 .add-asset-btn::before {
   content: "+";
-  font-size: 18px;
-}
-
-.search-input {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  width: 120px;
+  font-size: 40px;
 }
 
 .category-header {
@@ -106,14 +124,18 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #555555;
   font-size: 16px;
   padding: 6px;
   border-radius: 4px;
   transition: all 0.2s ease;
 }
 
-.edit-category-btn:hover {
-  color: #2196f3;
-  background-color: #f0f8ff;
+.availability-dropdown {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  background-color: #f9f9f9;
 }

@@ -27,7 +27,8 @@ const AssetCard = ({ asset, onGeofencingUpdate, refreshAssets }) => {
   };
 
   const handleDelete = () => setShowConfirmPopup(true);
-  const handleEdit = () => setShowEditForm((prev) => !prev); // dropdown toggle
+  const handleEdit = () => setShowEditForm(true); // Changed to show modal
+  const closeEditForm = () => setShowEditForm(false);
 
   const confirmDelete = async () => {
     try {
@@ -45,7 +46,7 @@ const AssetCard = ({ asset, onGeofencingUpdate, refreshAssets }) => {
   };
 
   const handleEditSuccess = () => {
-    setShowEditForm(false);
+    closeEditForm();
     refreshAssets();
   };
 
@@ -64,10 +65,10 @@ const AssetCard = ({ asset, onGeofencingUpdate, refreshAssets }) => {
 
         <div className="asset-right">
           <div className="asset-icons">
-            <button className="icon-btn" onClick={handleEdit}>
+            <button className="edit-icon-btn" onClick={handleEdit}>
               <FaEdit />
             </button>
-            <button className="icon-btn" onClick={handleDelete}>
+            <button className="delete-icon-btn" onClick={handleDelete}>
               <FaTrash />
             </button>
           </div>
@@ -85,10 +86,16 @@ const AssetCard = ({ asset, onGeofencingUpdate, refreshAssets }) => {
         </div>
       </div>
 
-      {/* dropdown edit form under asset card */}
+      {/* Edit Asset Form as Popup */}
       {showEditForm && (
-        <div style={{ marginTop: "10px" }}>
-          <EditAssetForm asset={asset} onClose={handleEditSuccess} />
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <EditAssetForm 
+              asset={asset} 
+              onClose={handleEditSuccess} 
+              onSuccess={handleEditSuccess}
+            />
+          </div>
         </div>
       )}
 

@@ -3,17 +3,22 @@ import axios from "axios";
 import AssetList from "../../components/Asset/AssetList";
 import AddAssetButton from "../../components/Asset/AddAssetButton";
 import AddAssetForm from "../../components/Asset/AddAssetForm";
+import EditAssetForm from "../../components/Asset/EditAssetForm";
 import CategoryManager from "../../components/Category/CategoryManager";
 import "./AssetConfig.css";
+import { FaEdit } from "react-icons/fa";
 
 const AssetConfigPage = () => {
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [availability, setAvailability] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editingAsset, setEditingAsset] = useState(null);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
 
   const orgId = 1;
@@ -26,38 +31,22 @@ const AssetConfigPage = () => {
           axios.get(`http://localhost:8000/categories/${orgId}`),
         ]);
         setAssets(assetRes.data);
-        setFilteredAssets(assetRes.data);
         setCategories(categoryRes.data);
+        filterAssets(assetRes.data, selectedCategories, searchTerm, availability);
       } catch (err) {
         console.error("Error loading data:", err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
   const refreshAssets = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/assets/${orgId}`);
-      const updatedAssets = res.data;
-      setAssets(updatedAssets);
-
-      // Apply current filters
-      let filtered = updatedAssets;
-      if (selectedCategories.length > 0) {
-        filtered = filtered.filter((asset) =>
-          selectedCategories.includes(asset.category?.category_id)
-        );
-      }
-      if (searchTerm.trim()) {
-        filtered = filtered.filter((asset) =>
-          asset.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-
-      setFilteredAssets(filtered);
+      setAssets(res.data);
+      filterAssets(res.data, selectedCategories, searchTerm, availability);
     } catch (err) {
       console.error("Error refreshing assets:", err);
     }
@@ -78,34 +67,43 @@ const AssetConfigPage = () => {
       : [...selectedCategories, categoryId];
 
     setSelectedCategories(updated);
-
-    let filtered = assets;
-    if (updated.length > 0) {
-      filtered = filtered.filter((asset) =>
-        updated.includes(asset.category?.category_id)
-      );
-    }
-    if (searchTerm.trim()) {
-      filtered = filtered.filter((asset) =>
-        asset.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    setFilteredAssets(filtered);
+    filterAssets(assets, updated, searchTerm, availability);
   };
 
   const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
+    filterAssets(assets, selectedCategories, term, availability);
+  };
 
-    let filtered = assets;
-    if (selectedCategories.length > 0) {
+  const handleAvailabilityChange = (e) => {
+    const value = e.target.value;
+    setAvailability(value);
+    filterAssets(assets, selectedCategories, searchTerm, value);
+  };
+
+  const filterAssets = (assetsList, selectedCats, term, availabilityStatus) => {
+    let filtered = assetsList;
+
+    if (selectedCats.length > 0) {
       filtered = filtered.filter((asset) =>
-        selectedCategories.includes(asset.category?.category_id)
+        selectedCats.includes(asset.category?.category_id)
       );
     }
+
     if (term.trim()) {
       filtered = filtered.filter((asset) =>
         asset.name.toLowerCase().includes(term.toLowerCase())
+      );
+    }
+
+    if (availabilityStatus === "available") {
+      filtered = filtered.filter((asset) =>
+        !asset.assigned_to || asset.assigned_to.length === 0
+      );
+    } else if (availabilityStatus === "not_available") {
+      filtered = filtered.filter((asset) =>
+        asset.assigned_to && asset.assigned_to.length > 0
       );
     }
 
@@ -134,6 +132,10 @@ const AssetConfigPage = () => {
             assets={filteredAssets}
             onGeofencingUpdate={() => {}}
             refreshAssets={refreshAssets}
+            onEditAsset={(asset) => {
+              setEditingAsset(asset);
+              setShowEditForm(true);
+            }}
           />
         )}
       </div>
@@ -143,7 +145,7 @@ const AssetConfigPage = () => {
         <div className="category-header">
           <h3>Filter by Category</h3>
           <button className="edit-category-btn" onClick={() => setShowCategoryManager(true)}>
-            ✏️
+            <FaEdit />
           </button>
         </div>
         {categories.map((cat) => (
@@ -157,23 +159,56 @@ const AssetConfigPage = () => {
             {cat.name}
           </label>
         ))}
+
+        <div style={{ marginTop: "20px" }}>
+          <h3>Availability</h3>
+          <select value={availability} onChange={handleAvailabilityChange} className="availability-dropdown">
+            <option value="ALL">All</option>
+            <option value="available">Available</option>
+            <option value="not_available">Not Available</option>
+          </select>
+        </div>
       </div>
 
       {/* Floating Add Button */}
       <AddAssetButton onClick={() => setShowAddForm(true)} />
 
-      {/* Add Asset Popup */}
+      {/* Add/Edit Popups */}
       {showAddForm && (
-        <AddAssetForm
-          onClose={() => setShowAddForm(false)}
-          onSuccess={() => {
-            setShowAddForm(false);
-            refreshAssets();
-          }}
-        />
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <AddAssetForm
+              onClose={() => setShowAddForm(false)}
+              onSuccess={() => {
+                refreshAssets();
+                setTimeout(() => setShowAddForm(false), 100);
+              }}
+            />
+          </div>
+        </div>
       )}
 
-      {/* Category Manager Popup */}
+      {showEditForm && editingAsset && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <EditAssetForm
+              asset={editingAsset}
+              onClose={() => {
+                setShowEditForm(false);
+                setEditingAsset(null);
+              }}
+              onSuccess={() => {
+                refreshAssets();
+                setTimeout(() => {
+                  setShowEditForm(false);
+                  setEditingAsset(null);
+                }, 100);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {showCategoryManager && (
         <CategoryManager
           onClose={() => setShowCategoryManager(false)}
