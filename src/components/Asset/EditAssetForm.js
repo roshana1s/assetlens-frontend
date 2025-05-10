@@ -29,7 +29,7 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
       try {
         const [catRes, userRes, floorsRes] = await Promise.all([
           axios.get(`http://localhost:8000/categories/${orgId}`),
-          axios.get(`http://localhost:8000/users/${orgId}`),
+          axios.get(`http://localhost:8000/users/for-assets/${orgId}`),
           axios.get(`http://localhost:8000/maps/${orgId}`),
         ]);
 

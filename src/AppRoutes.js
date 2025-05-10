@@ -28,7 +28,7 @@ const AppRouter = () => {
                     <Route path="config/map/addfloor" element={<AddFloor />} />
                     <Route path="config/map/editfloor/:floor_id" element={<EditFloor />} />
                     <Route path="past-tracking" element={<PastTracking />} />
-                    <Route path="config/assets" element={<AssetConfigPage />} />
+                    <Route path="config/asset" element={<AssetConfigPage />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />
