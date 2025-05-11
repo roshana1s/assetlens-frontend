@@ -16,19 +16,15 @@ const AppRouter = () => {
             <Routes>
                 <Route path="/" element={<LandingPageLayout />}>
                     <Route index element={<LandingPage />} />
+                    
                 </Route>
 
-                <Route
-                    path="/assetlens-admin"
-                    element={<AssetLensAdminLayout />}
-                ></Route>
+                <Route path="/assetlens-admin" element={<AssetLensAdminLayout />}>
+                    
+                </Route>
 
                 <Route path="/admin" element={<OrgAdminLayout />}>
-                    <Route path="config/map" element={<MapConfiguration />} />
-                    <Route path="config/map/addfloor" element={<AddFloor />} />
-                    <Route path="config/map/editfloor/:floor_id" element={<EditFloor />} />
-                    <Route path="past-tracking" element={<PastTracking />} />
-                    <Route path="config/asset" element={<AssetConfigPage />} />
+                    
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />
