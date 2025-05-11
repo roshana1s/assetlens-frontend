@@ -63,8 +63,7 @@
 }
 
 .date-time-group > div label {
-  margin-bottom: 8px; /* Add spacing between label and input */
-  font-weight: bold; /* Make the label bold for better visibility */
+  margin-bottom: 1px; /* Add spacing between label and input */
 }
 
 /* Timeline controls */

@@ -35,6 +35,8 @@ const PastTracking = () => {
     const [initialDataLoad, setInitialDataLoad] = useState(true);
     const [getData, setGetData] = useState(false);
 
+    const user_id = 'u0002';
+    
     useEffect(() => {
         const fetchDataAndFilters = async (org_id) => {
             try {
@@ -98,6 +100,7 @@ const PastTracking = () => {
         }
 
         const filterData = {
+            user_id: user_id,
             floor_id: floorId,
             zone_id: zoneId,
             asset_id: assetId,
