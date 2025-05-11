@@ -388,51 +388,6 @@ const UserList = ({ orgId = 1 }) => {
     <div className="user-configuration-container">
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* Sidebar with Role Filter */}
-      <div className="sidebar">
-        <div className="role-filter-container">
-          <div className="filter-header">
-            <h2 className="filter-title">Filter</h2>
-          </div>
-          
-          <div className="role-header">
-            <h3 className="role-title">User role</h3>
-            <button 
-              className="edit-role-btn"
-              onClick={() => setShowRoleManagementModal(true)}
-            >
-              <svg className="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-              </svg>
-            </button>
-          </div>
-
-          <div className="role-checkbox-list">
-            {roles.map(role => (
-              <div key={role.role_id} className="role-checkbox-item">
-                <input
-                  type="checkbox"
-                  id={`role-${role.role_id}`}
-                  checked={selectedRoles.includes(role.role_id)}
-                  onChange={() => handleRoleToggle(role.role_id)}
-                  className="role-checkbox"
-                />
-                <label htmlFor={`role-${role.role_id}`} className="role-checkbox-label">
-                  <span className={`checkbox-custom ${selectedRoles.includes(role.role_id) ? 'checked' : ''}`}>
-                    {selectedRoles.includes(role.role_id) && (
-                      <svg className="checkmark" fill="none" stroke="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    )}
-                  </span>
-                  {role.role_name}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="main-content">
         {/* Header */}
@@ -496,352 +451,397 @@ const UserList = ({ orgId = 1 }) => {
             ))}
           </div>
         )}
+      </div>
 
-        {/* Updated Role Management Modal - similar to Image 2 */}
-        {showRoleManagementModal && (
-          <div className="modal-overlay">
-            <div className="modern-role-modal">
-              <div className="modern-role-header">
-                <h2>Roles</h2>
-                <button 
-                  className="close-modal-btn"
-                  onClick={() => {
-                    setShowRoleManagementModal(false);
-                    setNewRoleName('');
-                    setRoleToDelete(null);
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-              
-              <div className="modern-roles-list">
-                {roles.map(role => (
-                  <div key={role.role_id} className="modern-role-item">
-                    <div className="modern-role-name">{role.role_name}</div>
-                    <button
-                      className="modern-role-delete-btn"
-                      onClick={() => handleDeleteRole(role.role_id)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="modern-add-role">
-                <input
-                  type="text"
-                  placeholder="Enter new role name"
-                  value={newRoleName}
-                  onChange={(e) => setNewRoleName(e.target.value)}
-                  className="modern-role-input"
-                />
-                <button className="modern-add-role-btn" onClick={handleAddRole}>
-                  <span className="add-icon">+</span> Add Role
-                </button>
-              </div>
-            </div>
+      {/* Sidebar with Role Filter */}
+      <div className="sidebar">
+        <div className="role-filter-container">
+          <div className="filter-header">
+            <h2 className="filter-title">Filter</h2>
           </div>
-        )}
+          
+          <div className="role-header">
+            <h3 className="role-title">User role</h3>
+            <button 
+              className="edit-role-btn"
+              onClick={() => setShowRoleManagementModal(true)}
+            >
+              <svg className="edit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+              </svg>
+            </button>
+          </div>
 
-        {/* Delete User Modal */}
-        {showDeleteModal && (
-          <div className="modal-overlay">
-            <div className="delete-modal">
-              <h3>Type "{currentUser?.name}" below to confirm deletion</h3>
+          <div className="role-checkbox-list">
+            {roles.map(role => (
+              <div key={role.role_id} className="role-checkbox-item">
+                <input
+                  type="checkbox"
+                  id={`role-${role.role_id}`}
+                  checked={selectedRoles.includes(role.role_id)}
+                  onChange={() => handleRoleToggle(role.role_id)}
+                  className="role-checkbox"
+                />
+                <label htmlFor={`role-${role.role_id}`} className="role-checkbox-label">
+                  <span className={`checkbox-custom ${selectedRoles.includes(role.role_id) ? 'checked' : ''}`}>
+                    {selectedRoles.includes(role.role_id) && (
+                      <svg className="checkmark" fill="none" stroke="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                    )}
+                  </span>
+                  {role.role_name}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Updated Role Management Modal - similar to Image 2 */}
+      {showRoleManagementModal && (
+        <div className="modal-overlay">
+          <div className="modern-role-modal">
+            <div className="modern-role-header">
+              <h2>Roles</h2>
+              <button 
+                className="close-modal-btn"
+                onClick={() => {
+                  setShowRoleManagementModal(false);
+                  setNewRoleName('');
+                  setRoleToDelete(null);
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="modern-roles-list">
+              {roles.map(role => (
+                <div key={role.role_id} className="modern-role-item">
+                  <div className="modern-role-name">{role.role_name}</div>
+                  <button
+                    className="modern-role-delete-btn"
+                    onClick={() => handleDeleteRole(role.role_id)}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            
+            <div className="modern-add-role">
               <input
                 type="text"
-                placeholder="Enter User Name Here"
-                value={confirmationName}
-                onChange={(e) => setConfirmationName(e.target.value)}
-                className="modal-input"
-                disabled={deleteLoading}
+                placeholder="Enter new role name"
+                value={newRoleName}
+                onChange={(e) => setNewRoleName(e.target.value)}
+                className="modern-role-input"
               />
-              <div className="modal-actions">
-                <button 
-                  className="modal-btn confirm-btn"
-                  onClick={handleDeleteConfirm}
-                  disabled={confirmationName !== currentUser?.name || deleteLoading}
-                >
-                  {deleteLoading ? 'Deleting...' : 'Confirm deletion'}
-                </button>
-                <button 
-                  className="modal-btn cancel-btn"
-                  onClick={() => {
-                    setShowDeleteModal(false);
-                    setConfirmationName('');
-                  }}
-                  disabled={deleteLoading}
-                >
-                  Cancel
-                </button>
-              </div>
+              <button className="modern-add-role-btn" onClick={handleAddRole}>
+                <span className="add-icon">+</span> Add Role
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Edit User Modal */}
-        {showEditModal && (
-          <div className="modal-overlay">
-            <div className="edit-modal-figma">
-              <div className="edit-modal-header">
-                <h2>{editForm.name}</h2>
-                <p className="user-role-text">
-                  {roles.find(r => r.role_id === editForm.role_id)?.role_name || 'No role selected'}
-                </p>
-              </div>
+      {/* Delete User Modal */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="delete-modal">
+            <h3>Type "{currentUser?.name}" below to confirm deletion</h3>
+            <input
+              type="text"
+              placeholder="Enter User Name Here"
+              value={confirmationName}
+              onChange={(e) => setConfirmationName(e.target.value)}
+              className="modal-input"
+              disabled={deleteLoading}
+            />
+            <div className="modal-actions">
+              <button 
+                className="modal-btn confirm-btn"
+                onClick={handleDeleteConfirm}
+                disabled={confirmationName !== currentUser?.name || deleteLoading}
+              >
+                {deleteLoading ? 'Deleting...' : 'Confirm deletion'}
+              </button>
+              <button 
+                className="modal-btn cancel-btn"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setConfirmationName('');
+                }}
+                disabled={deleteLoading}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-              <div className="user-info-section">
-                <h3 className="section-title">User Name</h3>
-                <div className="user-details">
-                  <div className="detail-row">
-                    <span className="detail-label">Name</span>
-                    <input
-                      type="text"
-                      value={editForm.name}
-                      onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                      className="detail-input"
-                    />
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Role</span>
-                    <select
-                      value={editForm.role_id}
-                      onChange={(e) => setEditForm({...editForm, role_id: e.target.value})}
-                      className="detail-input"
-                    >
-                      <option value="">Select a role</option>
-                      {roles.map(role => (
-                        <option key={role.role_id} value={role.role_id}>
-                          {role.role_name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
+      {/* Edit User Modal */}
+      {showEditModal && (
+        <div className="modal-overlay">
+          <div className="edit-modal-figma">
+            <div className="edit-modal-header">
+              <h2>{editForm.name}</h2>
+              <p className="user-role-text">
+                {roles.find(r => r.role_id === editForm.role_id)?.role_name || 'No role selected'}
+              </p>
+            </div>
 
-              <div className="profile-image-section">
-                <h3 className="section-title">Profile Image</h3>
-                <div className="profile-image-container">
-                  <div className="profile-image-wrapper">
-                    {editForm.tempImage ? (
-                      <img src={editForm.tempImage} alt="User" className="profile-image" />
-                    ) : editForm.image_link ? (
-                      <img src={editForm.image_link} alt="User" className="profile-image" />
-                    ) : (
-                      <div className="profile-image-placeholder">
-                        {editForm.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="profile-image-actions">
-                    <button 
-                      className="image-action-btn change-image-btn"
-                      onClick={() => fileInputRef.current.click()}
-                    >
-                      Change User Image
-                    </button>
-                    {(editForm.tempImage || editForm.image_link) && (
-                      <button 
-                        className="image-action-btn remove-image-btn"
-                        onClick={handleDeleteImage}
-                      >
-                        Remove Image
-                      </button>
-                    )}
-                  </div>
+            <div className="user-info-section">
+              <h3 className="section-title">User Name</h3>
+              <div className="user-details">
+                <div className="detail-row">
+                  <span className="detail-label">Name</span>
                   <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={(e) => handleImageUpload(e, 'edit')}
-                    accept="image/*"
-                    style={{ display: 'none' }}
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                    className="detail-input"
                   />
                 </div>
-              </div>
-
-              <div className="assets-section">
-                <h3 className="section-title">Assigned Assets</h3>
-                <div className="assets-checkbox-container">
-                  {allAssets.length > 0 ? (
-                    <div className="asset-checkboxes">
-                      {allAssets.map(asset => {
-                        const assetId = asset.id;
-                        const isChecked = editForm.selectedAssets.includes(assetId);
-                        return (
-                          <div key={assetId} className="asset-checkbox-item">
-                            <input
-                              type="checkbox"
-                              id={`edit-asset-${assetId}`}
-                              checked={isChecked}
-                              onChange={() => handleEditAssetChange(assetId)}
-                              className="asset-checkbox"
-                            />
-                            <label htmlFor={`edit-asset-${assetId}`} className="asset-checkbox-label">
-                              {asset.name}
-                            </label>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="no-assets-message">No assets available to assign</p>
-                  )}
+                <div className="detail-row">
+                  <span className="detail-label">Role</span>
+                  <select
+                    value={editForm.role_id}
+                    onChange={(e) => setEditForm({...editForm, role_id: e.target.value})}
+                    className="detail-input"
+                  >
+                    <option value="">Select a role</option>
+                    {roles.map(role => (
+                      <option key={role.role_id} value={role.role_id}>
+                        {role.role_name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
-
-              <div className="edit-modal-actions">
-                <button 
-                  className="cancel-btn"
-                  onClick={() => setShowEditModal(false)}
-                >
-                  Cancel
-                </button>
-                <button 
-                  className="save-btn"
-                  onClick={handleEditConfirm}
-                  disabled={!editForm.name || !editForm.role_id}
-                >
-                  Save Changes
-                </button>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Add User Modal with Assets Section */}
-        {showAddModal && (
-          <div className="modal-overlay">
-            <div className="add-modal">
-              <h2>Add New User</h2>
-              
-              <div className="form-group">
-                <label>Name</label>
-                <input
-                  type="text"
-                  value={addForm.name}
-                  onChange={(e) => setAddForm({...addForm, name: e.target.value})}
-                  className="modal-input"
-                  placeholder="Enter full name"
-                />
-              </div>
-              <div className="form-group">
-                <label>Email (main)</label>
-                <input
-                  type="email"
-                  value={addForm.email}
-                  onChange={(e) => setAddForm({...addForm, email: e.target.value})}
-                  className="modal-input"
-                  placeholder="user@example.com"
-                />
-              </div>
-              <div className="form-group">
-                <label>Role (void_id)</label>
-                <select
-                  value={addForm.role_id}
-                  onChange={(e) => setAddForm({...addForm, role_id: e.target.value})}
-                  className="modal-input"
-                  required
-                >
-                  <option value="">Select a role</option>
-                  {roles.map(role => (
-                    <option key={role.role_id} value={role.role_id}>
-                      {role.role_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Assets Section in Add User Form */}
-              <div className="assets-section">
-                <h3 className="section-title">Assign Assets</h3>
-                <div className="assets-checkbox-container">
-                  {allAssets.length > 0 ? (
-                    <div className="asset-checkboxes">
-                      {allAssets.map(asset => (
-                        <div key={asset.id} className="asset-checkbox-item">
-                          <input
-                            type="checkbox"
-                            id={`asset-${asset.id}`}
-                            checked={addForm.selectedAssets.includes(asset.id)}
-                            onChange={() => handleAddAssetChange(asset.id)}
-                            className="asset-checkbox"
-                          />
-                          <label htmlFor={`asset-${asset.id}`}>{asset.name}</label>
-                        </div>
-                      ))}
-                    </div>
+            <div className="profile-image-section">
+              <h3 className="section-title">Profile Image</h3>
+              <div className="profile-image-container">
+                <div className="profile-image-wrapper">
+                  {editForm.tempImage ? (
+                    <img src={editForm.tempImage} alt="User" className="profile-image" />
+                  ) : editForm.image_link ? (
+                    <img src={editForm.image_link} alt="User" className="profile-image" />
                   ) : (
-                    <p className="no-assets-message">No assets available</p>
+                    <div className="profile-image-placeholder">
+                      {editForm.name.charAt(0).toUpperCase()}
+                    </div>
                   )}
                 </div>
-              </div>
-              <div className="image-upload-section">
-                <label>Profile Image (image_list)</label>
-                <div 
-                  className="image-drop-zone"
-                  onClick={() => fileInputRef.current.click()}
-                >
-                  {addForm.image_link ? (
-                    <img src={addForm.image_link} alt="Preview" className="preview-image" />
-                  ) : (
-                    <>
-                      <div className="drop-icon">+</div>
-                      <p>Drop image here</p>
-                      <p>PNG/JPEG, Max 20MB</p>
-                    </>
+                <div className="profile-image-actions">
+                  <button 
+                    className="image-action-btn change-image-btn"
+                    onClick={() => fileInputRef.current.click()}
+                  >
+                    Change User Image
+                  </button>
+                  {(editForm.tempImage || editForm.image_link) && (
+                    <button 
+                      className="image-action-btn remove-image-btn"
+                      onClick={handleDeleteImage}
+                    >
+                      Remove Image
+                    </button>
                   )}
                 </div>
                 <input
                   type="file"
                   ref={fileInputRef}
-                  onChange={(e) => handleImageUpload(e, 'add')}
+                  onChange={(e) => handleImageUpload(e, 'edit')}
                   accept="image/*"
                   style={{ display: 'none' }}
                 />
               </div>
+            </div>
+
+            <div className="assets-section">
+              <h3 className="section-title">Assigned Assets</h3>
+              <div className="assets-checkbox-container">
+                {allAssets.length > 0 ? (
+                  <div className="asset-checkboxes">
+                    {allAssets.map(asset => {
+                      const assetId = asset.id;
+                      const isChecked = editForm.selectedAssets.includes(assetId);
+                      return (
+                        <div key={assetId} className="asset-checkbox-item">
+                          <input
+                            type="checkbox"
+                            id={`edit-asset-${assetId}`}
+                            checked={isChecked}
+                            onChange={() => handleEditAssetChange(assetId)}
+                            className="asset-checkbox"
+                          />
+                          <label htmlFor={`edit-asset-${assetId}`} className="asset-checkbox-label">
+                            {asset.name}
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="no-assets-message">No assets available to assign</p>
+                )}
+              </div>
+            </div>
+
+            <div className="edit-modal-actions">
+              <button 
+                className="cancel-btn"
+                onClick={() => setShowEditModal(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="save-btn"
+                onClick={handleEditConfirm}
+                disabled={!editForm.name || !editForm.role_id}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal with Assets Section */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="add-modal">
+            <h2>Add New User</h2>
+            
+            <div className="form-group">
+              <label>Name</label>
+              <input
+                type="text"
+                value={addForm.name}
+                onChange={(e) => setAddForm({...addForm, name: e.target.value})}
+                className="modal-input"
+                placeholder="Enter full name"
+              />
+            </div>
+            <div className="form-group">
+              <label>Email (main)</label>
+              <input
+                type="email"
+                value={addForm.email}
+                onChange={(e) => setAddForm({...addForm, email: e.target.value})}
+                className="modal-input"
+                placeholder="user@example.com"
+              />
+            </div>
+            <div className="form-group">
+              <label>Role (void_id)</label>
+              <select
+                value={addForm.role_id}
+                onChange={(e) => setAddForm({...addForm, role_id: e.target.value})}
+                className="modal-input"
+                required
+              >
+                <option value="">Select a role</option>
+                {roles.map(role => (
+                  <option key={role.role_id} value={role.role_id}>
+                    {role.role_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Assets Section in Add User Form */}
+            <div className="assets-section">
+              <h3 className="section-title">Assign Assets</h3>
+              <div className="assets-checkbox-container">
+                {allAssets.length > 0 ? (
+                  <div className="asset-checkboxes">
+                    {allAssets.map(asset => (
+                      <div key={asset.id} className="asset-checkbox-item">
+                        <input
+                          type="checkbox"
+                          id={`asset-${asset.id}`}
+                          checked={addForm.selectedAssets.includes(asset.id)}
+                          onChange={() => handleAddAssetChange(asset.id)}
+                          className="asset-checkbox"
+                        />
+                        <label htmlFor={`asset-${asset.id}`}>{asset.name}</label>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="no-assets-message">No assets available</p>
+                )}
+              </div>
+            </div>
+            <div className="image-upload-section">
+              <label>Profile Image (image_list)</label>
+              <div 
+                className="image-drop-zone"
+                onClick={() => fileInputRef.current.click()}
+              >
+                {addForm.image_link ? (
+                  <img src={addForm.image_link} alt="Preview" className="preview-image" />
+                ) : (
+                  <>
+                    <div className="drop-icon">+</div>
+                    <p>Drop image here</p>
+                    <p>PNG/JPEG, Max 20MB</p>
+                  </>
+                )}
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={(e) => handleImageUpload(e, 'add')}
+                accept="image/*"
+                style={{ display: 'none' }}
+              />
+            </div>
 
 
-              <div className="add-modal-actions">
+            <div className="add-modal-actions">
+              <button 
+                className="modal-btn secondary-btn"
+                onClick={() => {
+                  setShowAddModal(false);
+                  setAddForm({
+                    name: '',
+                    email: '',
+                    password: '',
+                    role_id: '',
+                    image_link: '',
+                    selectedAssets: []
+                  });
+                  setShowAddModal(true);
+                }}
+              >
+                Add another
+              </button>
+              <div className="primary-actions">
                 <button 
-                  className="modal-btn secondary-btn"
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setAddForm({
-                      name: '',
-                      email: '',
-                      password: '',
-                      role_id: '',
-                      image_link: '',
-                      selectedAssets: []
-                    });
-                    setShowAddModal(true);
-                  }}
+                  className="modal-btn cancel-btn"
+                  onClick={() => setShowAddModal(false)}
                 >
-                  Add another
+                  Cancel
                 </button>
-                <div className="primary-actions">
-                  <button 
-                    className="modal-btn cancel-btn"
-                    onClick={() => setShowAddModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    className="modal-btn create-btn"
-                    onClick={handleAddConfirm}
-                    disabled={!addForm.name || !addForm.role_id}
-                  >
-                    Add User
-                  </button>
-                </div>
+                <button 
+                  className="modal-btn create-btn"
+                  onClick={handleAddConfirm}
+                  disabled={!addForm.name || !addForm.role_id}
+                >
+                  Add User
+                </button>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

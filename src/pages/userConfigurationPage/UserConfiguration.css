@@ -1902,3 +1902,268 @@ textarea.modal-input {
   text-align: center;
   color: #6b7280;
 }
+
+.user-configuration-container {
+  display: flex;
+  flex-direction: row;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  gap: 20px;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.role-filter-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.filter-header {
+  margin-bottom: 20px;
+}
+
+.filter-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.filter-title::before {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z'%3E%3C/path%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.role-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.role-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.edit-role-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-icon {
+  width: 16px;
+  height: 16px;
+  color: #4b5563;
+}
+
+.role-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.role-checkbox-item {
+  display: flex;
+  align-items: center;
+}
+
+.role-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.role-checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: #374151;
+}
+
+.checkbox-custom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid #d1d5db;
+  margin-right: 12px;
+  background-color: white;
+}
+
+.checkbox-custom.checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.checkmark {
+  width: 16px;
+  height: 16px;
+}
+
+/* Keep all other existing CSS the same */
+.header-with-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.configuration-title {
+  font-size: 24px;
+  color: #333;
+}
+
+.add-user-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.add-user-btn:hover {
+  background-color: #45a049;
+}
+
+.search-container {
+  margin-bottom: 20px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.compact-user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.compact-user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.compact-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.compact-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.compact-avatar-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #555;
+}
+
+.compact-user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.compact-user-name {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.compact-user-role {
+  font-size: 14px;
+  color: #666;
+}
+
+.compact-user-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.edit-btn {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.edit-btn:hover {
+  background-color: #d0d0d0;
+}
+
+.delete-btn {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.delete-btn:hover {
+  background-color: #ffcdd2;
+}
+
+.no-users {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+}
+
+/* Keep all other existing modal and form styles */
