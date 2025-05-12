@@ -47,7 +47,6 @@ const OnlineTracking = () => {
 
         socket.onopen = () => {
             console.log("WebSocket connected");
-            
         };
 
         socket.onmessage = (event) => {
@@ -66,8 +65,6 @@ const OnlineTracking = () => {
         socket.onclose = (event) => {
             console.log("WebSocket closed:", event);
         };
-
-
     }, []);
 
     const matchedFloor = (initialFilterDetails.floors || []).find(
@@ -170,7 +167,9 @@ const OnlineTracking = () => {
                               ?.zones || []
                         : []
                 }
-                assetLocations={liveLocations.locations || []}
+                assetLocations={
+                    floorId != "" ? liveLocations.locations || [] : []
+                }
             />
         </div>
     );
