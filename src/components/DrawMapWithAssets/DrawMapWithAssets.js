@@ -140,10 +140,10 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
                         </Tooltip>
                     </Polygon>
                 ))}
-                {assetLocations.map((asset, index) => (
+                {assetLocations && assetLocations.map((asset, index) => (
                     <CircleMarker
                         key={`${asset.asset_id}-${asset.geofencing_breached}`}
-                        center={[asset.coordinate.x, asset.coordinate.y]}
+                        center={[asset.coordinates.x, asset.coordinates.y]}
                         radius={8}
                         color={
                             asset.geofencing_breached ? "#FF0000" : "#0000FF"
@@ -175,8 +175,8 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
                         {showPopup && (
                             <Popup
                                 position={[
-                                    asset.coordinate.x,
-                                    asset.coordinate.y,
+                                    asset.coordinates.x,
+                                    asset.coordinates.y,
                                 ]}
                                 onClose={() => setShowPopup(false)}
                                 autoPan={true}
