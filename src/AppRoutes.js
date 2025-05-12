@@ -10,10 +10,10 @@ import PlaceOrderPage from "./pages/PlaceOrderPage/PlaceOrderPage";
 import AssetLensAdminDashboard from "./pages/Dashboard/AssetLensAdminDashboard";
 import OrgAdminDashboard from "./pages/Dashboard/OrgAdminDashboard";
 import OrgUserDashboard from "./pages/Dashboard/OrgUserDashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoutes/ProtectedRoute";
 import ForgotPassword from "./pages/LoginPage/ForgotPassword";
 import ResetPassword from "./pages/LoginPage/ResetPassword";
-import UnauthorizedPage from "./pages/UnauthorizedPage";
+import UnauthorizedPage from "./pages/UnauthorizedPage/UnauthorizedPage";
 import HeatmapPage from "./pages/Dashboard/Heatmap/HeatmapPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage"; 
 
