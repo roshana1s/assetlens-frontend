@@ -13,7 +13,13 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
+
+  React.useEffect(() => {
+    if (isAuthenticated && user && user.dashboard_url) {
+      navigate(user.dashboard_url);
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -35,7 +41,7 @@ const LoginPage = () => {
         }
       );
 
-      login(response.data.access_token, {
+      await login(response.data.access_token, {
         username: response.data.username,
         role: response.data.role,
         org_id: response.data.org_id,

@@ -1,16 +1,50 @@
-import React, { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./NavBarOrgAdmin.css";
+import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
+import { useNotifications } from "../../context/NotificationContext";
 
 const NavBarOrgAdmin = () => {
     const [showAlerts, setShowAlerts] = useState(false);
-    const [showNotifications, setShowNotifications] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
-
+    const [profileData, setProfileData] = useState(null);
+    const { user, isGlobalAdmin, currentOrgId, logout } = useAuth();
+    const navigate = useNavigate();
     const location = useLocation();
     const isConfigActive = location.pathname.startsWith("/admin/config");
+    
+    // Use notifications from context
+    const {
+        notifications,
+        unreadCount,
+        loading: loadingNotifications,
+        error: notificationError,
+        markAllAsRead
+    } = useNotifications();
+    
+    const [showNotifications, setShowNotifications] = useState(false);
+
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                const response = await axios.get("http://localhost:8000/user/profile", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+                setProfileData(response.data);
+            } catch (error) {
+                console.error("Error fetching profile data:", error);
+            }
+        };
+
+        if (showProfile) {
+            fetchProfileData();
+        }
+    }, [showProfile]);
 
     const toggleAlerts = () => {
         setShowAlerts(!showAlerts);
@@ -19,22 +53,36 @@ const NavBarOrgAdmin = () => {
     };
 
     const toggleNotifications = () => {
-        setShowNotifications(!showNotifications);
+        const newState = !showNotifications;
+        setShowNotifications(newState);
         setShowAlerts(false);
         setShowProfile(false);
+        
+        if (newState && unreadCount > 0) {
+            markAllAsRead();
+        }
     };
 
     const toggleProfile = () => {
         setShowNotifications(false);
         setShowAlerts(false);
         setShowProfile(!showProfile);
-    }
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
+
+    const formatTime = (timestamp) => {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
 
     return (
         <div className="layout-container">
             <nav className="navbar-custom">
                 <div className="brand">
-                    {/* <img src="/logo.png" alt="logo" className="logo" /> */}
                     <span className="brand-name">AssetLens</span>
                 </div>
                 <div className="nav-links">
@@ -49,7 +97,7 @@ const NavBarOrgAdmin = () => {
                             width="16"
                             height="16"
                             fill="currentColor"
-                            class="bi bi-geo-alt"
+                            className="bi bi-geo-alt"
                             viewBox="0 0 16 16"
                         >
                             <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10" />
@@ -69,7 +117,7 @@ const NavBarOrgAdmin = () => {
                             width="16"
                             height="16"
                             fill="currentColor"
-                            class="bi bi-clock-history"
+                            className="bi bi-clock-history"
                             viewBox="0 0 16 16"
                         >
                             <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z" />
@@ -90,7 +138,7 @@ const NavBarOrgAdmin = () => {
                             width="16"
                             height="16"
                             fill="currentColor"
-                            class="bi bi-journal-text"
+                            className="bi bi-journal-text"
                             viewBox="0 0 16 16"
                         >
                             <path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5" />
@@ -111,7 +159,7 @@ const NavBarOrgAdmin = () => {
                             width="16"
                             height="16"
                             fill="currentColor"
-                            class="bi bi-grid"
+                            className="bi bi-grid"
                             viewBox="0 0 16 16"
                         >
                             <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z" />
@@ -131,7 +179,7 @@ const NavBarOrgAdmin = () => {
                                 width="16"
                                 height="16"
                                 fill="currentColor"
-                                class="bi bi-gear"
+                                className="bi bi-gear"
                                 viewBox="0 0 16 16"
                             >
                                 <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0" />
@@ -149,7 +197,7 @@ const NavBarOrgAdmin = () => {
                                     width="16"
                                     height="16"
                                     fill="currentColor"
-                                    class="bi bi-people"
+                                    className="bi bi-people"
                                     viewBox="0 0 16 16"
                                 >
                                     <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4" />
@@ -165,7 +213,7 @@ const NavBarOrgAdmin = () => {
                                     width="16"
                                     height="16"
                                     fill="currentColor"
-                                    class="bi bi-suitcase-lg"
+                                    className="bi bi-suitcase-lg"
                                     viewBox="0 0 16 16"
                                 >
                                     <path d="M5 2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2h3.5A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5H14a.5.5 0 0 1-1 0H3a.5.5 0 0 1-1 0h-.5A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2zm1 0h4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1M1.5 3a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5H3V3zM15 12.5v-9a.5.5 0 0 0-.5-.5H13v10h1.5a.5.5 0 0 0 .5-.5m-3 .5V3H4v10z" />
@@ -181,11 +229,11 @@ const NavBarOrgAdmin = () => {
                                     width="16"
                                     height="16"
                                     fill="currentColor"
-                                    class="bi bi-map"
+                                    className="bi bi-map"
                                     viewBox="0 0 16 16"
                                 >
                                     <path
-                                        fill-rule="evenodd"
+                                        fillRule="evenodd"
                                         d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.5.5 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103M10 1.91l-4-.8v12.98l4 .8zm1 12.98 4-.8V1.11l-4 .8zm-6-.8V1.11l-4 .8v12.98z"
                                     />
                                 </svg>
@@ -221,33 +269,126 @@ const NavBarOrgAdmin = () => {
                         >
                             <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
                         </svg>
+                        {unreadCount > 0 && (
+                            <span className="notification-badge">{unreadCount}</span>
+                        )}
                         {showNotifications && (
-                            <div className="popup-box">
-                                No new notifications
+                            <div className="popup-box notification-popup">
+                                {loadingNotifications ? (
+                                    <div className="loading-notifications">Loading notifications...</div>
+                                ) : notificationError ? (
+                                    <div className="notification-error">{notificationError}</div>
+                                ) : notifications.length > 0 ? (
+                                    <>
+                                        <div className="notification-header">
+                                            <h4>Notifications</h4>
+                                            <button 
+                                                className="mark-all-read"
+                                                onClick={markAllAsRead}
+                                                disabled={unreadCount === 0}
+                                            >
+                                                Mark all as read
+                                            </button>
+                                        </div>
+                                        <div className="notification-list">
+                                            {notifications.map((notification, index) => (
+                                                <div 
+                                                    key={index} 
+                                                    className={`notification-item ${notification.is_read ? '' : 'unread'}`}
+                                                >
+                                                    <div className="notification-message">
+                                                        {notification.message}
+                                                    </div>
+                                                    <div className="notification-meta">
+                                                        <span className="notification-type">
+                                                            {notification.type.replace('_', ' ')}
+                                                        </span>
+                                                        <span className="notification-time">
+                                                            {formatTime(notification.timestamp)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="no-notifications">No new notifications</div>
+                                )}
                             </div>
                         )}
                     </div>
+
                     <div className="icon-wrapper" onClick={toggleProfile}>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            class="profile-icon"
-                            viewBox="0 0 16 16"
-                        >
-                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-                            <path
-                                fill-rule="evenodd"
-                                d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
-                            />
-                        </svg>
-                        {showProfile && (
-                            <div className="popup-box">
-                                My profile
-
-                                {/* ADD IMAGE, NAME, My profile (link), Log out (link) here */}
-
+                    {user?.image_link ? (
+                        <img
+                            src={user.image_link}
+                            alt="Profile"
+                            className="profile-image-navbar"
+                            style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", border: "2px solid #2f6fed" }}
+                        />
+                    ) : (
+                        <div className="profile-image-placeholder-navbar" style={{ width: 32, height: 32, borderRadius: "50%", background: "#e5e9fb", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", color: "#2f6fed", border: "2px solid #2f6fed" }}>
+                            {user?.name?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                    )}
+                    {showProfile && (
+                        <div className="profile-popup-box">
+      <div className="profile-header">
+        {user?.image_link ? (
+          <img src={user.image_link} alt="Profile" className="profile-image" />
+        ) : (
+          <div className="profile-image-placeholder">
+            {user?.name?.charAt(0).toUpperCase() || 'U'}
+          </div>
+        )}
+        <div className="profile-info">
+          <h5 className="profile-name">{user?.name || user?.username || 'User'}</h5>
+          <p className="profile-role">
+            {isGlobalAdmin ? 'AssetLens Admin' : user?.role || 'User'}
+          </p>
+          <p className="profile-email">{user?.email || ''}</p>
+        </div>
+      </div>
+      <div className="profile-links">
+        <NavLink 
+          to={
+            isGlobalAdmin 
+              ? "/dashboard/assetlens/profile" 
+              : `/dashboard/org/${currentOrgId}/${user?.role === 'user' ? 'user' : 'admin'}/profile`
+          } 
+          className="profile-link"
+          onClick={() => setShowProfile(false)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            className="bi bi-person"
+            viewBox="0 0 16 16"
+          >
+            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z"/>
+          </svg>
+          &nbsp; My Profile
+        </NavLink>
+        <button 
+          className="profile-link logout-btn"
+          onClick={handleLogout}
+        >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="16"
+                                            fill="currentColor"
+                                            className="bi bi-box-arrow-right"
+                                            viewBox="0 0 16 16"
+                                        >
+                                            <path fillRule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                                            <path fillRule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                                        </svg>
+                                        &nbsp; Logout
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

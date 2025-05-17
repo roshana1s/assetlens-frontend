@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -23,12 +23,19 @@ export const AuthProvider = ({ children }) => {
             return;
           }
           
+          const userResponse = await axios.get('http://localhost:8000/user/profile', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
           setAuthState({
             token,
             user: {
+              id: decoded.sub,
               username: decoded.sub,
               role: decoded.role,
-              org_id: decoded.org_id
+              org_id: decoded.org_id,
+              is_global_admin: decoded.is_global_admin || false,
+              ...userResponse.data 
             },
             isAuthenticated: true,
             loading: false
@@ -45,20 +52,32 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = (token, userData) => {
+  const login = async (token) => {
     localStorage.setItem("token", token);
     const decoded = jwtDecode(token);
-    setAuthState({
-      token,
-      user: {
-        username: decoded.sub,
-        role: decoded.role,
-        org_id: decoded.org_id,
-        ...userData
-      },
-      isAuthenticated: true,
-      loading: false
-    });
+    
+    try {
+      const userResponse = await axios.get('http://localhost:8000/user/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setAuthState({
+        token,
+        user: {
+          id: decoded.sub,
+          username: decoded.sub,
+          role: decoded.role,
+          org_id: decoded.org_id,
+          is_global_admin: decoded.is_global_admin || false,
+          ...userResponse.data
+        },
+        isAuthenticated: true,
+        loading: false
+      });
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+      logout();
+    }
   };
 
   const logout = () => {
@@ -72,11 +91,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ ...authState, login, logout }}>
+    <AuthContext.Provider value={{ 
+      ...authState, 
+      login, 
+      logout,
+      currentOrgId: authState.user?.org_id,
+      isGlobalAdmin: authState.user?.is_global_admin || false
+    }}>
       {!authState.loading && children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => useContext(AuthContext);
-
