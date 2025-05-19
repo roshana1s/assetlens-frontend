@@ -1,0 +1,133 @@
+/* Navbar.css */
+.navbar-custom {
+  background-color: #e5e9fb;
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  height: 70px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 36px;
+  height: 36px;
+  margin-right: 10px;
+}
+
+.brand-name {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #000;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: black;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  transition: background-color 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: #d8defc;
+}
+
+.nav-link.active {
+  background-color: #2f6fed;
+  color: white;
+}
+
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.icon-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.alert-icon {
+  color: red;
+  font-size: 1.25rem;
+}
+
+.notification-icon {
+  color: black;
+  font-size: 1.25rem;;
+}
+
+.profile-icon {
+  color: black;
+  font-size: 1.25rem;
+}
+
+.alert-icon, .notification-icon, .profile-icon{
+  width: 22px;
+  height: 22px;
+}
+
+
+.popup-box {
+  position: absolute;
+  top: 2rem;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  min-width: 180px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 99999;
+}
+
+.dropdown-menu {     
+  padding: 0;      
+  min-width: 220px;    
+  border-radius: 0.75rem; 
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);  
+}
+
+.dropdown-menu .nav-link{
+  padding: 15px;
+}
+
+.nav-links svg{
+  width: 22px;
+  height: 22px;
+  font-weight: bold;
+  margin: auto 0;
+  padding: auto;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .nav-links {
+    gap: 1rem;
+    font-size: 0.9rem;
+  }
+  .navbar-custom {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+  .nav-icons {
+    margin-top: 0.75rem;
+  }
+}
