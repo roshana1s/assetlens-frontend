@@ -1,7 +1,6 @@
-<<<<<<< HEAD
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-=======
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AssetLensAdminLayout from "./layouts/AssetLensAdminLayout";
@@ -12,13 +11,12 @@ import MapConfiguration from "./pages/MapConfiguration/MapConfiguration";
 import AddFloor from "./pages/MapConfiguration/AddFloorPage/AddFloor"
 import EditFloor from "./pages/MapConfiguration/EditFloorPage/EditFloor";
 import PastTracking from "./pages/PastTracking/PastTracking";
-import AssetConfigPage from "./pages/AssetConfig/AssetConfigPage";
->>>>>>> 6114fbb7a419bd52daf6e21c41ed22ebb8697a17
+import AssetConfigPage from "./pages/AssetConfig/AssetConfigPage"
 import UserList from './pages/userConfigurationPage/UserList';
 import Organization from './pages/mangeOrganizationPage/organization';
 import AlertPage from './pages/alertPage/alertPage';
 
-<<<<<<< HEAD
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -29,8 +27,7 @@ const AppRoutes = () => {
   );
 };
 
-export default AppRoutes;
-=======
+
 const AppRouter = () => {
     return (
         <BrowserRouter>
@@ -59,4 +56,3 @@ const AppRouter = () => {
 };
 
 export default AppRouter;
->>>>>>> 6114fbb7a419bd52daf6e21c41ed22ebb8697a17
