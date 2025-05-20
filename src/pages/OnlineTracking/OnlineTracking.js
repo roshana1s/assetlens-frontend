@@ -168,7 +168,7 @@ const OnlineTracking = () => {
                         : []
                 }
                 assetLocations={
-                    floorId != "" ? liveLocations.locations || [] : []
+                    floorId !== "" ? liveLocations.locations || [] : []
                 }
             />
         </div>
