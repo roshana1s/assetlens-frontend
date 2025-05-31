@@ -71,6 +71,16 @@ const OnlineTracking = () => {
         (floor) => floor.floor_id === floorId
     );
 
+    const filteredLocations =
+        floorId !== ""
+            ? (liveLocations.locations || []).filter((loc) => {
+                  const zoneMatch = zoneId === "ALL" || loc.zone_id === zoneId;
+                  const assetMatch =
+                      assetId === "ALL" || loc.asset_id === assetId;
+                  return zoneMatch && assetMatch;
+              })
+            : [];
+
     return (
         <div style={{ display: "flex" }}>
             <ToastContainer position="top-right" autoClose={3000} />
@@ -167,9 +177,7 @@ const OnlineTracking = () => {
                               ?.zones || []
                         : []
                 }
-                assetLocations={
-                    floorId !== "" ? liveLocations.locations || [] : []
-                }
+                assetLocations={filteredLocations}
             />
         </div>
     );
