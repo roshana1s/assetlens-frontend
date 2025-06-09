@@ -11,6 +11,7 @@ import PastTracking from "./pages/PastTracking/PastTracking";
 import AssetConfigPage from "./pages/AssetConfig/AssetConfigPage";
 import UserList from './pages/userConfigurationPage/UserList';
 import Organization from './pages/mangeOrganizationPage/organization';
+import AssetLogsPage from './pages/AssetLogs/LogsPage';
 
 const AppRouter = () => {
     return (
@@ -31,6 +32,7 @@ const AppRouter = () => {
                     <Route path="past-tracking" element={<PastTracking />} />
                     <Route path="config/asset" element={<AssetConfigPage />} />
                     <Route path="config/user" element={<UserList />} />
+                    <Route path="logs" element={<AssetLogsPage />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />
