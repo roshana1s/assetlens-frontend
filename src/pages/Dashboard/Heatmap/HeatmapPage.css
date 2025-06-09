@@ -1,11 +1,15 @@
 .heatmap-container {
-  max-width: 1000px;
+  width: 100%;
+  max-width: 1400px;
   margin: auto;
   padding: 2rem;
   background-color: #DBE0F5;
   border-radius: 16px;
   box-shadow: 0 4px 10px rgba(54, 116, 181, 0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 h1 {
@@ -256,3 +260,99 @@ h1 {
   color: #718096;
   font-size: 18px;
 }
+
+.plotly-container {
+  width: 100%;
+  height: auto;
+  min-height: 500px;
+  overflow: visible;
+  margin: 20px 0;
+}
+
+.js-plotly-plot .plotly .main-svg {
+  overflow: visible !important;
+}
+
+.heatmap-display {
+  position: relative;
+  width: 100%;
+  height: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.plotly-container {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(108, 108, 108, 0.1);
+  margin-top: 1rem;
+}
+
+.heatmap-display {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(108, 108, 108, 0.1);
+}
+
+.heatmap-meta {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* Add these new styles */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.download-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.download-button:hover {
+    background-color: #45a049;
+}
+
+.download-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.heatmap-display {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
