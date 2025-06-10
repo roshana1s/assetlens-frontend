@@ -12,6 +12,7 @@ import AssetConfigPage from "./pages/AssetConfig/AssetConfigPage";
 import UserList from './pages/userConfigurationPage/UserList';
 import Organization from './pages/mangeOrganizationPage/organization';
 import OnlineTracking from "./pages/OnlineTracking/OnlineTracking";
+import CameraConfiguration from "./pages/CameraConfiguration/CameraConfiguration"
 
 const AppRouter = () => {
     return (
@@ -33,6 +34,7 @@ const AppRouter = () => {
                     <Route path="online-tracking" element={<OnlineTracking />} />
                     <Route path="config/asset" element={<AssetConfigPage />} />
                     <Route path="config/user" element={<UserList />} />
+                    <Route path="config/camera" element={<CameraConfiguration />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />
