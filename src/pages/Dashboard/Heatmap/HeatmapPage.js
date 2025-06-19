@@ -250,88 +250,85 @@ const ZONES = {
 
   return (
     <div className="heatmap-container">
-      <h1>Asset Movement Heatmap</h1>
 
       <div className="heatmap-controls">
-        <div className="control-group">
-          <label htmlFor="asset-select">Select Asset</label>
-          <select
-            id="asset-select"
-            value={selectedAsset}
-            onChange={(e) => setSelectedAsset(e.target.value)}
-            disabled={loading.assets}
+        <div className="controls-row">
+          <div className="control-group">
+            <label htmlFor="asset-select">Select Asset:</label>
+            <select
+              id="asset-select"
+              value={selectedAsset}
+              onChange={(e) => setSelectedAsset(e.target.value)}
+              disabled={loading.assets}
+            >
+              <option value="">Choose asset...</option>
+              {availableAssets.map(asset => (
+                <option key={asset} value={asset}>{asset}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="date-time-controls">
+            <div className="control-group">
+              <label>From:</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                min={dateRange ? formatDateForInput(dateRange.min) : ''}
+                max={dateRange ? formatDateForInput(dateRange.max) : ''}
+                disabled={!selectedAsset || loading.dateRange}
+              />
+              <label>Time:</label>
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                disabled={!selectedAsset}
+              />
+            </div>
+
+            <div className="control-group">
+              <label>To:</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                min={startDate || (dateRange ? formatDateForInput(dateRange.min) : '')}
+                max={dateRange ? formatDateForInput(dateRange.max) : ''}
+                disabled={!selectedAsset || loading.dateRange}
+              />
+              <label>Time:</label>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                disabled={!selectedAsset}
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div className="actions-row">
+          <button
+            onClick={generateHeatmap}
+            disabled={!selectedAsset || loading.heatmap}
+            className="generate-button"
           >
-            <option value="">-- Select an asset --</option>
-            {availableAssets.map(asset => (
-              <option key={asset} value={asset}>{asset}</option>
-            ))}
-          </select>
+            {loading.heatmap ? (
+              <>
+                <span className="spinner"></span>
+                Processing...
+              </>
+            ) : 'Generate'}
+          </button>
+
+          {dateRange && (
+            <div className="date-range-hint">
+              Available data: {dateRange.min.toLocaleDateString()} - {dateRange.max.toLocaleDateString()}
+            </div>
+          )}
         </div>
-
-        <div className="date-time-controls">
-          <div className="control-group">
-            <label>Start Date</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              min={dateRange ? formatDateForInput(dateRange.min) : ''}
-              max={dateRange ? formatDateForInput(dateRange.max) : ''}
-              disabled={!selectedAsset || loading.dateRange}
-            />
-          </div>
-
-          <div className="control-group">
-            <label>Start Time</label>
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              disabled={!selectedAsset}
-            />
-          </div>
-
-          <div className="control-group">
-            <label>End Date</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              min={startDate || (dateRange ? formatDateForInput(dateRange.min) : '')}
-              max={dateRange ? formatDateForInput(dateRange.max) : ''}
-              disabled={!selectedAsset || loading.dateRange}
-            />
-          </div>
-
-          <div className="control-group">
-            <label>End Time</label>
-            <input
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              disabled={!selectedAsset}
-            />
-          </div>
-        </div>
-
-        {dateRange && (
-          <div className="date-range-hint">
-            Data available from {dateRange.min.toLocaleString()} to {dateRange.max.toLocaleString()}
-          </div>
-        )}
-
-        <button
-          onClick={generateHeatmap}
-          disabled={!selectedAsset || loading.heatmap}
-          className="generate-button"
-        >
-          {loading.heatmap ? (
-            <>
-              <span className="spinner"></span>
-              Generating...
-            </>
-          ) : 'Generate Heatmap'}
-        </button>
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -373,9 +370,12 @@ const ZONES = {
               )}
             </div>
           </>
-        ) : (
-          <div className="empty-state">
-            <p>Select an asset and generate a heatmap</p>
+        ) : (          <div className="empty-state">
+            <div className="placeholder-heatmap">
+              <div className="placeholder-overlay">
+                <p>Select an asset and generate movement heatmap</p>
+              </div>
+            </div>
           </div>
         )}
       </div>
