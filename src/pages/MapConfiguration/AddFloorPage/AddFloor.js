@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./AddFloor.css";
 
 const AddFloor = () => {
+    
     const [zoneName, setZoneName] = useState("");
     const [zoneColor, setZoneColor] = useState("#000000");
     const [coordinates, setCoordinates] = useState([]);

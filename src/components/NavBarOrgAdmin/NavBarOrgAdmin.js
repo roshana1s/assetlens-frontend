@@ -6,17 +6,22 @@ import "./NavBarOrgAdmin.css";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { useNotifications } from "../../context/NotificationContext";
+import { useAlerts } from "../../context/AlertContext";
 
 const NavBarOrgAdmin = () => {
     const [showAlerts, setShowAlerts] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const [profileData, setProfileData] = useState(null);
+    const [assets, setAssets] = useState({});
+    const [floors, setFloors] = useState({});
+    const [zones, setZones] = useState({});
+    const [loadingAssets, setLoadingAssets] = useState(false);
+    
     const { user, isGlobalAdmin, currentOrgId, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const isConfigActive = location.pathname.startsWith("/admin/config");
     
-    // Use notifications from context
     const {
         notifications,
         unreadCount,
@@ -25,7 +30,14 @@ const NavBarOrgAdmin = () => {
         markAllAsRead
     } = useNotifications();
     
-    const [showNotifications, setShowNotifications] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);    
+    const {
+        alerts,
+        unreadAlertCount,
+        loading: loadingAlerts,
+        error: alertError,
+        markAllAlertsAsRead
+    } = useAlerts();
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -46,10 +58,107 @@ const NavBarOrgAdmin = () => {
         }
     }, [showProfile]);
 
+    useEffect(() => {
+        const fetchAssetAndLocationData = async () => {
+            if (showAlerts && currentOrgId) {
+                try {
+                    setLoadingAssets(true);
+                    
+                  
+                    const assetsRes = await axios.get(`http://localhost:8000/assets/${currentOrgId}`);
+                    const assetsMap = {};
+                    assetsRes.data.forEach(asset => {
+                        assetsMap[asset.asset_id] = asset;
+                    });
+                    setAssets(assetsMap);
+                    
+                    const uniqueFloors = [...new Set(alerts.map(a => a.floor_id))];
+                    const floorPromises = uniqueFloors.map(floorId => 
+                        axios.get(`http://localhost:8000/maps/${currentOrgId}/get-floor/${floorId}`)
+                    );
+                    
+                    const floorsData = await Promise.all(floorPromises);
+                    const floorsMap = {};
+                    const zonesMap = {};
+                    
+                    floorsData.forEach(floor => {
+                        floorsMap[floor.data.floor_id] = floor.data.floorName;
+                        floor.data.zones.forEach(zone => {
+                            zonesMap[zone.zone_id] = zone.name;
+                        });
+                    });
+                    
+                    setFloors(floorsMap);
+                    setZones(zonesMap);
+                    
+                } catch (err) {
+                    console.error("Error fetching asset/location data:", err);
+                } finally {
+                    setLoadingAssets(false);
+                }
+            }
+        };
+
+        fetchAssetAndLocationData();
+    }, [showAlerts, currentOrgId, alerts]);
+
     const toggleAlerts = () => {
-        setShowAlerts(!showAlerts);
+        const newState = !showAlerts;
+        setShowAlerts(newState);
         setShowNotifications(false);
         setShowProfile(false);
+    };
+
+    const getAlertColor = (type) => {
+        switch(type) {
+            case 'misplaced': return '#ff4444'
+            case 'geofence_breach': return '#9c3106';
+            case 'potential_geofence_breach': return '#525049'; 
+            default: return '#000000';
+        }
+    };
+
+
+    const formatDescription = (alert) => {
+        const assetName = assets[alert.asset_id]?.name || alert.asset_id;
+        const floorName = floors[alert.floor_id] || alert.floor_id;
+        const zoneName = zones[alert.zone_id] || alert.zone_id;
+
+        const getColoredText = (text, type) => {
+        const color = getAlertColor(type);
+        return <span style={{ color }}>{text}</span>;
+    };
+        
+        switch(alert.type) {
+        case 'geofence_breach':
+            return (
+                <>
+                    {getColoredText(`${assetName} left its assigned zone ${zoneName}`, 'geofence_breach')}
+                    {` on ${floorName}`}
+                </>
+            );
+        case 'potential_geofence_breach':
+            return (
+                <>
+                    {getColoredText(`${assetName} is approaching the boundary of ${zoneName}`, 'potential_geofence_breach')}
+                    {` on ${floorName}`}
+                </>
+            );
+        case 'misplaced':
+            return getColoredText(
+                `${assetName} was placed in ${zoneName} on ${floorName} (unexpected location)`,
+                'misplaced'
+            );
+        default:
+            return alert.description
+                .replace(alert.asset_id, assetName)
+                .replace(alert.floor_id, floorName)
+                .replace(alert.zone_id, zoneName);
+    }
+    };
+
+    const formatTime = (timestamp) => {
+        return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
     const toggleNotifications = () => {
@@ -74,15 +183,11 @@ const NavBarOrgAdmin = () => {
         navigate("/login");
     };
 
-    const formatTime = (timestamp) => {
-        const date = new Date(timestamp);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    };
-
     return (
         <div className="layout-container">
             <nav className="navbar-custom">
                 <div className="brand">
+                    {/* <img src="/logo.png" alt="logo" className="logo" /> */}
                     <span className="brand-name">AssetLens</span>
                 </div>
                 <div className="nav-links">
@@ -97,7 +202,7 @@ const NavBarOrgAdmin = () => {
                             width="16"
                             height="16"
                             fill="currentColor"
-                            className="bi bi-geo-alt"
+                            class="bi bi-geo-alt"
                             viewBox="0 0 16 16"
                         >
                             <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10" />
@@ -117,7 +222,7 @@ const NavBarOrgAdmin = () => {
                             width="16"
                             height="16"
                             fill="currentColor"
-                            className="bi bi-clock-history"
+                            class="bi bi-clock-history"
                             viewBox="0 0 16 16"
                         >
                             <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z" />
@@ -138,7 +243,7 @@ const NavBarOrgAdmin = () => {
                             width="16"
                             height="16"
                             fill="currentColor"
-                            className="bi bi-journal-text"
+                            class="bi bi-journal-text"
                             viewBox="0 0 16 16"
                         >
                             <path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5" />
@@ -159,7 +264,7 @@ const NavBarOrgAdmin = () => {
                             width="16"
                             height="16"
                             fill="currentColor"
-                            className="bi bi-grid"
+                            class="bi bi-grid"
                             viewBox="0 0 16 16"
                         >
                             <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z" />
@@ -179,7 +284,7 @@ const NavBarOrgAdmin = () => {
                                 width="16"
                                 height="16"
                                 fill="currentColor"
-                                className="bi bi-gear"
+                                class="bi bi-gear"
                                 viewBox="0 0 16 16"
                             >
                                 <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0" />
@@ -197,7 +302,7 @@ const NavBarOrgAdmin = () => {
                                     width="16"
                                     height="16"
                                     fill="currentColor"
-                                    className="bi bi-people"
+                                    class="bi bi-people"
                                     viewBox="0 0 16 16"
                                 >
                                     <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4" />
@@ -213,7 +318,7 @@ const NavBarOrgAdmin = () => {
                                     width="16"
                                     height="16"
                                     fill="currentColor"
-                                    className="bi bi-suitcase-lg"
+                                    class="bi bi-suitcase-lg"
                                     viewBox="0 0 16 16"
                                 >
                                     <path d="M5 2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2h3.5A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5H14a.5.5 0 0 1-1 0H3a.5.5 0 0 1-1 0h-.5A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2zm1 0h4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1M1.5 3a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5H3V3zM15 12.5v-9a.5.5 0 0 0-.5-.5H13v10h1.5a.5.5 0 0 0 .5-.5m-3 .5V3H4v10z" />
@@ -229,11 +334,11 @@ const NavBarOrgAdmin = () => {
                                     width="16"
                                     height="16"
                                     fill="currentColor"
-                                    className="bi bi-map"
+                                    class="bi bi-map"
                                     viewBox="0 0 16 16"
                                 >
                                     <path
-                                        fillRule="evenodd"
+                                        fill-rule="evenodd"
                                         d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.5.5 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103M10 1.91l-4-.8v12.98l4 .8zm1 12.98 4-.8V1.11l-4 .8zm-6-.8V1.11l-4 .8v12.98z"
                                     />
                                 </svg>
@@ -242,6 +347,7 @@ const NavBarOrgAdmin = () => {
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>
+
                 <div className="nav-icons">
                     <div className="icon-wrapper" onClick={toggleAlerts}>
                         <svg
@@ -254,71 +360,181 @@ const NavBarOrgAdmin = () => {
                         >
                             <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
                         </svg>
+                        {unreadAlertCount > 0 && (
+                            <span className="alert-badge">{unreadAlertCount}</span>
+                        )}
                         {showAlerts && (
-                            <div className="popup-box">No new alerts</div>
-                        )}
-                    </div>
-                    <div className="icon-wrapper" onClick={toggleNotifications}>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            className="notification-icon"
-                            viewBox="0 0 16 16"
-                        >
-                            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
-                        </svg>
-                        {unreadCount > 0 && (
-                            <span className="notification-badge">{unreadCount}</span>
-                        )}
-                        {showNotifications && (
-                            <div className="popup-box notification-popup">
-                                {loadingNotifications ? (
-                                    <div className="loading-notifications">Loading notifications...</div>
-                                ) : notificationError ? (
-                                    <div className="notification-error">{notificationError}</div>
-                                ) : notifications.length > 0 ? (
+                            <div className="popup-box alert-popup">
+                                {loadingAlerts || loadingAssets ? (
+                                    <div className="loading-alerts">Loading alerts...</div>
+                                ) : alertError ? (
+                                    <div className="alert-error">{alertError}</div>
+                                ) : alerts.length > 0 ? (
                                     <>
-                                        <div className="notification-header">
-                                            <h4>Notifications</h4>
-                                            <button 
-                                                className="mark-all-read"
-                                                onClick={markAllAsRead}
-                                                disabled={unreadCount === 0}
-                                            >
-                                                Mark all as read
-                                            </button>
-                                        </div>
-                                        <div className="notification-list">
-                                            {notifications.map((notification, index) => (
-                                                <div 
-                                                    key={index} 
-                                                    className={`notification-item ${notification.is_read ? '' : 'unread'}`}
+                                        <div className="alert-header">
+                                            <h4>Alerts</h4>
+                                            <div className="alert-actions">
+                                                <button 
+                                                    className="mark-all-read"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        markAllAsRead();
+                                                    }}
+                                                    disabled={unreadAlertCount === 0}
                                                 >
-                                                    <div className="notification-message">
-                                                        {notification.message}
-                                                    </div>
-                                                    <div className="notification-meta">
-                                                        <span className="notification-type">
-                                                            {notification.type.replace('_', ' ')}
-                                                        </span>
-                                                        <span className="notification-time">
-                                                            {formatTime(notification.timestamp)}
-                                                        </span>
-                                                    </div>
-                                                </div>
+                                                    Mark all as read
+                                                </button>
+                                                <NavLink 
+                                                    to={`/dashboard/org/${currentOrgId}/admin/alerts`}
+                                                    className="view-all-link"
+                                                    onClick={() => setShowAlerts(false)}
+                                                >
+                                                    View All
+                                                </NavLink>
+                                            </div>
+                                        </div>
+                                        <div className="alert-list">
+                                            {alerts.slice(0, 5).map((alert, index) => (
+                                                <div 
+    key={index} 
+    className="alert-item"
+    style={{ borderLeft: `3px solid ${getAlertColor(alert.type)}` }}
+>
+    <div className="alert-icon-container">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill={getAlertColor(alert.type)}
+            viewBox="0 0 16 16"
+            className="alert-type-icon"
+        >
+            {alert.type === 'geofence_breach' && (
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+            )}
+            {alert.type === 'potential_geofence_breach' && (
+                <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
+            )}
+            {alert.type === 'misplaced' && (
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            )}
+        </svg>
+    </div>
+    <div className="alert-details">
+        <div className="alert-message">
+            {formatDescription(alert)}
+        </div>
+        <div className="alert-meta">
+            <span className="alert-type">
+                {alert.type.replace(/_/g, ' ')}
+            </span>
+            <span className="alert-time">
+                {formatTime(alert.timestamp)}
+            </span>
+        </div>
+    </div>
+</div>
                                             ))}
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="no-notifications">No new notifications</div>
+                                    <div className="no-alerts">
+                                        No new alerts
+                                        <NavLink 
+                                            to="/alerts"
+                                            className="view-all-link"
+                                            onClick={() => setShowAlerts(false)}
+                                        >
+                                            View All Alerts
+                                        </NavLink>
+                                    </div>
                                 )}
                             </div>
                         )}
                     </div>
 
-                    <div className="icon-wrapper" onClick={toggleProfile}>
+                     <div className="icon-wrapper" onClick={toggleNotifications}>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        className="notification-icon"
+                        viewBox="0 0 16 16"
+                    >
+                        <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
+                    </svg>
+                    {unreadCount > 0 && (
+                        <span className="notification-badge">{unreadCount}</span>
+                    )}
+                    {showNotifications && (
+                        <div className="popup-box notification-popup">
+                            {loadingNotifications ? (
+                                <div className="loading-notifications">Loading notifications...</div>
+                            ) : notificationError ? (
+                                <div className="notification-error">{notificationError}</div>
+                            ) : notifications.length > 0 ? (
+                                <>
+                                    <div className="notification-header">
+                                        <h4>Notifications</h4>
+                                        <div className="notification-actions">
+                                            <button 
+                                                className="mark-all-read"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    markAllAsRead();
+                                                }}
+                                                disabled={unreadCount === 0}
+                                            >
+                                                Mark all as read
+                                            </button>
+                                            <NavLink 
+                                                to={`/dashboard/org/${currentOrgId}/admin/notifications`}
+                                                className="view-all-link"
+                                                onClick={() => setShowNotifications(false)}
+                                            >
+                                                View All
+                                            </NavLink>
+                                        </div>
+                                    </div>
+                                    <div className="notification-list">
+                                        {notifications.map((notification, index) => (
+                                            <div 
+                                                key={index} 
+                                                className={`notification-item ${notification.is_read ? '' : 'unread'}`}
+                                            >
+                                                <div className="notification-message">
+                                                    {notification.message}
+                                                </div>
+                                                <div className="notification-meta">
+                                                    <span className="notification-type">
+                                                        {notification.type.replace('_', ' ')}
+                                                    </span>
+                                                    <span className="notification-time">
+                                                        {formatTime(notification.timestamp)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="no-notifications">
+                                    No new notifications
+                                    <NavLink 
+                                        to="/notifications"
+                                        className="view-all-link"
+                                        onClick={() => setShowNotifications(false)}
+                                    >
+                                        View All Notifications
+                                    </NavLink>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+                
+<div className="icon-wrapper" onClick={toggleProfile}>
                     {user?.image_link ? (
                         <img
                             src={user.image_link}

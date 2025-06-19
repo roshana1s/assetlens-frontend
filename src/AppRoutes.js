@@ -16,6 +16,9 @@ import ResetPassword from "./pages/LoginPage/ResetPassword";
 import UnauthorizedPage from "./pages/UnauthorizedPage/UnauthorizedPage";
 import HeatmapPage from "./pages/Dashboard/Heatmap/HeatmapPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage"; 
+import NotificationPage from "./pages/Notification/NotificationPage";
+import AlertPage from "./pages/Alert/AlertPage";
+
 
 const AppRouter = () => {
   return (
@@ -58,6 +61,8 @@ const AppRouter = () => {
           <Route index element={<OrgAdminDashboard />} />
           <Route path="heatmap" element={<HeatmapPage />} />
           <Route path="profile" element={<ProfilePage />} /> 
+          <Route path="notifications" element={<NotificationPage />} />
+          <Route path="alerts" element={<AlertPage />} />
         </Route>
 
         {/* Organization User Routes */}
