@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Combobox from "react-widgets/Combobox";
 import axios from "axios";
 import DrawMapWithCam from "../../components/DrawMapWithCam/DrawMapWithCam";
 import Button from "react-bootstrap/Button";
@@ -6,13 +7,7 @@ import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-const CAMERA_CORNERS = [
-    { label: "Top Left", value: 0 },
-    { label: "Top Right", value: 1 },
-    { label: "Bottom Right", value: 2 },
-    { label: "Bottom Left", value: 3 },
-];
+import "./CameraConfiguration.css";
 
 const CameraConfiguration = () => {
     const org_id = 1;
@@ -22,25 +17,30 @@ const CameraConfiguration = () => {
     const [cameras, setCameras] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [modalZone, setModalZone] = useState(null);
-    const [selectedCorner, setSelectedCorner] = useState(0);
+    const [camX, setCamX] = useState("");
+    const [camY, setCamY] = useState("");
 
     // Fetch floors and zones
     useEffect(() => {
         const fetchFloors = async () => {
-            const res = await axios.get(`http://localhost:8000/maps/${org_id}/get-map`);
+            const res = await axios.get(
+                `http://localhost:8000/maps/${org_id}/get-map`
+            );
             setFloors(res.data);
-            if (res.data.length > 0) setSelectedFloor(res.data[0].floor_id);
         };
         fetchFloors();
     }, []);
 
     useEffect(() => {
         if (!selectedFloor) return;
-        const floor = floors.find(f => f.floor_id === selectedFloor);
+        const floor = floors.find((f) => f.floor_id === selectedFloor);
         setZones(floor?.zones || []);
         // Fetch cameras for this floor
-        axios.get(`http://localhost:8000/cameras/${selectedFloor}/get-cameras`)
-            .then(res => setCameras(res.data.cameras || []))
+        axios
+            .get(
+                `http://localhost:8000/cameras/${org_id}/get-cameras/${selectedFloor}`
+            )
+            .then((res) => setCameras(res.data.cameras || []))
             .catch(() => setCameras([]));
     }, [selectedFloor, floors]);
 
@@ -48,80 +48,158 @@ const CameraConfiguration = () => {
     const handleAddCamera = (zone_id) => {
         setModalZone(zone_id);
         setShowModal(true);
+        setCamX("");
+        setCamY("");
     };
 
+    // Point-in-polygon utility (ray-casting algorithm)
+    function isPointInPolygon(point, polygon) {
+        let [x, y] = point;
+        let inside = false;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+            let xi = polygon[i][0],
+                yi = polygon[i][1];
+            let xj = polygon[j][0],
+                yj = polygon[j][1];
+            let intersect =
+                ((yi > y) !== (yj > y)) &&
+                (x < ((xj - xi) * (y - yi)) / (yj - yi + 0.0000001) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    }
+
     const handleSaveCamera = async () => {
-        // Only one camera per zone
-        const newCameras = cameras.filter(c => c.zone_id !== modalZone);
+        if (!camX || !camY) {
+            toast.error("Please enter X and Y coordinates.");
+            return;
+        }
+        const zone = zones.find((z) => z.zone_id === modalZone);
+        if (!zone) {
+            toast.error("Zone not found.");
+            return;
+        }
+        const point = [parseFloat(camX), parseFloat(camY)];
+        if (!isPointInPolygon(point, zone.coordinates)) {
+            toast.error("Camera must be inside the zone polygon!");
+            return;
+        }
+        const newCameras = cameras.filter((c) => c.zone_id !== modalZone);
         newCameras.push({
             zone_id: modalZone,
-            cam_position: selectedCorner,
+            cam_coordinates: {
+                x: parseFloat(point[0]),
+                y: parseFloat(point[1]),
+            },
             working: true,
         });
         setCameras(newCameras);
+
+        console.log("Saving cameras:", newCameras);
+        await axios.post(
+            `http://localhost:8000/cameras/${org_id}/set-cameras/${selectedFloor}`,
+            { cameras: newCameras }
+        );
+
         setShowModal(false);
         toast.success("Camera added/updated!");
-        // Save to backend (when ready)
-        // await axios.post(...)
     };
 
-    const handleRemoveCamera = (zone_id) => {
-        setCameras(cameras.filter(c => c.zone_id !== zone_id));
+    const handleRemoveCamera = async (zone_id) => {
+        const updatedCameras = cameras.filter((c) => c.zone_id !== zone_id);
+        setCameras(updatedCameras);
+        await axios.post(
+            `http://localhost:8000/cameras/${org_id}/set-cameras/${selectedFloor}`,
+            { cameras: updatedCameras }
+        );
         toast.info("Camera removed!");
-        // Save to backend (when ready)
     };
 
-    const handleToggleCamera = (zone_id) => {
-        setCameras(cameras.map(c =>
+    const handleToggleCamera = async (zone_id) => {
+        const updatedCameras = cameras.map((c) =>
             c.zone_id === zone_id ? { ...c, working: !c.working } : c
-        ));
-        // Save to backend (when ready)
+        );
+        setCameras(updatedCameras);
+        await axios.post(
+            `http://localhost:8000/cameras/${org_id}/set-cameras/${selectedFloor}`,
+            { cameras: updatedCameras }
+        );
+        const cam = updatedCameras.find((c) => c.zone_id === zone_id);
+        toast.info(`Camera switched ${cam && cam.working ? "on" : "off"}!`);
     };
 
     return (
         <div style={{ display: "flex" }}>
             <ToastContainer position="top-right" autoClose={2000} />
-            <div style={{ width: "25%", padding: 16 }}>
-                <h5>Camera Configuration</h5>
-                <Form.Select
-                    value={selectedFloor || ""}
-                    onChange={e => setSelectedFloor(Number(e.target.value))}
+            <div className="map-config-container">
+                <span className="header-text">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        className="bi bi-camera"
+                        viewBox="0 0 16 16"
+                    >
+                        <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z" />
+                        <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
+                    </svg>
+                    <span className="ms-2">Camera Configuration</span>
+                </span>
+                <Combobox
+                    placeholder="Select Floor"
+                    id="floor-select"
+                    data={floors.map((f) => f.floorName)}
+                    onChange={(value) =>
+                        setSelectedFloor(
+                            floors.find((f) => f.floorName === value)?.floor_id
+                        )
+                    }
                     className="mb-3"
-                >
-                    {floors.map(f => (
-                        <option key={f.floor_id} value={f.floor_id}>
-                            {f.floorName}
-                        </option>
-                    ))}
-                </Form.Select>
+                />
                 <ul>
-                    {zones.map(z => {
-                        const cam = cameras.find(c => c.zone_id === z.zone_id);
+                    {zones.map((z) => {
+                        const cam = cameras.find(
+                            (c) => c.zone_id === z.zone_id
+                        );
                         return (
                             <li key={z.zone_id} style={{ marginBottom: 12 }}>
                                 <b>{z.name}</b>
                                 {cam ? (
                                     <>
                                         <span style={{ marginLeft: 8 }}>
-                                            <span style={{ color: cam.working ? "green" : "red" }}>
+                                            <span
+                                                style={{
+                                                    color: cam.working
+                                                        ? "green"
+                                                        : "red",
+                                                }}
+                                            >
                                                 {cam.working ? "On" : "Off"}
                                             </span>
                                             {" | "}
-                                            Corner: {CAMERA_CORNERS[cam.cam_position].label}
+                                            X: {cam.cam_coordinates.x}, Y:{" "}
+                                            {cam.cam_coordinates.y}
                                         </span>
                                         <Button
                                             size="sm"
                                             variant="warning"
                                             className="ms-2"
-                                            onClick={() => handleToggleCamera(z.zone_id)}
+                                            onClick={() =>
+                                                handleToggleCamera(z.zone_id)
+                                            }
                                         >
-                                            {cam.working ? "Switch Off" : "Switch On"}
+                                            {cam.working
+                                                ? "Switch Off"
+                                                : "Switch On"}
                                         </Button>
                                         <Button
                                             size="sm"
                                             variant="danger"
                                             className="ms-2"
-                                            onClick={() => handleRemoveCamera(z.zone_id)}
+                                            onClick={() =>
+                                                handleRemoveCamera(z.zone_id)
+                                            }
                                         >
                                             Remove
                                         </Button>
@@ -129,9 +207,11 @@ const CameraConfiguration = () => {
                                             size="sm"
                                             variant="secondary"
                                             className="ms-2"
-                                            onClick={() => handleAddCamera(z.zone_id)}
+                                            onClick={() =>
+                                                handleAddCamera(z.zone_id)
+                                            }
                                         >
-                                            Change Corner
+                                            Change Position
                                         </Button>
                                     </>
                                 ) : (
@@ -139,7 +219,9 @@ const CameraConfiguration = () => {
                                         size="sm"
                                         variant="primary"
                                         className="ms-2"
-                                        onClick={() => handleAddCamera(z.zone_id)}
+                                        onClick={() =>
+                                            handleAddCamera(z.zone_id)
+                                        }
                                     >
                                         Add Camera
                                     </Button>
@@ -149,26 +231,57 @@ const CameraConfiguration = () => {
                     })}
                 </ul>
             </div>
-            <DrawMapWithCam
-                zones={zones}
-                cameras={cameras}
-            />
+            <DrawMapWithCam zones={zones} cameras={cameras} />
             <Modal show={showModal} onHide={() => setShowModal(false)} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Select Camera Corner</Modal.Title>
+                    <Modal.Title>Set Camera Coordinates</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form.Select
-                        value={selectedCorner}
-                        onChange={e => setSelectedCorner(Number(e.target.value))}
-                    >
-                        {CAMERA_CORNERS.map(c =>
-                            <option key={c.value} value={c.value}>{c.label}</option>
-                        )}
-                    </Form.Select>
+                    {(() => {
+                        const zone = zones.find((z) => z.zone_id === modalZone);
+                        if (!zone) return null;
+                        return (
+                            <div style={{ marginBottom: 10 }}>
+                                <b>Zone:</b> {zone.name}
+                                <br />
+                                <b>Zone Coordinates:</b>
+                                <ul
+                                    style={{
+                                        fontSize: "0.95em",
+                                        marginBottom: 0,
+                                    }}
+                                >
+                                    {zone.coordinates.map((c, idx) => (
+                                        <li key={idx}>
+                                            [{c[0]}, {c[1]}]
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        );
+                    })()}
+                    <Form.Group className="mb-3">
+                        <Form.Label>X Coordinate</Form.Label>
+                        <Form.Control
+                            type="number"
+                            value={camX}
+                            onChange={(e) => setCamX(e.target.value)}
+                        />
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>Y Coordinate</Form.Label>
+                        <Form.Control
+                            type="number"
+                            value={camY}
+                            onChange={(e) => setCamY(e.target.value)}
+                        />
+                    </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setShowModal(false)}
+                    >
                         Cancel
                     </Button>
                     <Button variant="primary" onClick={handleSaveCamera}>

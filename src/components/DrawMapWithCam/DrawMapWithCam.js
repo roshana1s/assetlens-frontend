@@ -19,14 +19,6 @@ const cameraIcon = new L.Icon({
     iconAnchor: [16, 16],
 });
 
-function getCornerCoords(coords, cornerIdx) {
-    // 0: Top Left, 1: Top Right, 2: Bottom Right, 3: Bottom Left
-    // Assume coords are ordered [TL, TR, BR, BL] or polygon
-    if (coords.length === 4) return coords[cornerIdx];
-    // If not, fallback to first point
-    return coords[cornerIdx % coords.length];
-}
-
 const DrawMapWithCam = ({ zones, cameras }) => {
     const [gridSize, setGridSize] = useState({ width: 1000, height: 320 });
     const [showGrid, setShowGrid] = useState(false);
@@ -110,7 +102,10 @@ const DrawMapWithCam = ({ zones, cameras }) => {
                 maxZoom={4}
             >
                 <StaticZoomMap />
-                <GridToggleButton showGrid={showGrid} setShowGrid={setShowGrid} />
+                <GridToggleButton
+                    showGrid={showGrid}
+                    setShowGrid={setShowGrid}
+                />
                 <ResetViewButton />
                 {showGrid &&
                     gridLines.map((line, index) => (
@@ -144,9 +139,8 @@ const DrawMapWithCam = ({ zones, cameras }) => {
                     </Polygon>
                 ))}
                 {cameras.map((cam, idx) => {
-                    const zone = zones.find((z) => z.zone_id === cam.zone_id);
-                    if (!zone) return null;
-                    const pos = getCornerCoords(zone.coordinates, cam.cam_position);
+                    if (!cam.cam_coordinates) return null;
+                    const pos = [cam.cam_coordinates.x, cam.cam_coordinates.y];
                     return (
                         <Marker
                             key={cam.zone_id}
@@ -155,9 +149,7 @@ const DrawMapWithCam = ({ zones, cameras }) => {
                             opacity={cam.working ? 1 : 0.4}
                         >
                             <Tooltip direction="top" permanent>
-                                <span>
-                                    Camera {cam.working ? "On" : "Off"}
-                                </span>
+                                <span>Camera {cam.working ? "On" : "Off"}</span>
                             </Tooltip>
                         </Marker>
                     );
