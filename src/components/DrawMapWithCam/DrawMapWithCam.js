@@ -141,12 +141,26 @@ const DrawMapWithCam = ({ zones, cameras }) => {
                 {cameras.map((cam, idx) => {
                     if (!cam.cam_coordinates) return null;
                     const pos = [cam.cam_coordinates.x, cam.cam_coordinates.y];
+                    // Create a custom Leaflet icon using the SVG with dynamic color
+                    const svgIcon = (color) =>
+                        L.divIcon({
+                            className: "",
+                            html: `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="${color}" viewBox="0 0 16 16">
+                                  <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+                                  <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/>
+                                </svg>
+                            `,
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 16],
+                        });
+
                     return (
                         <Marker
                             key={cam.zone_id}
                             position={pos}
-                            icon={cameraIcon}
-                            opacity={cam.working ? 1 : 0.4}
+                            icon={svgIcon(cam.working ? "#28a745" : "#dc3545")}
+                            opacity={1}
                         >
                             <Tooltip direction="top" permanent>
                                 <span>Camera {cam.working ? "On" : "Off"}</span>

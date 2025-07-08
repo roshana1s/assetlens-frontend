@@ -59,7 +59,7 @@
     font-size: 18px;
   }
   
-  .close-btn {
+  .chatbot-close-btn {
     background: transparent;
     border: none;
     color: white;
@@ -102,6 +102,7 @@
   
   .chatbot-input {
     display: flex;
+    align-items: center; /* Ensures vertical centering */
     padding: 10px;
     background: white;
     border-top: 1px solid #eee;
@@ -109,14 +110,16 @@
   
   .chatbot-input input {
     flex: 1;
-    padding: 10px 15px;
+    padding: 9px 15px;
     border: 1px solid #ddd;
     border-radius: 30px;
     outline: none;
     font-size: 14px;
+    height: 40px;
+    box-sizing: border-box;
   }
   
-  .send-btn {
+  .chatbot-send-btn {
     background: #4e54c8;
     color: white;
     border: none;
@@ -129,9 +132,13 @@
     align-items: center;
     justify-content: center;
     transition: background 0.3s;
+    font-size: 18px;
+    padding: 0;
+    position: relative;
+    top: 0;
   }
   
-  .send-btn:hover {
+  .chatbot-send-btn:hover {
     background: #3a41b0;
   }
   

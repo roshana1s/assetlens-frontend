@@ -62,8 +62,8 @@ const CameraConfiguration = () => {
             let xj = polygon[j][0],
                 yj = polygon[j][1];
             let intersect =
-                ((yi > y) !== (yj > y)) &&
-                (x < ((xj - xi) * (y - yi)) / (yj - yi + 0.0000001) + xi);
+                yi > y !== yj > y &&
+                x < ((xj - xi) * (y - yi)) / (yj - yi + 0.0000001) + xi;
             if (intersect) inside = !inside;
         }
         return inside;
@@ -157,75 +157,106 @@ const CameraConfiguration = () => {
                     }
                     className="mb-3"
                 />
-                <ul>
+                <ul className="camconfig-zone-list">
                     {zones.map((z) => {
                         const cam = cameras.find(
                             (c) => c.zone_id === z.zone_id
                         );
                         return (
-                            <li key={z.zone_id} style={{ marginBottom: 12 }}>
-                                <b>{z.name}</b>
-                                {cam ? (
-                                    <>
-                                        <span style={{ marginLeft: 8 }}>
-                                            <span
-                                                style={{
-                                                    color: cam.working
-                                                        ? "green"
-                                                        : "red",
-                                                }}
-                                            >
-                                                {cam.working ? "On" : "Off"}
-                                            </span>
-                                            {" | "}
-                                            X: {cam.cam_coordinates.x}, Y:{" "}
-                                            {cam.cam_coordinates.y}
+                            <li
+                                key={z.zone_id}
+                                className="camconfig-zone-list-item"
+                            >
+                                <div className="camconfig-zone-info">
+                                    <span className="camconfig-zone-name">
+                                        {z.name}
+                                    </span>
+                                    {cam && (
+                                        <span
+                                            className={`camconfig-zone-status ${
+                                                cam.working ? "on" : "off"
+                                            }`}
+                                        >
+                                            {cam.working ? "● On" : "● Off"}
                                         </span>
+                                    )}
+                                </div>
+                                {cam && (
+                                    <div className="camconfig-zone-coords">
+                                        <span>
+                                            <b>X:</b> {cam.cam_coordinates.x},{" "}
+                                            <b>Y:</b> {cam.cam_coordinates.y}
+                                        </span>
+                                    </div>
+                                )}
+                                <div className="camconfig-zone-actions">
+                                    {cam ? (
+                                        <>
+                                            <Button
+                                                size="sm"
+                                                variant={
+                                                    cam.working
+                                                        ? "outline-success"
+                                                        : "outline-secondary"
+                                                }
+                                                className="camconfig-zone-btn"
+                                                onClick={() =>
+                                                    handleToggleCamera(
+                                                        z.zone_id
+                                                    )
+                                                }
+                                            >
+                                                {cam.working ? (
+                                                    <>
+                                                        <i className="bi bi-toggle-on"></i>{" "}
+                                                        Switch Off
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <i className="bi bi-toggle-off"></i>{" "}
+                                                        Switch On
+                                                    </>
+                                                )}
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline-danger"
+                                                className="camconfig-zone-btn"
+                                                onClick={() =>
+                                                    handleRemoveCamera(
+                                                        z.zone_id
+                                                    )
+                                                }
+                                            >
+                                                <i className="bi bi-trash"></i>{" "}
+                                                Remove
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline-primary"
+                                                className="camconfig-zone-btn"
+                                                onClick={() =>
+                                                    handleAddCamera(z.zone_id)
+                                                }
+                                            >
+                                                <i className="bi bi-pencil-square"></i>{" "}
+                                                Change Position
+                                            </Button>
+                                        </>
+                                    ) : (
                                         <Button
                                             size="sm"
-                                            variant="warning"
-                                            className="ms-2"
-                                            onClick={() =>
-                                                handleToggleCamera(z.zone_id)
-                                            }
-                                        >
-                                            {cam.working
-                                                ? "Switch Off"
-                                                : "Switch On"}
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="danger"
-                                            className="ms-2"
-                                            onClick={() =>
-                                                handleRemoveCamera(z.zone_id)
-                                            }
-                                        >
-                                            Remove
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="secondary"
-                                            className="ms-2"
+                                            variant="primary"
+                                            className="camconfig-zone-btn"
                                             onClick={() =>
                                                 handleAddCamera(z.zone_id)
                                             }
                                         >
-                                            Change Position
+                                            <i className="bi bi-plus-circle"></i>{" "}
+                                            Add Camera
                                         </Button>
-                                    </>
-                                ) : (
-                                    <Button
-                                        size="sm"
-                                        variant="primary"
-                                        className="ms-2"
-                                        onClick={() =>
-                                            handleAddCamera(z.zone_id)
-                                        }
-                                    >
-                                        Add Camera
-                                    </Button>
-                                )}
+                                    )}
+                                </div>
                             </li>
                         );
                     })}

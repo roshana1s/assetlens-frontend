@@ -136,7 +136,7 @@ const ChatBot = () => {
                             <FaRobot className="chatbot-icon" />
                             <span>AssetLens Virtual Assistant</span>
                         </div>
-                        <button className="close-btn" onClick={toggleChat}>
+                        <button className="chatbot-close-btn" onClick={toggleChat}>
                             <FaTimes />
                         </button>
                     </div>
@@ -169,7 +169,7 @@ const ChatBot = () => {
                             onChange={(e) => setNewMessage(e.target.value)}
                             placeholder="Type your message..."
                         />
-                        <button type="submit" className="send-btn">
+                        <button type="submit" className="chatbot-send-btn">
                             <FaPaperPlane />
                         </button>
                     </form>
