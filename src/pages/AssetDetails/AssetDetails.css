@@ -1,0 +1,221 @@
+.assetdetails-root {
+    display: flex;
+    gap: 32px;
+    padding: 32px 36px 32px 36px;
+    background: #f7f9fb;
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+
+.assetdetails-main {
+    flex: 1.2;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(44, 62, 80, 0.07);
+    padding: 32px 32px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    min-width: 350px;
+}
+
+.assetdetails-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.assetdetails-title {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    font-size: 1.45em;
+    font-weight: 600;
+    color: #23306e;
+}
+
+.assetdetails-id {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-left: 8px;
+    font-weight: 400;
+}
+
+.assetdetails-category {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.assetdetails-category-chip {
+    background: #e3eafc;
+    color: #23306e;
+    border-radius: 7px;
+    padding: 4px 13px;
+    font-size: 0.98em;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+.assetdetails-geofence-chip {
+    background: #e8f5e9;
+    color: #388e3c;
+    border-radius: 7px;
+    padding: 4px 13px;
+    font-size: 0.98em;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.assetdetails-content {
+    margin-top: 10px;
+}
+
+.assetdetails-info {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+}
+
+.assetdetails-imgbox {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f3f4f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+}
+
+.assetdetails-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.assetdetails-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    margin-top: 4px;
+}
+
+.assetdetails-label {
+    font-weight: 500;
+    color: #23306e;
+    margin-right: 10px;
+    font-size: 1em;
+    min-width: 110px;
+    display: inline-block;
+}
+
+.assetdetails-value {
+    color: #374151;
+    font-size: 1em;
+    font-weight: 400;
+    word-break: break-all;
+}
+
+.assetdetails-side {
+    flex: 0.9;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    min-width: 320px;
+}
+
+.assetdetails-side-section {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(44, 62, 80, 0.06);
+    padding: 22px 24px 18px 24px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.assetdetails-side-title {
+    font-size: 1.13em;
+    font-weight: 600;
+    color: #23306e;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.assetdetails-side-map {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.assetdetails-side-mapimg {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    opacity: 0.92;
+}
+
+.assetdetails-side-frame {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.assetdetails-side-frameimg {
+    width: 100%;
+    max-width: 220px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.09);
+}
+
+.assetdetails-side-location {
+    margin-bottom: 10px;
+    margin-top: 2px;
+}
+
+.assetdetails-side-label {
+    font-weight: 500;
+    color: #23306e;
+    margin-right: 7px;
+    font-size: 1em;
+}
+
+.assetdetails-side-value {
+    color: #374151;
+    font-size: 1em;
+    font-weight: 400;
+}
+
+.assetdetails-download-btn {
+    margin-top: 4px;
+    font-size: 0.97em;
+    font-weight: 500;
+    border-radius: 7px;
+    padding: 5px 16px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.assetdetails-loading,
+.assetdetails-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    font-size: 1.2em;
+    color: #23306e;
+}

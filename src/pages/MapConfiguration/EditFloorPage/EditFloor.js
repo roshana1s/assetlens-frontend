@@ -143,7 +143,7 @@ const EditFloor = () => {
             // Delay the redirection to allow the toast to display
             setTimeout(() => {
                 window.location.href = "/admin/config/map"; // Redirect to map configuration page
-            }, 1500); // 3-second delay
+            }, 1500);
         } catch (err) {
             if (err.response && err.response.status === 400) {
                 toast.error(
