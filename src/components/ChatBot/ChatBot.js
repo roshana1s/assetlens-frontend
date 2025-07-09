@@ -2,56 +2,52 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaRobot, FaTimes, FaPaperPlane } from "react-icons/fa";
 import axios from "axios";
 import "./ChatBot.css";
-import { Button, Card } from "react-bootstrap";
+import { Button, Card, Spinner } from "react-bootstrap";
 import * as Babel from "@babel/standalone";
 
 const ChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
+    const [loading, setLoading] = useState(false);
     const messagesContainerRef = useRef(null);
 
     function sanitizeJSX(input) {
         return input
-            .replace(/<(?=\s|$)/g, "") // Remove stray <
+            .replace(/<(?=\s|$)/g, "")
             .replace(/<\/?([a-zA-Z0-9.]+)(\s*[^>]*)>/g, (match, tag, rest) => {
                 if (match.startsWith("</")) return `</${tag}>`;
                 return `<${tag}${rest}>`;
             })
-            .replace(/<\/([a-zA-Z0-9.]+)\s+>/g, "</$1>") // fix trailing spaces
+            .replace(/<\/([a-zA-Z0-9.]+)\s+>/g, "</$1>")
             .replace(
                 /(<(br|hr|img|input|meta|link|source)[^>]*)(?<!\/)>/g,
                 "$1 />"
             )
             .replace(/&nbsp;/g, " ")
-            .replace(/<([a-z.]+)([^>]*)>(\s*)<\/\1>/gi, "") // remove empty tags
-            .replace(/<[^>]*$/, "") // remove unclosed trailing tag
+            .replace(/<([a-z.]+)([^>]*)>(\s*)<\/\1>/gi, "")
+            .replace(/<[^>]*$/, "")
             .trim();
     }
 
     function compileJSX(jsxString) {
-        // Trim and check if it looks like JSX
         const trimmed = jsxString.trim();
-
         const isJSX =
             trimmed.startsWith("<") ||
             trimmed.startsWith("(") ||
             trimmed.startsWith("<>") ||
-            trimmed.includes("<") || // covers fragments and components
+            trimmed.includes("<") ||
             trimmed.includes("</");
 
         if (!isJSX) {
-            // It's just plain text — return as-is
             return trimmed;
         }
 
         jsxString = sanitizeJSX(jsxString);
-        // Else, try compiling it as JSX
         try {
             const code = Babel.transform(`(${jsxString})`, {
                 presets: ["react"],
             }).code;
-
             // eslint-disable-next-line no-new-func
             return new Function("React", "Card", "Button", `return ${code}`)(
                 React,
@@ -71,8 +67,9 @@ const ChatBot = () => {
                 const response = await axios.get(
                     `http://localhost:8000/chat/1/chat-history/${user_id}`
                 );
-
-                setMessages(response.data);
+                if (response.data && response.data.length > 0) {
+                    setMessages(response.data);
+                }
             } catch (error) {
                 console.error("Error fetching chat history:", error);
             }
@@ -105,6 +102,7 @@ const ChatBot = () => {
 
         // Send message to the agent
         const sendMessage = async (message) => {
+            setLoading(true);
             try {
                 console.log(message);
                 const response = await axios.post(
@@ -120,6 +118,8 @@ const ChatBot = () => {
                 setMessages((prev) => [...prev, botMsg]);
             } catch (error) {
                 console.error("Error sending message:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -136,7 +136,10 @@ const ChatBot = () => {
                             <FaRobot className="chatbot-icon" />
                             <span>AssetLens Virtual Assistant</span>
                         </div>
-                        <button className="chatbot-close-btn" onClick={toggleChat}>
+                        <button
+                            className="chatbot-close-btn"
+                            onClick={toggleChat}
+                        >
                             <FaTimes />
                         </button>
                     </div>
@@ -158,6 +161,14 @@ const ChatBot = () => {
                                 </div>
                             </div>
                         ))}
+                        {loading && (
+                            <div className="message bot-message">
+                                <div className="message-content">
+                                    <Spinner animation="border" size="sm" />{" "}
+                                    Typing...
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <form
                         onSubmit={handleSendMessage}
