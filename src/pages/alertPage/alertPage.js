@@ -1,3 +1,4 @@
+// src/pages/alertPage/AlertPage.js
 import React, { useState, useEffect } from 'react';
 import { alertSocket } from '../../services/alertSocket';
 import './alertPage.css';
@@ -7,10 +8,8 @@ const AlertPage = ({ orgId = 1, userId = 'current_user' }) => {
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
 
   useEffect(() => {
-    // Connect to WebSocket
     alertSocket.connect(orgId, userId);
 
-    // Setup event listeners
     const handleConnect = () => setConnectionStatus('connected');
     const handleDisconnect = () => setConnectionStatus('disconnected');
     const handleMessage = (alert) => {
@@ -22,7 +21,6 @@ const AlertPage = ({ orgId = 1, userId = 'current_user' }) => {
     alertSocket.on('disconnect', handleDisconnect);
     alertSocket.on('message', handleMessage);
 
-    // Cleanup on unmount
     return () => {
       alertSocket.off('connect', handleConnect);
       alertSocket.off('disconnect', handleDisconnect);

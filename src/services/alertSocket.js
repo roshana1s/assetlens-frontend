@@ -1,3 +1,4 @@
+// src/services/alertSocket.js
 class AlertSocket {
   constructor() {
     this.socket = null;
@@ -6,7 +7,7 @@ class AlertSocket {
     this.maxReconnectAttempts = 5;
     this.reconnectDelay = 1000;
     this.baseUrl = process.env.REACT_APP_WS_BASE_URL || 'ws://localhost:8000';
-    this.pingInterval = 30000; // 30 seconds
+    this.pingInterval = 30000;
     this.pingTimeout = null;
   }
 
@@ -22,12 +23,10 @@ class AlertSocket {
       this.reconnectAttempts = 0;
       this.startPing();
       this.emit('connect', { orgId, userId });
-      console.log(`WebSocket connected to ${socketUrl}`);
     };
 
     this.socket.onmessage = (event) => {
       this.resetPing();
-      
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'pong') return;
@@ -44,13 +43,11 @@ class AlertSocket {
     this.socket.onclose = (event) => {
       this.clearPing();
       this.emit('disconnect', event);
-      
       if (!event.wasClean && this.reconnectAttempts < this.maxReconnectAttempts) {
         const delay = Math.min(
           this.reconnectDelay * Math.pow(2, this.reconnectAttempts),
-          30000 // Max 30 seconds
+          30000
         );
-        
         setTimeout(() => {
           this.reconnectAttempts++;
           this.connect(orgId, userId);
