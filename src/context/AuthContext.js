@@ -1,83 +1,106 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+export const AuthProvider = ({ children }) => {
+  const [authState, setAuthState] = useState({
+    token: null,
+    user: null,
+    isAuthenticated: false,
+    loading: true
+  });
 
   useEffect(() => {
-    // Check for existing auth token on initial load
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      // Validate token with backend
-      validateToken(token);
-    } else {
-      setLoading(false);
-    }
+    const initializeAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          if (decoded.exp * 1000 < Date.now()) {
+            logout();
+            return;
+          }
+
+          const userResponse = await axios.get('http://localhost:8000/user/profile', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          setAuthState({
+            token,
+            user: {
+              id: decoded.sub,
+              username: decoded.sub,
+              role: decoded.role,
+              org_id: decoded.org_id,
+              is_global_admin: decoded.is_global_admin || false,
+              ...userResponse.data
+            },
+            isAuthenticated: true,
+            loading: false
+          });
+        } catch (error) {
+          console.error("Invalid token:", error);
+          logout();
+        }
+      } else {
+        setAuthState(prev => ({ ...prev, loading: false }));
+      }
+    };
+
+    initializeAuth();
   }, []);
 
-  const validateToken = async (token) => {
-    try {
-      const response = await fetch('/api/auth/validate', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-      } else {
-        logout();
-      }
-    } catch (error) {
-      console.error('Token validation failed:', error);
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
+  const login = async (token) => {
+    localStorage.setItem("token", token);
+    const decoded = jwtDecode(token);
 
-  const login = async (credentials) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      const userResponse = await axios.get('http://localhost:8000/user/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setAuthState({
+        token,
+        user: {
+          id: decoded.sub,
+          username: decoded.sub,
+          role: decoded.role,
+          org_id: decoded.org_id,
+          is_global_admin: decoded.is_global_admin || false,
+          ...userResponse.data
         },
-        body: JSON.stringify(credentials)
+        isAuthenticated: true,
+        loading: false
       });
-
-      if (response.ok) {
-        const { token, user } = await response.json();
-        localStorage.setItem('authToken', token);
-        setUser(user);
-        navigate('/alerts'); // Redirect to alerts page after login
-        return true;
-      }
-      return false;
     } catch (error) {
-      console.error('Login failed:', error);
-      return false;
+      console.error("Failed to fetch user profile:", error);
+      logout();
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
-    setUser(null);
-    navigate('/');
+    localStorage.removeItem("token");
+    setAuthState({
+      token: null,
+      user: null,
+      isAuthenticated: false,
+      loading: false
+    });
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{
+      ...authState,
+      login,
+      logout,
+      currentOrgId: authState.user?.org_id,
+      isGlobalAdmin: authState.user?.is_global_admin || false
+    }}>
+      {!authState.loading && children}
     </AuthContext.Provider>
   );
-}
+};
+
+export const useAuth = () => useContext(AuthContext);

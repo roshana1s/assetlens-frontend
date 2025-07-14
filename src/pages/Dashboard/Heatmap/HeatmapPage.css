@@ -1,0 +1,335 @@
+.heatmap-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: auto;
+  padding: 2rem;
+  background-color: #DBE0F5;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(54, 116, 181, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+h1 {
+  text-align: center;
+  color: #3674B5;
+  margin-bottom: 2rem;
+}
+
+.heatmap-controls {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.control-group label {
+  font-size: 0.85rem;
+  color: #4a5568;
+  white-space: nowrap;
+  margin: 0;
+  min-width: auto;
+}
+
+.control-group input,
+.control-group select {
+  height: 32px;
+  padding: 4px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.control-group input[type="date"] {
+  width: 130px;
+}
+
+.control-group input[type="time"] {
+  width: 85px;
+}
+
+.control-group select {
+  width: 150px;
+}
+
+.date-time-controls {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.date-time-pair {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.date-input {
+  width: 130px;
+}
+
+.time-input {
+  width: 85px;
+}
+
+.generate-button {
+  height: 32px;
+  min-width: 120px;
+  padding: 0 16px;
+  background: #3674B5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.generate-button:hover {
+  background: #2b5d91;
+}
+
+.generate-button:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 3px solid #fff;
+  border-top: 3px solid #3674B5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner {
+  margin: 2rem auto;
+  border: 6px solid #DBE0F5;
+  border-top: 6px solid #3674B5;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.date-range-hint {
+  font-size: 0.85rem;
+  color: #718096;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.error-message {
+  color: #e53e3e;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #fff5f5;
+  border-radius: 4px;
+}
+
+.heatmap-display {
+  position: relative;
+  width: 100%;
+  height: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.plotly-container {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(108, 108, 108, 0.1);
+  margin-top: 1rem;
+}
+
+.heatmap-display {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(108, 108, 108, 0.1);
+}
+
+.heatmap-meta {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.empty-state {
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+}
+
+.placeholder-heatmap {
+  width: 100%;
+  height: 400px;
+  background-image: url('https://i.imgur.com/zDZoblk.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: opacity 0.3s ease;
+}
+
+.placeholder-overlay p {
+  color: #3674B5;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
+
+.placeholder-heatmap:hover .placeholder-overlay {
+  opacity: 0;
+}
+
+/* Update analytics layout */
+.analytics-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.analytics-right-column {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.stats-card {
+  flex: 1;
+}
+
+/* Add these new styles */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.download-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.download-button:hover {
+    background-color: #45a049;
+}
+
+.download-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.heatmap-display {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Add focused hover states */
+.control-group input:focus,
+.control-group select:focus {
+  border-color: #3674B5;
+  box-shadow: 0 0 0 2px rgba(54, 116, 181, 0.1);
+  outline: none;
+}
+
+/* Improve button states */
+.generate-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #3674B5;
+}
+
+.generate-button:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap;
+}
+
+.actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  margin-top: 4px;
+  border-top: 1px solid #e2e8f0;
+}
+

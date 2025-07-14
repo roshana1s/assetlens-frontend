@@ -1,0 +1,413 @@
+:root {
+    --primary: #3674B5;
+    --primary-light: #4E8FD9;
+    --primary-lighter: #DBE0F5;
+    --secondary: #6C6C6C;
+    --secondary-light: #9E9E9E;
+    --secondary-lighter: #E0E0E0;
+    --white: #FFFFFF;
+    --off-white: #F8FAFC;
+    --error: #E74C3C;
+    --success: #28a745;
+    --warning: #ffc107;
+  }
+
+  .profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #2D3748;
+    position: relative;
+  }
+  
+  h1, h2, h3 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    border-bottom: 2px solid var(--primary-lighter);
+    padding-bottom: 0.5rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    text-align: center;
+  }
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--primary-lighter);
+    border-top: 5px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .error {
+    text-align: center;
+    padding: 2rem;
+    background: var(--off-white);
+    border-radius: 8px;
+    margin: 2rem 0;
+  }
+  
+  .error button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .error button:hover {
+    background: var(--primary-light);
+  }
+  
+  .success-popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--success);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  .success-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .success-icon {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  .profile-card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .profile-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  
+  .avatar-container {
+    position: relative;
+    width: 120px;
+  }
+  
+  .profile-avatar {
+    width: 100%;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-lighter);
+    box-shadow: 0 4px 12px rgba(54, 116, 181, 0.2);
+  }
+  
+  .role-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .action-buttons button {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .action-buttons button:first-child {
+    background: var(--primary);
+    color: white;
+    border: none;
+  }
+  
+  .action-buttons button:last-child {
+    background: white;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+  }
+  
+  .action-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-info {
+    padding: 1rem 0;
+  }
+  
+  .profile-info p {
+    margin-bottom: 1rem;
+    color: var(--secondary);
+  }
+  
+  .profile-info strong {
+    color: var(--primary);
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+  
+  .edit-form, .password-form {
+    background: var(--off-white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--primary);
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--secondary-lighter);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-lighter);
+  }
+
+  .password-input-group {
+    position: relative;
+  }
+  
+  .password-input-wrapper {
+    position: relative;
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+  }
+  
+  .password-toggle:hover {
+    opacity: 1;
+  }
+  
+  .password-toggle.visible {
+    opacity: 1;
+  }
+  
+  .password-match {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .password-match.match {
+    color: var(--success);
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+  
+  .password-match.no-match {
+    color: var(--error);
+    background-color: rgba(231, 76, 60, 0.1);
+  }
+  
+  .password-error {
+    color: var(--error);
+    background-color: rgba(231, 76, 60, 0.1);
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .form-actions button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .form-actions .cancel {
+    background: white;
+    color: var(--secondary);
+    border: 1px solid var(--secondary-lighter);
+  }
+  
+  .form-actions .save {
+    background: var(--primary);
+    color: white;
+    border: none;
+  }
+  
+  .form-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form-actions .save:hover {
+    background: var(--primary-light);
+  }
+  
+  .assets-section {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+  }
+  
+  .assets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+  
+  .asset-card {
+    background: var(--off-white);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .asset-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .asset-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+  
+  .asset-info {
+    padding: 1rem;
+  }
+  
+  .asset-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary);
+  }
+  
+  .asset-info p {
+    color: var(--secondary);
+    font-size: 0.9rem;
+  }
+  
+  .no-assets {
+    text-align: center;
+    padding: 2rem;
+    color: var(--secondary-light);
+    background: var(--off-white);
+    border-radius: 8px;
+  }
+  
+  @media (max-width: 768px) {
+    .profile-header {
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .action-buttons {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .assets-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .profile-container {
+      padding: 1rem;
+    }
+    
+    .profile-card, .assets-section {
+      padding: 1.5rem;
+    }
+    
+    .form-actions {
+      flex-direction: column;
+    }
+    
+    .form-actions button {
+      width: 100%;
+    }
+  }
