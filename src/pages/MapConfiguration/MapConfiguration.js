@@ -8,6 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./MapConfiguration.css";
 import FetchingData from "../../components/FetchingData/FetchingData";
+import NavBarOrgAdmin from "../../components/NavBarOrgAdmin/NavBarOrgAdmin";
 
 const MapConfiguration = () => {
     const org_id = 1;
@@ -66,6 +67,8 @@ const MapConfiguration = () => {
     }, []);
 
     return (
+        <div className="page-container">
+              <NavBarOrgAdmin />
         <>
             {/* Toast Container */}
             <ToastContainer position="top-right" autoClose={3000} />
@@ -239,8 +242,10 @@ const MapConfiguration = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+
             )}
         </>
+        </div>
     );
 };
 

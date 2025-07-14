@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaFilter, FaCalendarAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import './Logs.css';
+import NavBarOrgAdmin from '../../components/NavBarOrgAdmin/NavBarOrgAdmin';
 
 const AssetLogsPage = () => {
   const [logs, setLogs] = useState([]);
@@ -119,6 +120,8 @@ const AssetLogsPage = () => {
   };
 
   return (
+    <div className="page-container">
+      <NavBarOrgAdmin />
     <div className="asset-logs-container">
       <div className="logs-header">
         <h1>Asset Location Logs</h1>
@@ -285,6 +288,7 @@ const AssetLogsPage = () => {
           </div>
         </>
       )}
+      </div>
     </div>
   );
 };

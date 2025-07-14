@@ -5,6 +5,7 @@ import "./OnlineTracking.css";
 import DrawMapWithAssets from "../../components/DrawMapWithAssets/DrawMapWithAssets";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import NavBarOrgAdmin from "../../components/NavBarOrgAdmin/NavBarOrgAdmin";
 
 const OnlineTracking = () => {
     const org_id = 1;
@@ -82,103 +83,107 @@ const OnlineTracking = () => {
             : [];
 
     return (
-        <div style={{ display: "flex" }}>
-            <ToastContainer position="top-right" autoClose={3000} />
-            <div className="floor-details-panel">
-                <span className="header-text">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        className="bi bi-map"
-                        viewBox="0 0 16 16"
-                    >
-                        <path
-                            fillRule="evenodd"
-                            d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.5.5 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103M10 1.91l-4-.8v12.98l4 .8zm1 12.98 4-.8V1.11l-4 .8zm-6-.8V1.11l-4 .8v12.98z"
-                        />
-                    </svg>
-                    <span className="ms-2">Online Tracking</span>
-                </span>
+        <div className="online-tracking-container">
+            <NavBarOrgAdmin />
+            <div style={{ display: "flex" }}>
+                <ToastContainer position="top-right" autoClose={3000} />
+                <div className="floor-details-panel">
+                    <span className="header-text">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            className="bi bi-map"
+                            viewBox="0 0 16 16"
+                        >
+                            <path
+                                fillRule="evenodd"
+                                d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.5.5 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103M10 1.91l-4-.8v12.98l4 .8zm1 12.98 4-.8V1.11l-4 .8zm-6-.8V1.11l-4 .8v12.98z"
+                            />
+                        </svg>
+                        <span className="ms-2">Online Tracking</span>
+                    </span>
 
-                <div className="scrollable-content">
-                    {/* Floor Combobox */}
-                    <div className="form-group">
-                        <label htmlFor="floor-select">Select Floor</label>
-                        <Combobox
-                            placeholder="Select Floor"
-                            id="floor-select"
-                            data={(initialFilterDetails.floors || []).map(
-                                (floor) => floor.floorName
-                            )}
-                            onChange={(value) =>
-                                setFloorId(
-                                    initialFilterDetails.floors?.find(
-                                        (floor) => floor.floorName === value
-                                    )?.floor_id
-                                )
-                            }
-                        />
-                    </div>
+                    <div className="scrollable-content">
+                        {/* Floor Combobox */}
+                        <div className="form-group">
+                            <label htmlFor="floor-select">Select Floor</label>
+                            <Combobox
+                                placeholder="Select Floor"
+                                id="floor-select"
+                                data={(initialFilterDetails.floors || []).map(
+                                    (floor) => floor.floorName
+                                )}
+                                onChange={(value) =>
+                                    setFloorId(
+                                        initialFilterDetails.floors?.find(
+                                            (floor) => floor.floorName === value
+                                        )?.floor_id
+                                    )
+                                }
+                            />
+                        </div>
 
-                    {/* Zone Combobox */}
-                    <div className="form-group">
-                        <label htmlFor="zone-select">Select Zone</label>
-                        <Combobox
-                            id="zone-select"
-                            defaultValue={"ALL"}
-                            data={[
-                                "ALL",
-                                ...(matchedFloor?.zones || []).map(
-                                    (zone) => zone.name
-                                ),
-                            ]}
-                            onChange={(value) =>
-                                setZoneId(
-                                    matchedFloor?.zones?.find(
-                                        (zone) => zone.name === value
-                                    )?.zone_id || "ALL"
-                                )
-                            }
-                            disabled={!floorId}
-                        />
-                    </div>
+                        {/* Zone Combobox */}
+                        <div className="form-group">
+                            <label htmlFor="zone-select">Select Zone</label>
+                            <Combobox
+                                id="zone-select"
+                                defaultValue={"ALL"}
+                                data={[
+                                    "ALL",
+                                    ...(matchedFloor?.zones || []).map(
+                                        (zone) => zone.name
+                                    ),
+                                ]}
+                                onChange={(value) =>
+                                    setZoneId(
+                                        matchedFloor?.zones?.find(
+                                            (zone) => zone.name === value
+                                        )?.zone_id || "ALL"
+                                    )
+                                }
+                                disabled={!floorId}
+                            />
+                        </div>
 
-                    {/* Asset Combobox */}
-                    <div className="form-group">
-                        <label htmlFor="asset-select">Select Asset</label>
-                        <Combobox
-                            id="asset-select"
-                            defaultValue={"ALL"}
-                            data={[
-                                "ALL",
-                                ...(initialFilterDetails.assets || []).map(
-                                    (asset) => asset.name
-                                ),
-                            ]}
-                            onChange={(value) =>
-                                setAssetId(
-                                    initialFilterDetails.assets?.find(
-                                        (asset) => asset.name === value
-                                    )?.asset_id || "ALL"
-                                )
-                            }
-                            disabled={!floorId}
-                        />
+                        {/* Asset Combobox */}
+                        <div className="form-group">
+                            <label htmlFor="asset-select">Select Asset</label>
+                            <Combobox
+                                id="asset-select"
+                                defaultValue={"ALL"}
+                                data={[
+                                    "ALL",
+                                    ...(initialFilterDetails.assets || []).map(
+                                        (asset) => asset.name
+                                    ),
+                                ]}
+                                onChange={(value) =>
+                                    setAssetId(
+                                        initialFilterDetails.assets?.find(
+                                            (asset) => asset.name === value
+                                        )?.asset_id || "ALL"
+                                    )
+                                }
+                                disabled={!floorId}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <DrawMapWithAssets
-                zones={
-                    floorId !== ""
-                        ? mapDetails.find((floor) => floor.floor_id === floorId)
-                              ?.zones || []
-                        : []
-                }
-                assetLocations={filteredLocations}
-            />
+                <DrawMapWithAssets
+                    zones={
+                        floorId !== ""
+                            ? mapDetails.find(
+                                  (floor) => floor.floor_id === floorId
+                              )?.zones || []
+                            : []
+                    }
+                    assetLocations={filteredLocations}
+                />
+            </div>
         </div>
     );
 };

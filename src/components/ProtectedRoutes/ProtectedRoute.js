@@ -30,4 +30,3 @@ const ProtectedRoute = ({ requiredRole, orgAccess = false }) => {
 };
 
 export default ProtectedRoute;
-

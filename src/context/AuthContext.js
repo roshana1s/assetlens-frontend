@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
     token: null,
     user: null,
     isAuthenticated: false,
-    loading: true
+    loading: true 
   });
 
   useEffect(() => {
@@ -22,11 +22,11 @@ export const AuthProvider = ({ children }) => {
             logout();
             return;
           }
-
+          
           const userResponse = await axios.get('http://localhost:8000/user/profile', {
             headers: { Authorization: `Bearer ${token}` }
           });
-
+          
           setAuthState({
             token,
             user: {
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
               role: decoded.role,
               org_id: decoded.org_id,
               is_global_admin: decoded.is_global_admin || false,
-              ...userResponse.data
+              ...userResponse.data 
             },
             isAuthenticated: true,
             loading: false
@@ -52,33 +52,36 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (token) => {
-    localStorage.setItem("token", token);
-    const decoded = jwtDecode(token);
-
-    try {
-      const userResponse = await axios.get('http://localhost:8000/user/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      setAuthState({
-        token,
-        user: {
-          id: decoded.sub,
-          username: decoded.sub,
-          role: decoded.role,
-          org_id: decoded.org_id,
-          is_global_admin: decoded.is_global_admin || false,
-          ...userResponse.data
-        },
-        isAuthenticated: true,
-        loading: false
-      });
-    } catch (error) {
-      console.error("Failed to fetch user profile:", error);
-      logout();
-    }
-  };
+  
+  const login = async (token, additionalUserData = {}) => {
+  localStorage.setItem("token", token);
+  const decoded = jwtDecode(token);
+  
+  try {
+    const userResponse = await axios.get('http://localhost:8000/user/profile', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    setAuthState({
+      token,
+      user: {
+        id: decoded.sub,
+        username: decoded.sub,
+        role: decoded.role,
+        org_id: decoded.org_id,
+        is_global_admin: decoded.is_global_admin || false,
+        dashboard_url: additionalUserData.dashboard_url, // Add this line
+        ...userResponse.data,
+        ...additionalUserData // Spread additional data
+      },
+      isAuthenticated: true,
+      loading: false
+    });
+  } catch (error) {
+    console.error("Failed to fetch user profile:", error);
+    logout();
+  }
+};
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -91,9 +94,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{
-      ...authState,
-      login,
+    <AuthContext.Provider value={{ 
+      ...authState, 
+      login, 
       logout,
       currentOrgId: authState.user?.org_id,
       isGlobalAdmin: authState.user?.is_global_admin || false

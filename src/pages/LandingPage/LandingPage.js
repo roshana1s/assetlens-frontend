@@ -120,7 +120,7 @@ const LandingPage = () => {
                 </div>
                 <div className="hero-image">
                     {/* <img src="./image.png" alt="AssetLens Dashboard" /> */}
-                    <img src="./image.jpg" alt="AssetLens Dashboard" />
+                    <img src="https://i.imgur.com/N42HUc8.jpeg" alt="AssetLens Dashboard" />
                 </div>
             </section>
 

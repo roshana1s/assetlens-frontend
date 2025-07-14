@@ -7,6 +7,7 @@ import EditAssetForm from "../../components/Asset/EditAssetForm";
 import CategoryManager from "../../components/Category/CategoryManager";
 import "./AssetConfig.css";
 import { FaEdit } from "react-icons/fa";
+import NavBarOrgAdmin from "../../components/NavBarOrgAdmin/NavBarOrgAdmin";
 
 const AssetConfigPage = () => {
   const [assets, setAssets] = useState([]);
@@ -111,6 +112,8 @@ const AssetConfigPage = () => {
   };
 
   return (
+    <div className="page-container">
+          <NavBarOrgAdmin />
     <div className="asset-config-container">
       {/* Left Content */}
       <div className="asset-list-content">
@@ -215,6 +218,7 @@ const AssetConfigPage = () => {
           onCategoryChange={refreshCategories}
         />
       )}
+    </div>
     </div>
   );
 };

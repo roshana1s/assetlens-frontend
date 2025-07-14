@@ -198,7 +198,7 @@ const NavBarOrgAdmin = () => {
                 </div>
                 <div className="nav-links">
                     <NavLink
-                        to="/admin/online-tracking"
+                        to={`/dashboard/org/${currentOrgId}/admin/online-tracking`}
                         className={({ isActive }) =>
                             isActive ? "nav-link active" : "nav-link"
                         }
@@ -218,7 +218,7 @@ const NavBarOrgAdmin = () => {
                     </NavLink>
 
                     <NavLink
-                        to="/admin/past-tracking"
+                        to={`/dashboard/org/${currentOrgId}/admin/past-tracking`}
                         className={({ isActive }) =>
                             isActive ? "nav-link active" : "nav-link"
                         }
@@ -239,7 +239,7 @@ const NavBarOrgAdmin = () => {
                     </NavLink>
 
                     <NavLink
-                        to="/admin/logs"
+                        to={`/dashboard/org/${currentOrgId}/admin/logs`}
                         className={({ isActive }) =>
                             isActive ? "nav-link active" : "nav-link"
                         }
@@ -300,7 +300,7 @@ const NavBarOrgAdmin = () => {
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="dropdown-menu">
                             <NavLink
-                                to="/admin/config/user"
+                                to={`/dashboard/org/${currentOrgId}/admin/config-user`}
                                 className="nav-link"
                             >
                                 <svg
@@ -316,7 +316,7 @@ const NavBarOrgAdmin = () => {
                                 &nbsp; User Configuration
                             </NavLink>
                             <NavLink
-                                to="/admin/config/asset"
+                                to={`/dashboard/org/${currentOrgId}/admin/config-asset`}
                                 className="nav-link"
                             >
                                 <svg
@@ -332,7 +332,7 @@ const NavBarOrgAdmin = () => {
                                 &nbsp; Asset Configuration
                             </NavLink>
                             <NavLink
-                                to="/admin/config/map"
+                                to={`/dashboard/org/${currentOrgId}/admin/config-map`}
                                 className="nav-link"
                             >
                                 <svg
@@ -351,7 +351,7 @@ const NavBarOrgAdmin = () => {
                                 &nbsp; Map Configuration
                             </NavLink>
                             <NavLink
-                                to="/admin/config/camera"
+                                to={`/dashboard/org/${currentOrgId}/admin/config-camera`}
                                 className="nav-link"
                             >
                                 <svg

@@ -8,6 +8,7 @@ import Modal from "react-bootstrap/Modal";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CameraConfiguration.css";
+import NavBarOrgAdmin from "../../components/NavBarOrgAdmin/NavBarOrgAdmin";
 
 const CameraConfiguration = () => {
     const org_id = 1;
@@ -129,6 +130,8 @@ const CameraConfiguration = () => {
     };
 
     return (
+        <div className="page-container">
+              <NavBarOrgAdmin />
         <div style={{ display: "flex" }}>
             <ToastContainer position="top-right" autoClose={2000} />
             <div className="map-config-container">
@@ -320,6 +323,7 @@ const CameraConfiguration = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+        </div>
         </div>
     );
 };

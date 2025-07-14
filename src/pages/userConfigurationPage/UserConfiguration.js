@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchUsers } from './api';
+import { fetchAllUsers } from './api';
 import UserList from './UserList';
 import './UserConfiguration.css';
 
@@ -11,7 +11,7 @@ const UserConfiguration = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const usersData = await fetchUsers(orgId);
+        const usersData = await fetchAllUsers(orgId);
         setUsers(usersData);
       } catch (error) {
         console.error('Error loading users:', error);
