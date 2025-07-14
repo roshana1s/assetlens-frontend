@@ -22,7 +22,12 @@ export const WebSocketProvider = ({ children }) => {
             };
             
             notifWs.onmessage = (event) => {
-            };
+    const data = JSON.parse(event.data);
+    // Pass to notification handler
+    if (data.type === 'notification' || data.type === 'unread_count') {
+        // Will be handled in NotificationContext
+    }
+};
             
             notifWs.onclose = (event) => {
                 console.log('Notification WebSocket disconnected', event.reason);

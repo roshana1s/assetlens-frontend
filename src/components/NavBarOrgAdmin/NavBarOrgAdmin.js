@@ -40,6 +40,12 @@ const NavBarOrgAdmin = () => {
     } = useAlerts();
 
     useEffect(() => {
+    if (showNotifications && unreadCount > 0) {
+        markAllAsRead();
+    }
+}, [showNotifications]);
+
+    useEffect(() => {
         const fetchProfileData = async () => {
             try {
                 const response = await axios.get("http://localhost:8000/user/profile", {
@@ -453,7 +459,13 @@ const NavBarOrgAdmin = () => {
                         )}
                     </div>
 
-                     <div className="icon-wrapper" onClick={toggleNotifications}>
+                     
+                   <div className="icon-wrapper" onClick={() => {
+    toggleNotifications();
+    if (unreadCount > 0) {
+        markAllAsRead();
+    }
+}}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"

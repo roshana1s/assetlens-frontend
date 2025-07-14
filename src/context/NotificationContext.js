@@ -61,11 +61,14 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     if (socket) {
       const handleNotification = (data) => {
+    // Handle different message types
     if (data.type === 'notification') {
+        // New notification
         setNotifications(prev => [data.data, ...prev.slice(0, 4)]);
         setAllNotifications(prev => [data.data, ...prev]);
         setUnreadCount(prev => prev + 1);
     } else if (data.type === 'unread_count') {
+        // Update unread count
         setUnreadCount(data.data);
     }
 };
@@ -93,37 +96,37 @@ export const NotificationProvider = ({ children }) => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await axios.patch(
-        `http://localhost:8000/notifications/${notificationId}/read`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-      setNotifications(prev => 
-        prev.map(n => 
-          n._id === notificationId ? { ...n, is_read: true } : n
-        )
-      );
+        await axios.patch(
+            `http://localhost:8000/notifications/${notificationId}/read?org_id=${currentOrgId}`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        // No need to manually update count - will come via WebSocket
     } catch (err) {
-      console.error('Failed to mark notification as read:', err);
+        console.error('Failed to mark notification as read:', err);
     }
-  };
+};
 
   const markAllAsRead = async () => {
     try {
-      await axios.patch(
-        `http://localhost:8000/notifications/mark-all-read/${currentOrgId}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setUnreadCount(0);
-      setNotifications(prev => 
-        prev.map(n => ({ ...n, is_read: true }))
-      );
+        await axios.patch(
+            `http://localhost:8000/notifications/mark-all-read/${currentOrgId}`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        // Optimistically update the UI
+        setUnreadCount(0);
+        setNotifications(prev => 
+            prev.map(n => ({ ...n, is_read: true }))
+        );
+        setAllNotifications(prev => 
+            prev.map(n => ({ ...n, is_read: true }))
+        );
     } catch (err) {
-      console.error('Failed to mark all notifications as read:', err);
+        console.error('Failed to mark all notifications as read:', err);
     }
-  };
+};
 
   return (
     <NotificationContext.Provider
