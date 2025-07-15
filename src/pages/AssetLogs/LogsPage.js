@@ -232,7 +232,6 @@ const AssetLogsPage = () => {
             <table className="logs-table">
               <thead>
                 <tr>
-                  <th>Log ID</th>
                   <th>Asset ID</th>
                   <th>Asset Name</th>
                   <th>Category</th>
@@ -240,14 +239,14 @@ const AssetLogsPage = () => {
                   <th>Zone</th>
                   <th>Date</th>
                   <th>Time</th>
+                  <th>Access Frame</th>
                 </tr>
               </thead>
               <tbody>
                 {logs.map((log, index) => {
                   const assetId = log.asset_id || (log._id ? log._id.split('-')[1] : '-');
-                  return (
+                    return (
                     <tr key={`${log._id}-${index}`}>
-                      <td>{log._id || '-'}</td>
                       <td>{assetId}</td>
                       <td>{log.asset_name || '-'}</td>
                       <td>{log.locations?.[0]?.category_name || '-'}</td>
@@ -255,8 +254,22 @@ const AssetLogsPage = () => {
                       <td>{log.zone_name || '-'}</td>
                       <td>{log.date || '-'}</td>
                       <td>{log.time || '-'}</td>
+                      <td>
+                      {log.frame_link ? (
+                        <a
+                        href={log.frame_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="access-frame-btn"
+                        >
+                        Access frame here
+                        </a>
+                      ) : (
+                        '-'
+                      )}
+                      </td>
                     </tr>
-                  );
+                    );
                 })}
               </tbody>
             </table>
