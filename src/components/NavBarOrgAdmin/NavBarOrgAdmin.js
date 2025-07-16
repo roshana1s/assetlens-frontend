@@ -4,13 +4,12 @@ import { Dropdown } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./NavBarOrgAdmin.css";
 import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
-import { useNotifications } from "../../context/NotificationContext";
-import { useAlerts } from "../../context/AlertContext";
+import { useAuth } from "../../context/AuthContext";;
 
 const NavBarOrgAdmin = () => {
-    const [showAlerts, setShowAlerts] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [showAlerts, setShowAlerts] = useState(false);
     const [profileData, setProfileData] = useState(null);
     const [assets, setAssets] = useState({});
     const [floors, setFloors] = useState({});
@@ -22,28 +21,6 @@ const NavBarOrgAdmin = () => {
     const location = useLocation();
     const isConfigActive = location.pathname.startsWith("/admin/config");
     
-    const {
-        notifications,
-        unreadCount,
-        loading: loadingNotifications,
-        error: notificationError,
-        markAllAsRead
-    } = useNotifications();
-    
-    const [showNotifications, setShowNotifications] = useState(false);    
-    const {
-        alerts,
-        unreadAlertCount,
-        loading: loadingAlerts,
-        error: alertError,
-        markAllAlertsAsRead
-    } = useAlerts();
-
-    useEffect(() => {
-    if (showNotifications && unreadCount > 0) {
-        markAllAsRead();
-    }
-}, [showNotifications]);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -67,121 +44,35 @@ const NavBarOrgAdmin = () => {
     useEffect(() => {
         const fetchAssetAndLocationData = async () => {
             if (showAlerts && currentOrgId) {
-                try {
-                    setLoadingAssets(true);
-                    
-                  
-                    const assetsRes = await axios.get(`http://localhost:8000/assets/${currentOrgId}`);
-                    const assetsMap = {};
-                    assetsRes.data.forEach(asset => {
-                        assetsMap[asset.asset_id] = asset;
-                    });
-                    setAssets(assetsMap);
-                    
-                    const uniqueFloors = [...new Set(alerts.map(a => a.floor_id))];
-                    const floorPromises = uniqueFloors.map(floorId => 
-                        axios.get(`http://localhost:8000/maps/${currentOrgId}/get-floor/${floorId}`)
-                    );
-                    
-                    const floorsData = await Promise.all(floorPromises);
-                    const floorsMap = {};
-                    const zonesMap = {};
-                    
-                    floorsData.forEach(floor => {
-                        floorsMap[floor.data.floor_id] = floor.data.floorName;
-                        floor.data.zones.forEach(zone => {
-                            zonesMap[zone.zone_id] = zone.name;
-                        });
-                    });
-                    
-                    setFloors(floorsMap);
-                    setZones(zonesMap);
-                    
-                } catch (err) {
-                    console.error("Error fetching asset/location data:", err);
-                } finally {
-                    setLoadingAssets(false);
-                }
+
             }
         };
 
         fetchAssetAndLocationData();
-    }, [showAlerts, currentOrgId, alerts]);
-
-    const toggleAlerts = () => {
-        const newState = !showAlerts;
-        setShowAlerts(newState);
-        setShowNotifications(false);
-        setShowProfile(false);
-    };
-
-    const getAlertColor = (type) => {
-        switch(type) {
-            case 'misplaced': return '#ff4444'
-            case 'geofence_breach': return '#9c3106';
-            case 'potential_geofence_breach': return '#525049'; 
-            default: return '#000000';
-        }
-    };
+    }, [currentOrgId]);
 
 
-    const formatDescription = (alert) => {
-        const assetName = assets[alert.asset_id]?.name || alert.asset_id;
-        const floorName = floors[alert.floor_id] || alert.floor_id;
-        const zoneName = zones[alert.zone_id] || alert.zone_id;
-
-        const getColoredText = (text, type) => {
-        const color = getAlertColor(type);
-        return <span style={{ color }}>{text}</span>;
-    };
-        
-        switch(alert.type) {
-        case 'geofence_breach':
-            return (
-                <>
-                    {getColoredText(`${assetName} left its assigned zone ${zoneName}`, 'geofence_breach')}
-                    {` on ${floorName}`}
-                </>
-            );
-        case 'potential_geofence_breach':
-            return (
-                <>
-                    {getColoredText(`${assetName} is approaching the boundary of ${zoneName}`, 'potential_geofence_breach')}
-                    {` on ${floorName}`}
-                </>
-            );
-        case 'misplaced':
-            return getColoredText(
-                `${assetName} was placed in ${zoneName} on ${floorName} (unexpected location)`,
-                'misplaced'
-            );
-        default:
-            return alert.description
-                .replace(alert.asset_id, assetName)
-                .replace(alert.floor_id, floorName)
-                .replace(alert.zone_id, zoneName);
-    }
-    };
 
     const formatTime = (timestamp) => {
         return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    const toggleNotifications = () => {
-        const newState = !showNotifications;
-        setShowNotifications(newState);
-        setShowAlerts(false);
-        setShowProfile(false);
-        
-        if (newState && unreadCount > 0) {
-            markAllAsRead();
-        }
-    };
 
     const toggleProfile = () => {
         setShowNotifications(false);
         setShowAlerts(false);
         setShowProfile(!showProfile);
+    };
+    const toggleAlerts = () => {
+        setShowAlerts(!showAlerts);
+        setShowNotifications(false);
+        setShowProfile(false);
+    };
+
+    const toggleNotifications = () => {
+        setShowNotifications(!showNotifications);
+        setShowAlerts(false);
+        setShowProfile(false);
     };
 
     const handleLogout = () => {
@@ -366,185 +257,27 @@ const NavBarOrgAdmin = () => {
                         >
                             <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
                         </svg>
-                        {unreadAlertCount > 0 && (
-                            <span className="alert-badge">{unreadAlertCount}</span>
-                        )}
                         {showAlerts && (
-                            <div className="popup-box alert-popup">
-                                {loadingAlerts || loadingAssets ? (
-                                    <div className="loading-alerts">Loading alerts...</div>
-                                ) : alertError ? (
-                                    <div className="alert-error">{alertError}</div>
-                                ) : alerts.length > 0 ? (
-                                    <>
-                                        <div className="alert-header">
-                                            <h4>Alerts</h4>
-                                            <div className="alert-actions">
-                                                <button 
-                                                    className="mark-all-read"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        markAllAsRead();
-                                                    }}
-                                                    disabled={unreadAlertCount === 0}
-                                                >
-                                                    Mark all as read
-                                                </button>
-                                                <NavLink 
-                                                    to={`/dashboard/org/${currentOrgId}/admin/alerts`}
-                                                    className="view-all-link"
-                                                    onClick={() => setShowAlerts(false)}
-                                                >
-                                                    View All
-                                                </NavLink>
-                                            </div>
-                                        </div>
-                                        <div className="alert-list">
-                                            {alerts.slice(0, 5).map((alert, index) => (
-                                                <div 
-    key={index} 
-    className="alert-item"
-    style={{ borderLeft: `3px solid ${getAlertColor(alert.type)}` }}
->
-    <div className="alert-icon-container">
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            fill={getAlertColor(alert.type)}
-            viewBox="0 0 16 16"
-            className="alert-type-icon"
-        >
-            {alert.type === 'geofence_breach' && (
-                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
-            )}
-            {alert.type === 'potential_geofence_breach' && (
-                <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
-            )}
-            {alert.type === 'misplaced' && (
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-            )}
-        </svg>
-    </div>
-    <div className="alert-details">
-        <div className="alert-message">
-            {formatDescription(alert)}
-        </div>
-        <div className="alert-meta">
-            <span className="alert-type">
-                {alert.type.replace(/_/g, ' ')}
-            </span>
-            <span className="alert-time">
-                {formatTime(alert.timestamp)}
-            </span>
-        </div>
-    </div>
-</div>
-                                            ))}
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="no-alerts">
-                                        No new alerts
-                                        <NavLink 
-                                            to="/alerts"
-                                            className="view-all-link"
-                                            onClick={() => setShowAlerts(false)}
-                                        >
-                                            View All Alerts
-                                        </NavLink>
-                                    </div>
-                                )}
+                            <div className="popup-box">No new alerts</div>
+                        )}
+                    </div>
+                    <div className="icon-wrapper" onClick={toggleNotifications}>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            className="notification-icon"
+                            viewBox="0 0 16 16"
+                        >
+                            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
+                        </svg>
+                        {showNotifications && (
+                            <div className="popup-box">
+                                No new notifications
                             </div>
                         )}
                     </div>
-
-                     
-                   <div className="icon-wrapper" onClick={() => {
-    toggleNotifications();
-    if (unreadCount > 0) {
-        markAllAsRead();
-    }
-}}>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        className="notification-icon"
-                        viewBox="0 0 16 16"
-                    >
-                        <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
-                    </svg>
-                    {unreadCount > 0 && (
-                        <span className="notification-badge">{unreadCount}</span>
-                    )}
-                    {showNotifications && (
-                        <div className="popup-box notification-popup">
-                            {loadingNotifications ? (
-                                <div className="loading-notifications">Loading notifications...</div>
-                            ) : notificationError ? (
-                                <div className="notification-error">{notificationError}</div>
-                            ) : notifications.length > 0 ? (
-                                <>
-                                    <div className="notification-header">
-                                        <h4>Notifications</h4>
-                                        <div className="notification-actions">
-                                            <button 
-                                                className="mark-all-read"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    markAllAsRead();
-                                                }}
-                                                disabled={unreadCount === 0}
-                                            >
-                                                Mark all as read
-                                            </button>
-                                            <NavLink 
-                                                to={`/dashboard/org/${currentOrgId}/admin/notifications`}
-                                                className="view-all-link"
-                                                onClick={() => setShowNotifications(false)}
-                                            >
-                                                View All
-                                            </NavLink>
-                                        </div>
-                                    </div>
-                                    <div className="notification-list">
-                                        {notifications.map((notification, index) => (
-                                            <div 
-                                                key={index} 
-                                                className={`notification-item ${notification.is_read ? '' : 'unread'}`}
-                                            >
-                                                <div className="notification-message">
-                                                    {notification.message}
-                                                </div>
-                                                <div className="notification-meta">
-                                                    <span className="notification-type">
-                                                        {notification.type.replace('_', ' ')}
-                                                    </span>
-                                                    <span className="notification-time">
-                                                        {formatTime(notification.timestamp)}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="no-notifications">
-                                    No new notifications
-                                    <NavLink 
-                                        to="/notifications"
-                                        className="view-all-link"
-                                        onClick={() => setShowNotifications(false)}
-                                    >
-                                        View All Notifications
-                                    </NavLink>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
                 
 <div className="icon-wrapper" onClick={toggleProfile}>
                     {user?.image_link ? (
