@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./AssetDetails.css";
-import { Button, Spinner, Nav, Tab } from "react-bootstrap";
+import { Button, Spinner, Nav, Tab, Alert } from "react-bootstrap";
 
 const DUMMY_FRAME =
     "https://storage.googleapis.com/assetlens-b9f76.firebasestorage.app/f0001-z0001/2025-07-14T10%3A34%3A58.jpg";
@@ -10,9 +10,15 @@ const AssetDetails = () => {
     const { asset_id } = useParams();
     const navigate = useNavigate();
     const org_id = 1;
+    const user_id = "u0002"; // You may need to get this from context/auth
+    const ws = useRef(null);
+
     const [asset, setAsset] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("realtime");
+    const [liveLocation, setLiveLocation] = useState(null);
+    const [isConnected, setIsConnected] = useState(false);
+    const [lastUpdate, setLastUpdate] = useState(null);
 
     useEffect(() => {
         const fetchAsset = async () => {
@@ -30,6 +36,52 @@ const AssetDetails = () => {
         };
         fetchAsset();
     }, [asset_id]);
+
+    // WebSocket connection for live tracking
+    useEffect(() => {
+        const socketUrl = `ws://localhost:8000/ws/online-tracking/${org_id}/${user_id}`;
+        const socket = new WebSocket(socketUrl);
+        ws.current = socket;
+
+        socket.onopen = () => {
+            console.log("WebSocket connected");
+            setIsConnected(true);
+        };
+
+        socket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                // Filter for our specific asset
+                const assetLocation = data.locations?.find(
+                    (location) => location.asset_id === asset_id
+                );
+                console.log(assetLocation);
+                if (assetLocation) {
+                    setLiveLocation(assetLocation);
+                    setLastUpdate(new Date(data.timestamp));
+                }
+            } catch (err) {
+                console.error("Error parsing WebSocket message:", err);
+            }
+        };
+
+        socket.onerror = (err) => {
+            console.error("WebSocket error:", err);
+            setIsConnected(false);
+        };
+
+        socket.onclose = (event) => {
+            console.log("WebSocket closed:", event);
+            setIsConnected(false);
+        };
+
+        // Cleanup on unmount
+        return () => {
+            if (ws.current) {
+                ws.current.close();
+            }
+        };
+    }, [asset_id, org_id, user_id]);
 
     if (loading) {
         return (
@@ -186,6 +238,16 @@ const AssetDetails = () => {
                                         >
                                             <i className="bi bi-broadcast"></i>
                                             Real-time
+                                            {isConnected && (
+                                                <span className="assetdetails-connection-status connected">
+                                                    <i className="bi bi-circle-fill"></i>
+                                                </span>
+                                            )}
+                                            {!isConnected && (
+                                                <span className="assetdetails-connection-status disconnected">
+                                                    <i className="bi bi-circle"></i>
+                                                </span>
+                                            )}
                                         </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
@@ -206,6 +268,38 @@ const AssetDetails = () => {
                                     className="assetdetails-tab-pane"
                                 >
                                     <div className="assetdetails-realtime-content">
+                                        {/* Geofencing Alert */}
+                                        {liveLocation?.geofencing_breached && (
+                                            <Alert
+                                                variant="danger"
+                                                className="assetdetails-geofence-alert"
+                                            >
+                                                <i className="bi bi-exclamation-triangle-fill"></i>
+                                                <strong>
+                                                    Geofencing Breach Detected!
+                                                </strong>
+                                                <span>
+                                                    Asset has moved outside the
+                                                    designated zone.
+                                                </span>
+                                            </Alert>
+                                        )}
+
+                                        {/* Connection Status */}
+                                        {!isConnected && (
+                                            <Alert
+                                                variant="warning"
+                                                className="assetdetails-connection-alert"
+                                            >
+                                                <i className="bi bi-wifi-off"></i>
+                                                <strong>Connection Lost</strong>
+                                                <span>
+                                                    Attempting to reconnect to
+                                                    live tracking...
+                                                </span>
+                                            </Alert>
+                                        )}
+
                                         {/* Main Camera Frame */}
                                         <div className="assetdetails-frame-container">
                                             <div className="assetdetails-frame-header">
@@ -224,15 +318,36 @@ const AssetDetails = () => {
                                             </div>
                                             <div className="assetdetails-frame-box">
                                                 <img
-                                                    src={DUMMY_FRAME}
+                                                    src={
+                                                        liveLocation?.frame_link ||
+                                                        DUMMY_FRAME
+                                                    }
                                                     alt="Live Camera Feed"
                                                     className="assetdetails-frame-img"
+                                                    onError={(e) => {
+                                                        e.target.src =
+                                                            DUMMY_FRAME;
+                                                    }}
                                                 />
                                                 <div className="assetdetails-frame-overlay">
-                                                    <span className="assetdetails-live-indicator">
+                                                    <span
+                                                        className={`assetdetails-live-indicator ${
+                                                            isConnected
+                                                                ? "connected"
+                                                                : "disconnected"
+                                                        }`}
+                                                    >
                                                         <i className="bi bi-circle-fill"></i>
-                                                        LIVE
+                                                        {isConnected
+                                                            ? "LIVE"
+                                                            : "OFFLINE"}
                                                     </span>
+                                                    {liveLocation?.geofencing_breached && (
+                                                        <span className="assetdetails-breach-indicator">
+                                                            <i className="bi bi-exclamation-triangle-fill"></i>
+                                                            BREACH
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -246,7 +361,8 @@ const AssetDetails = () => {
                                                         Current Floor
                                                     </div>
                                                     <div className="assetdetails-location-value">
-                                                        {asset.floors?.[0] ||
+                                                        {liveLocation?.floor_id ||
+                                                            asset.floors?.[0] ||
                                                             "Floor 1"}
                                                     </div>
                                                 </div>
@@ -256,7 +372,8 @@ const AssetDetails = () => {
                                                         Current Zone
                                                     </div>
                                                     <div className="assetdetails-location-value">
-                                                        {asset.zones?.[0] ||
+                                                        {liveLocation?.zone_id ||
+                                                            asset.zones?.[0] ||
                                                             "Zone A"}
                                                     </div>
                                                 </div>
@@ -266,7 +383,9 @@ const AssetDetails = () => {
                                                         Last Updated
                                                     </div>
                                                     <div className="assetdetails-location-value">
-                                                        {new Date().toLocaleTimeString()}
+                                                        {lastUpdate
+                                                            ? lastUpdate.toLocaleTimeString()
+                                                            : new Date().toLocaleTimeString()}
                                                     </div>
                                                 </div>
                                                 <div className="assetdetails-location-item">
@@ -275,7 +394,9 @@ const AssetDetails = () => {
                                                         Coordinates
                                                     </div>
                                                     <div className="assetdetails-location-value">
-                                                        X: 120, Y: 80
+                                                        {liveLocation?.coordinates
+                                                            ? `X: ${liveLocation.coordinates.x}, Y: ${liveLocation.coordinates.y}`
+                                                            : "X: -, Y: -"}
                                                     </div>
                                                 </div>
                                             </div>
