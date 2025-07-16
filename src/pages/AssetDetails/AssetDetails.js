@@ -376,13 +376,32 @@ const AssetDetails = () => {
                                                         </div>
                                                         <div className="assetdetails-location-item">
                                                             <div className="assetdetails-location-label">
-                                                                <i className="bi bi-crosshair"></i>
-                                                                Coordinates
+                                                                <i className="bi bi-geo-alt-fill"></i>
+                                                                X
                                                             </div>
                                                             <div className="assetdetails-location-value coordinate">
                                                                 {liveLocation?.coordinates
-                                                                    ? `X: ${liveLocation.coordinates.x}, Y: ${liveLocation.coordinates.y}`
-                                                                    : "X: -, Y: -"}
+                                                                    ? Math.floor(
+                                                                          liveLocation
+                                                                              .coordinates
+                                                                              .x
+                                                                      )
+                                                                    : "-"}
+                                                            </div>
+                                                        </div>
+                                                        <div className="assetdetails-location-item">
+                                                            <div className="assetdetails-location-label">
+                                                                <i className="bi bi-geo-alt-fill"></i>
+                                                                Y
+                                                            </div>
+                                                            <div className="assetdetails-location-value coordinate">
+                                                                {liveLocation?.coordinates
+                                                                    ? Math.floor(
+                                                                          liveLocation
+                                                                              .coordinates
+                                                                              .y
+                                                                      )
+                                                                    : "-"}
                                                             </div>
                                                         </div>
                                                         <div className="assetdetails-location-item">
