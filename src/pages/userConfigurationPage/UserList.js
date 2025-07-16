@@ -15,7 +15,6 @@ import Form from "react-bootstrap/Form";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FetchingData from "../../components/FetchingData/FetchingData";
-import axios from "axios";
 
 const UserList = ({ orgId = 1 }) => {
     // State management
@@ -67,20 +66,34 @@ const UserList = ({ orgId = 1 }) => {
                     fetchAllRoles(orgId),
                 ]);
 
-                const assetsResponse = await axios.get(`http://localhost:8000/dashboard/assets/${orgId}`);
-                if (assetsResponse.status !== 200) throw new Error("Failed to fetch assets");
-                const assetsData = assetsResponse.data;
-                const assetsList = Array.isArray(assetsData)
-                  ? assetsData.map(asset => ({
-                    id: asset.asset_id,
-                    name: asset.name
-                  }))
-                  : [];
-                setAllAssets(assetsList);
+                // Extract all unique assets from users
+                const assetsSet = new Set();
+                usersData.forEach((user) => {
+                    if (user.assets && user.assets.length > 0) {
+                        user.assets.forEach((asset) => {
+                            const assetId =
+                                typeof asset === "object"
+                                    ? asset.asset_id
+                                    : asset;
+                            const assetName =
+                                typeof asset === "object"
+                                    ? asset.name || asset.asset_name
+                                    : asset;
+                            assetsSet.add(
+                                JSON.stringify({ id: assetId, name: assetName })
+                            );
+                        });
+                    }
+                });
+
+                const uniqueAssets = Array.from(assetsSet).map((item) =>
+                    JSON.parse(item)
+                );
 
                 setAllUsers(usersData);
                 setFilteredUsers(usersData);
                 setRoles(rolesData);
+                setAllAssets(uniqueAssets);
             } catch (error) {
                 console.error("Error loading data:", error);
                 toast.error("Failed to load data");
@@ -414,9 +427,9 @@ const UserList = ({ orgId = 1 }) => {
             {/* Toast Container */}
             <ToastContainer position="top-right" autoClose={3000} />
 
-            <div className="user-config-layout">
+            <div style={{ display: "flex" }}>
                 <div className="user-config-container">
-                    <span className="user-config-header-text">
+                    <span className="header-text">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="16"
@@ -431,32 +444,30 @@ const UserList = ({ orgId = 1 }) => {
                     </span>
 
                     {/* Sidebar with Role Filter */}
-                    <div className="user-config-role-filter-container">
-                        <div className="user-config-filter-header">
-                            <h3 className="user-config-filter-title">Filter</h3>
+                    <div className="role-filter-container">
+                        <div className="filter-header">
+                            <h3 className="filter-title">Filter</h3>
                         </div>
 
                         {/* Search moved to filter section */}
-                        <div className="user-config-search-container">
+                        <div className="search-container">
                             <input
                                 type="text"
                                 placeholder="Search Users Here"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="user-config-search-input"
+                                className="search-input"
                             />
                         </div>
 
-                        <div className="user-config-role-header">
-                            <h4 className="user-config-role-title">
-                                User role
-                            </h4>
+                        <div className="role-header">
+                            <h4 className="role-title">User role</h4>
                             <button
-                                className="user-config-edit-role-btn"
+                                className="edit-role-btn"
                                 onClick={() => setShowRoleManagementModal(true)}
                             >
                                 <svg
-                                    className="user-config-edit-icon"
+                                    className="edit-icon"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -472,11 +483,11 @@ const UserList = ({ orgId = 1 }) => {
                             </button>
                         </div>
 
-                        <div className="user-config-role-checkbox-list">
+                        <div className="role-checkbox-list">
                             {roles.map((role) => (
                                 <div
                                     key={role.role_id}
-                                    className="user-config-role-checkbox-item"
+                                    className="role-checkbox-item"
                                 >
                                     <input
                                         type="checkbox"
@@ -487,14 +498,14 @@ const UserList = ({ orgId = 1 }) => {
                                         onChange={() =>
                                             handleRoleToggle(role.role_id)
                                         }
-                                        className="user-config-role-checkbox"
+                                        className="role-checkbox"
                                     />
                                     <label
                                         htmlFor={`role-${role.role_id}`}
-                                        className="user-config-role-checkbox-label"
+                                        className="role-checkbox-label"
                                     >
                                         <span
-                                            className={`user-config-checkbox-custom ${
+                                            className={`checkbox-custom ${
                                                 selectedRoles.includes(
                                                     role.role_id
                                                 )
@@ -506,7 +517,7 @@ const UserList = ({ orgId = 1 }) => {
                                                 role.role_id
                                             ) && (
                                                 <svg
-                                                    className="user-config-checkmark"
+                                                    className="checkmark"
                                                     fill="none"
                                                     stroke="white"
                                                     viewBox="0 0 24 24"
@@ -528,7 +539,7 @@ const UserList = ({ orgId = 1 }) => {
                         </div>
 
                         <button
-                            className="user-config-add-user-btn"
+                            className="add-user-btn"
                             onClick={handleAddClick}
                         >
                             <svg
@@ -549,47 +560,47 @@ const UserList = ({ orgId = 1 }) => {
                 </div>
 
                 {/* Main Content */}
-                <div className="user-config-main-content">
+                <div className="main-content">
                     {/* User List */}
                     {filteredUsers.length === 0 ? (
-                        <p className="user-config-no-users">
+                        <p className="no-users">
                             {searchTerm || selectedRoles.length > 0
                                 ? "No matching users found"
                                 : "No users found"}
                         </p>
                     ) : (
-                        <div className="user-config-compact-user-list">
+                        <div className="compact-user-list">
                             {filteredUsers.map((user) => (
                                 <div
                                     key={user.user_id}
-                                    className="user-config-compact-user-item"
+                                    className="compact-user-item"
                                 >
-                                    <div className="user-config-compact-user-info">
+                                    <div className="compact-user-info">
                                         {user.image ? (
                                             <img
                                                 src={user.image}
                                                 alt={user.name}
-                                                className="user-config-compact-user-avatar"
+                                                className="compact-user-avatar"
                                             />
                                         ) : (
-                                            <div className="user-config-compact-avatar-fallback">
+                                            <div className="compact-avatar-fallback">
                                                 {user.name
                                                     .charAt(0)
                                                     .toUpperCase()}
                                             </div>
                                         )}
-                                        <div className="user-config-compact-user-details">
-                                            <div className="user-config-compact-user-name">
+                                        <div className="compact-user-details">
+                                            <div className="compact-user-name">
                                                 {user.name}
                                             </div>
-                                            <div className="user-config-compact-user-role">
+                                            <div className="compact-user-role">
                                                 {user.role}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="user-config-compact-user-actions">
+                                    <div className="compact-user-actions">
                                         <button
-                                            className="user-config-action-btn user-config-edit-btn"
+                                            className="action-btn edit-btn"
                                             onClick={() =>
                                                 handleEditClick(user)
                                             }
@@ -612,7 +623,7 @@ const UserList = ({ orgId = 1 }) => {
                                             Edit
                                         </button>
                                         <button
-                                            className="user-config-action-btn user-config-delete-btn"
+                                            className="action-btn delete-btn"
                                             onClick={() =>
                                                 handleDeleteClick(user)
                                             }
@@ -644,6 +655,7 @@ const UserList = ({ orgId = 1 }) => {
                 onHide={() => {
                     setShowRoleManagementModal(false);
                     setNewRoleName("");
+                    setRoleToDelete(null);
                 }}
                 size="lg"
             >
@@ -1023,6 +1035,22 @@ const UserList = ({ orgId = 1 }) => {
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
+                    <Button
+                        variant="secondary"
+                        onClick={() => {
+                            setShowAddModal(false);
+                            setAddForm({
+                                name: "",
+                                email: "",
+                                password: "",
+                                role_id: "",
+                                image_link: "",
+                                selectedAssets: [],
+                            });
+                        }}
+                    >
+                        Add another
+                    </Button>
                     <Button
                         variant="secondary"
                         onClick={() => setShowAddModal(false)}
