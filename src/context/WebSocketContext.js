@@ -6,15 +6,19 @@ const WebSocketContext = createContext();
 export const WebSocketProvider = ({ children }) => {
     const [notificationSocket, setNotificationSocket] = useState(null);
     const [alertSocket, setAlertSocket] = useState(null);
-    const { currentOrgId, isAuthenticated, user } = useAuth();
+    const { currentOrgId, isAuthenticated, token } = useAuth();
+    
 
     useEffect(() => {
     let notifWs = null;
     let alertWs = null;
     
     const connectWebSockets = () => {
-        if (isAuthenticated && currentOrgId && user?.id) {
-            notifWs = new WebSocket(`ws://localhost:8000/ws/notifications/${currentOrgId}`);
+        
+        if (isAuthenticated && currentOrgId && token) {
+            notifWs = new WebSocket(
+                `ws://localhost:8000/ws/notifications/${currentOrgId}?token=${encodeURIComponent(token)}`
+            );
             
             notifWs.onopen = () => {
                 console.log('Notification WebSocket connected');
@@ -39,7 +43,9 @@ export const WebSocketProvider = ({ children }) => {
                 console.error('Notification WebSocket error:', error);
             };
 
-            alertWs = new WebSocket(`ws://localhost:8000/ws/alerts/${currentOrgId}`);
+            alertWs = new WebSocket(
+                `ws://localhost:8000/ws/alerts/${currentOrgId}?token=${encodeURIComponent(token)}`
+            );
             
             alertWs.onopen = () => {
                 console.log('Alert WebSocket connected');
@@ -64,7 +70,7 @@ export const WebSocketProvider = ({ children }) => {
         if (notifWs) notifWs.close();
         if (alertWs) alertWs.close();
     };
-}, [isAuthenticated, currentOrgId, user?.id]);
+}, [isAuthenticated, currentOrgId, token]);
 
     return (
         <WebSocketContext.Provider value={{ 
