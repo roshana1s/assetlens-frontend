@@ -19,6 +19,11 @@ const AssetDetails = () => {
     const [liveLocation, setLiveLocation] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [lastUpdate, setLastUpdate] = useState(null);
+    const [videoUrl, setVideoUrl] = useState(null);
+    const [videoLoading, setVideoLoading] = useState(false);
+    const [videoError, setVideoError] = useState(null);
+    const [startTime, setStartTime] = useState("");
+    const [endTime, setEndTime] = useState("");
 
     useEffect(() => {
         const fetchAsset = async () => {
@@ -82,6 +87,71 @@ const AssetDetails = () => {
             }
         };
     }, [asset_id, org_id, user_id]);
+
+    // Function to handle video generation
+    const handleGenerateVideo = async () => {
+        if (!startTime || !endTime) {
+            setVideoError("Please select both start and end times");
+            return;
+        }
+
+        if (new Date(startTime) >= new Date(endTime)) {
+            setVideoError("End time must be after start time");
+            return;
+        }
+
+        setVideoLoading(true);
+        setVideoError(null);
+        setVideoUrl(null);
+
+        try {
+            const response = await fetch(
+                `http://localhost:8000/asset-video/${org_id}/${asset_id}/video`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        start_time: startTime,
+                        end_time: endTime,
+                    }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to generate video");
+            }
+
+            // Create a blob URL for the video
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            setVideoUrl(url);
+        } catch (err) {
+            setVideoError("Failed to generate video. Please try again.");
+            console.error("Video generation error:", err);
+        } finally {
+            setVideoLoading(false);
+        }
+    };
+
+    // Function to get default datetime values (last 24 hours)
+    const getDefaultDateTimes = () => {
+        const now = new Date();
+        const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+        return {
+            start: yesterday.toISOString().slice(0, 16),
+            end: now.toISOString().slice(0, 16),
+        };
+    };
+
+    // Set default values when component mounts
+    React.useEffect(() => {
+        const defaults = getDefaultDateTimes();
+        setStartTime(defaults.start);
+        setEndTime(defaults.end);
+    }, []);
 
     if (loading) {
         return (
@@ -485,13 +555,171 @@ const AssetDetails = () => {
                                     className="assetdetails-tab-pane"
                                 >
                                     <div className="assetdetails-history-content">
-                                        <div className="assetdetails-empty-state">
-                                            <i className="bi bi-clock-history"></i>
-                                            <h4>History Coming Soon</h4>
-                                            <p>
-                                                Historical tracking data will be
-                                                available here.
-                                            </p>
+                                        <div className="assetdetails-video-generator">
+                                            <div className="assetdetails-video-form">
+                                                <h5>
+                                                    <i className="bi bi-camera-video"></i>
+                                                    Generate Tracking Video
+                                                </h5>
+                                                <p className="text-muted">
+                                                    Select a time range to
+                                                    generate a video from asset
+                                                    tracking frames.
+                                                </p>
+
+                                                <div className="row g-3 mb-3">
+                                                    <div className="col-md-6">
+                                                        <label
+                                                            htmlFor="startTime"
+                                                            className="form-label"
+                                                        >
+                                                            <i className="bi bi-play-circle"></i>
+                                                            Start Time
+                                                        </label>
+                                                        <input
+                                                            type="datetime-local"
+                                                            className="form-control"
+                                                            id="startTime"
+                                                            value={startTime}
+                                                            onChange={(e) =>
+                                                                setStartTime(
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                videoLoading
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                        <label
+                                                            htmlFor="endTime"
+                                                            className="form-label"
+                                                        >
+                                                            <i className="bi bi-stop-circle"></i>
+                                                            End Time
+                                                        </label>
+                                                        <input
+                                                            type="datetime-local"
+                                                            className="form-control"
+                                                            id="endTime"
+                                                            value={endTime}
+                                                            onChange={(e) =>
+                                                                setEndTime(
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                videoLoading
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {videoError && (
+                                                    <Alert
+                                                        variant="danger"
+                                                        className="mb-3"
+                                                    >
+                                                        <i className="bi bi-exclamation-triangle-fill"></i>
+                                                        {videoError}
+                                                    </Alert>
+                                                )}
+
+                                                <Button
+                                                    variant="primary"
+                                                    size="lg"
+                                                    onClick={
+                                                        handleGenerateVideo
+                                                    }
+                                                    disabled={
+                                                        videoLoading ||
+                                                        !startTime ||
+                                                        !endTime
+                                                    }
+                                                    className="assetdetails-generate-btn"
+                                                >
+                                                    {videoLoading ? (
+                                                        <>
+                                                            <Spinner
+                                                                as="span"
+                                                                animation="border"
+                                                                size="sm"
+                                                                role="status"
+                                                                aria-hidden="true"
+                                                                className="me-2"
+                                                            />
+                                                            Generating Video...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <i className="bi bi-film"></i>
+                                                            Generate Video
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </div>
+
+                                            {videoUrl && (
+                                                <div className="assetdetails-video-player">
+                                                    <h5>
+                                                        <i className="bi bi-play-btn"></i>
+                                                        Generated Video
+                                                    </h5>
+                                                    <div className="assetdetails-video-container">
+                                                        <video
+                                                            controls
+                                                            width="100%"
+                                                            height="auto"
+                                                            className="assetdetails-video"
+                                                            controlsList="nodownload"
+                                                        >
+                                                            <source
+                                                                src={videoUrl}
+                                                                type="video/mp4"
+                                                            />
+                                                            Your browser does
+                                                            not support the
+                                                            video tag.
+                                                        </video>
+                                                    </div>
+                                                    <div className="assetdetails-video-actions">
+                                                        <Button
+                                                            variant="success"
+                                                            onClick={() => {
+                                                                const link =
+                                                                    document.createElement(
+                                                                        "a"
+                                                                    );
+                                                                link.href =
+                                                                    videoUrl;
+                                                                link.download = `asset_${asset_id}_tracking_video.mp4`;
+                                                                link.click();
+                                                            }}
+                                                            className="me-2"
+                                                        >
+                                                            <i className="bi bi-download"></i>
+                                                            Download Video
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline-secondary"
+                                                            onClick={() => {
+                                                                URL.revokeObjectURL(
+                                                                    videoUrl
+                                                                );
+                                                                setVideoUrl(
+                                                                    null
+                                                                );
+                                                            }}
+                                                        >
+                                                            <i className="bi bi-trash"></i>
+                                                            Clear Video
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </Tab.Pane>
