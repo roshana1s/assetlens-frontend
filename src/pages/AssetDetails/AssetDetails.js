@@ -4,7 +4,7 @@ import "./AssetDetails.css";
 import { Button, Spinner, Nav, Tab, Alert } from "react-bootstrap";
 
 const DUMMY_FRAME =
-    "https://storage.googleapis.com/assetlens-b9f76.firebasestorage.app/f0001-z0001/2025-07-14T10%3A34%3A58.jpg";
+    "https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/animation%2Floading-dummy-frame.gif?alt=media&token=b77f9ad7-7947-4182-87d9-2d6ffb3cd044";
 
 const AssetDetails = () => {
     const { asset_id } = useParams();
@@ -120,10 +120,11 @@ const AssetDetails = () => {
             );
 
             if (!response.ok) {
-                throw new Error("Failed to generate video");
+                const errorText = await response.text();
+                throw new Error(`Failed to generate video: ${errorText}`);
             }
 
-            // Create a blob URL for the video
+            // Simple blob approach
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             setVideoUrl(url);
@@ -152,6 +153,15 @@ const AssetDetails = () => {
         setStartTime(defaults.start);
         setEndTime(defaults.end);
     }, []);
+
+    // Cleanup video URL when component unmounts
+    React.useEffect(() => {
+        return () => {
+            if (videoUrl) {
+                URL.revokeObjectURL(videoUrl);
+            }
+        };
+    }, [videoUrl]);
 
     if (loading) {
         return (
@@ -429,7 +439,7 @@ const AssetDetails = () => {
                                                                 {liveLocation?.floor_id ||
                                                                     asset
                                                                         .floors?.[0] ||
-                                                                    "Floor 1"}
+                                                                    "-"}
                                                             </div>
                                                         </div>
                                                         <div className="assetdetails-location-item">
@@ -441,7 +451,7 @@ const AssetDetails = () => {
                                                                 {liveLocation?.zone_id ||
                                                                     asset
                                                                         .zones?.[0] ||
-                                                                    "Zone A"}
+                                                                    "-"}
                                                             </div>
                                                         </div>
                                                         <div className="assetdetails-location-item">
@@ -482,7 +492,7 @@ const AssetDetails = () => {
                                                             <div className="assetdetails-location-value time">
                                                                 {lastUpdate
                                                                     ? lastUpdate.toLocaleTimeString()
-                                                                    : new Date().toLocaleTimeString()}
+                                                                    : "-"}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -558,7 +568,16 @@ const AssetDetails = () => {
                                         <div className="assetdetails-video-generator">
                                             <div className="assetdetails-video-form">
                                                 <h5>
-                                                    <i className="bi bi-camera-video"></i>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="16"
+                                                        height="16"
+                                                        fill="currentColor"
+                                                        class="bi bi-fast-forward-circle-fill"
+                                                        viewBox="0 0 16 16"
+                                                    >
+                                                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16M4.79 5.093 8 7.386V5.5a.5.5 0 0 1 .79-.407l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 8 10.5V8.614l-3.21 2.293A.5.5 0 0 1 4 10.5v-5a.5.5 0 0 1 .79-.407" />
+                                                    </svg>
                                                     Generate Tracking Video
                                                 </h5>
                                                 <p className="text-muted">
@@ -674,12 +693,24 @@ const AssetDetails = () => {
                                                             width="100%"
                                                             height="auto"
                                                             className="assetdetails-video"
-                                                            controlsList="nodownload"
+                                                            src={videoUrl}
+                                                            onError={(e) => {
+                                                                console.error(
+                                                                    "Video error:",
+                                                                    e.target
+                                                                        .error
+                                                                );
+                                                                setVideoError(
+                                                                    "Cannot play video in browser. Please download to watch."
+                                                                );
+                                                            }}
+                                                            style={{
+                                                                maxHeight:
+                                                                    "500px",
+                                                                objectFit:
+                                                                    "contain",
+                                                            }}
                                                         >
-                                                            <source
-                                                                src={videoUrl}
-                                                                type="video/mp4"
-                                                            />
                                                             Your browser does
                                                             not support the
                                                             video tag.
@@ -706,10 +737,15 @@ const AssetDetails = () => {
                                                         <Button
                                                             variant="outline-secondary"
                                                             onClick={() => {
-                                                                URL.revokeObjectURL(
-                                                                    videoUrl
-                                                                );
+                                                                if (videoUrl) {
+                                                                    URL.revokeObjectURL(
+                                                                        videoUrl
+                                                                    );
+                                                                }
                                                                 setVideoUrl(
+                                                                    null
+                                                                );
+                                                                setVideoError(
                                                                     null
                                                                 );
                                                             }}
