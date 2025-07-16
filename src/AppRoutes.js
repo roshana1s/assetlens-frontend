@@ -15,6 +15,7 @@ import OnlineTracking from "./pages/OnlineTracking/OnlineTracking";
 import CameraConfiguration from "./pages/CameraConfiguration/CameraConfiguration"
 import AssetDetails from "./pages/AssetDetails/AssetDetails";
 import AssetLogsPage from './pages/AssetLogs/LogsPage';
+import CameraFeed from "./pages/CameraFeed/CameraFeed";
 
 const AppRouter = () => {
     return (
@@ -39,6 +40,7 @@ const AppRouter = () => {
                     <Route path="config/camera" element={<CameraConfiguration />} />
                     <Route path="asset/:asset_id" element={<AssetDetails />} />
                     <Route path="logs" element={<AssetLogsPage />} />
+                    <Route path="camera/:camera_id" element={<CameraFeed />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,22 +1,20 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./AssetDetails.css";
+import "./CameraFeed.css";
 import { Button, Spinner, Nav, Tab, Alert } from "react-bootstrap";
 
-const DUMMY_FRAME =
-    "https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/animation%2Floading-dummy-frame.gif?alt=media&token=b77f9ad7-7947-4182-87d9-2d6ffb3cd044";
-
-const AssetDetails = () => {
-    const { asset_id } = useParams();
+const CameraFeed = () => {
+    const { camera_id } = useParams();
     const navigate = useNavigate();
     const org_id = 1;
     const user_id = "u0002"; // You may need to get this from context/auth
     const ws = useRef(null);
 
-    const [asset, setAsset] = useState(null);
+    const [camera, setCamera] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState("realtime");
-    const [liveLocation, setLiveLocation] = useState(null);
+    const [liveFrame, setLiveFrame] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [lastUpdate, setLastUpdate] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
@@ -26,57 +24,88 @@ const AssetDetails = () => {
     const [endTime, setEndTime] = useState("");
 
     useEffect(() => {
-        const fetchAsset = async () => {
+        const fetchCamera = async () => {
             setLoading(true);
             try {
                 const res = await fetch(
-                    `http://localhost:8000/dashboard/assets/${org_id}/${asset_id}`
+                    `http://localhost:8000/cameras/${org_id}/get-camera/${camera_id}`
                 );
+                // This gives below document:
+                // {
+                //     "floor_id": floor_id,
+                //     "zone_id": zone_id,
+                //     "coordinates": camera.get("coordinates"),
+                //     "working": camera.get("working"),
+                //     "floor_name": map_document.get("floorName"),
+                //     "zone_name": zone.get("name")
+                // }
                 const data = await res.json();
-                setAsset(data);
+                setCamera(data);
+                setError(null);
             } catch (err) {
-                setAsset(null);
+                setCamera(null);
+                setError("Failed to load camera details");
             }
             setLoading(false);
         };
-        fetchAsset();
-    }, [asset_id]);
+        fetchCamera();
+    }, [camera_id, org_id]);
 
-    // WebSocket connection for live tracking
+    // WebSocket connection for camera feed
     useEffect(() => {
         const socketUrl = `ws://localhost:8000/ws/online-tracking/${org_id}/${user_id}`;
         const socket = new WebSocket(socketUrl);
         ws.current = socket;
 
         socket.onopen = () => {
-            console.log("WebSocket connected");
+            console.log("Camera WebSocket connected");
             setIsConnected(true);
         };
 
-        socket.onmessage = (event) => {
+        socket.onmessage = async (event) => {
             try {
-                const data = JSON.parse(event.data);
-                // Filter for our specific asset
-                const assetLocation = data.locations?.find(
-                    (location) => location.asset_id === asset_id
-                );
-                console.log(assetLocation);
-                if (assetLocation) {
-                    setLiveLocation(assetLocation);
-                    setLastUpdate(new Date(data.timestamp));
+                const wsData = JSON.parse(event.data);
+                console.log("WebSocket message received:", wsData);
+
+                // When WebSocket sends a message, fetch the current frame with timestamp
+                if (wsData.timestamp) {
+                    const frameResponse = await fetch(
+                        `http://localhost:8000/cameras/${org_id}/get-frame/${camera_id}`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                timestamp: wsData.timestamp,
+                            }),
+                        }
+                    );
+
+                    if (frameResponse.ok) {
+                        const frameData = await frameResponse.json();
+                        // This gives below document:
+                        // {
+                        //     "timestamp": frame_document["timestamp"],
+                        //     "zone_id": zone_id,
+                        //     "frame_link": frame_link
+                        // }
+                        setLiveFrame(frameData);
+                        setLastUpdate(new Date(frameData.timestamp));
+                    }
                 }
             } catch (err) {
-                console.error("Error parsing WebSocket message:", err);
+                console.error("Error processing WebSocket message:", err);
             }
         };
 
         socket.onerror = (err) => {
-            console.error("WebSocket error:", err);
+            console.error("Camera WebSocket error:", err);
             setIsConnected(false);
         };
 
         socket.onclose = (event) => {
-            console.log("WebSocket closed:", event);
+            console.log("Camera WebSocket closed:", event);
             setIsConnected(false);
         };
 
@@ -86,9 +115,9 @@ const AssetDetails = () => {
                 ws.current.close();
             }
         };
-    }, [asset_id, org_id, user_id]);
+    }, [camera_id, org_id, user_id]);
 
-    // Function to handle video generation
+    // Function to handle camera video generation
     const handleGenerateVideo = async () => {
         if (!startTime || !endTime) {
             setVideoError("Please select both start and end times");
@@ -106,7 +135,7 @@ const AssetDetails = () => {
 
         try {
             const response = await fetch(
-                `http://localhost:8000/asset-video/${org_id}/${asset_id}/video`,
+                `http://localhost:8000/cameras/${org_id}/get-video-file/${camera_id}`,
                 {
                     method: "POST",
                     headers: {
@@ -129,8 +158,8 @@ const AssetDetails = () => {
             const url = URL.createObjectURL(blob);
             setVideoUrl(url);
         } catch (err) {
-            setVideoError("Failed to generate video. Please try again.");
-            console.error("Video generation error:", err);
+            setVideoError("Failed to generate camera video. Please try again.");
+            console.error("Camera video generation error:", err);
         } finally {
             setVideoLoading(false);
         }
@@ -165,133 +194,117 @@ const AssetDetails = () => {
 
     if (loading) {
         return (
-            <div className="assetdetails-loading">
+            <div className="camera-feed-loading">
                 <Spinner animation="border" variant="primary" />
             </div>
         );
     }
 
-    if (!asset) {
+    if (!camera) {
         return (
-            <div className="assetdetails-error">
-                <h4>Asset not found</h4>
+            <div className="camera-feed-error">
+                <h4>Camera not found</h4>
             </div>
         );
     }
 
     return (
-        <div className="assetdetails-root">
+        <div className="camera-feed-root">
             {/* Main Content Container */}
-            <div className="assetdetails-main-content">
-                {/* Left Panel - 25% - Asset Metadata */}
-                <div className="assetdetails-metadata-panel">
+            <div className="camera-feed-main-content">
+                {/* Left Panel - 25% - Camera Metadata */}
+                <div className="camera-feed-metadata-panel">
                     {/* Back Button in Left Panel */}
-                    <div className="assetdetails-back-button">
+                    <div className="camera-feed-back-button">
                         <Button
                             variant="outline-secondary"
                             size="lg"
                             onClick={() => navigate(-1)}
-                            className="assetdetails-back-btn"
+                            className="camera-feed-back-btn"
                         >
                             <i className="bi bi-arrow-left"></i>
-                            Back to Assets
+                            Back to Cameras
                         </Button>
                     </div>
 
-                    <div className="assetdetails-metadata-container">
-                        <div className="assetdetails-header">
-                            <div className="assetdetails-title">
-                                <i className="bi bi-box-seam"></i>
-                                <span>{asset.name}</span>
-                                <span className="assetdetails-id">
-                                    #{asset.asset_id}
-                                </span>
+                    <div className="camera-feed-metadata-container">
+                        <div className="camera-feed-header">
+                            <div className="camera-feed-title">
+                                <i className="bi bi-camera-video"></i>
+                                <span>Camera #{camera_id}</span>
                             </div>
-                            <div className="assetdetails-category">
-                                <span className="assetdetails-category-chip">
-                                    {asset.category}
+                            <div className="camera-feed-category">
+                                <span className="camera-feed-floor-chip">
+                                    <i className="bi bi-building"></i>
+                                    {camera.floor_name || "Unknown Floor"}
                                 </span>
-                                {asset.geofencing && (
-                                    <span className="assetdetails-geofence-chip">
-                                        <i className="bi bi-geo-alt-fill"></i>{" "}
-                                        Geofencing Enabled
-                                    </span>
-                                )}
+                                <span className="camera-feed-zone-chip">
+                                    <i className="bi bi-geo-alt-fill"></i>
+                                    {camera.zone_name || "Unknown Zone"}
+                                </span>
                                 <span
-                                    className={`assetdetails-status-chip ${
-                                        asset.assigned_to &&
-                                        asset.assigned_to.length
-                                            ? "assigned"
-                                            : "available"
+                                    className={`camera-feed-status-chip ${
+                                        camera.working ? "working" : "offline"
                                     }`}
                                 >
                                     <i
                                         className={`bi ${
-                                            asset.assigned_to &&
-                                            asset.assigned_to.length
-                                                ? "bi-person-check-fill"
-                                                : "bi-person-dash"
+                                            camera.working
+                                                ? "bi-check-circle-fill"
+                                                : "bi-x-circle-fill"
                                         }`}
-                                    ></i>{" "}
-                                    {asset.assigned_to &&
-                                    asset.assigned_to.length
-                                        ? "Assigned"
-                                        : "Available"}
+                                    ></i>
+                                    {camera.working ? "Working" : "Offline"}
                                 </span>
                             </div>
                         </div>
 
-                        <div className="assetdetails-content">
-                            <div className="assetdetails-imgbox">
+                        <div className="camera-feed-content">
+                            <div className="camera-feed-imgbox">
                                 <img
-                                    src={
-                                        asset.image_link
-                                            ? asset.image_link
-                                            : "https://cdn-icons-png.flaticon.com/512/2991/2991108.png"
-                                    }
-                                    alt={asset.name}
-                                    className="assetdetails-img"
+                                    src="https://cdn-icons-png.flaticon.com/512/3179/3179068.png"
+                                    alt="Camera"
+                                    className="camera-feed-img"
                                 />
                             </div>
 
-                            <div className="assetdetails-fields">
-                                <div className="assetdetails-field">
-                                    <span className="assetdetails-label">
-                                        RFID:
+                            <div className="camera-feed-fields">
+                                <div className="camera-feed-field">
+                                    <span className="camera-feed-label">
+                                        Floor ID:
                                     </span>
-                                    <span className="assetdetails-value">
-                                        {asset.RFID || "-"}
+                                    <span className="camera-feed-value">
+                                        {camera.floor_id || "-"}
                                     </span>
                                 </div>
-                                <div className="assetdetails-field">
-                                    <span className="assetdetails-label">
-                                        Assigned To:
+                                <div className="camera-feed-field">
+                                    <span className="camera-feed-label">
+                                        Zone ID:
                                     </span>
-                                    <span className="assetdetails-value">
-                                        {asset.assigned_to &&
-                                        asset.assigned_to.length
-                                            ? asset.assigned_to.join(" / ")
+                                    <span className="camera-feed-value">
+                                        {camera.zone_id || "-"}
+                                    </span>
+                                </div>
+                                <div className="camera-feed-field">
+                                    <span className="camera-feed-label">
+                                        Coordinates:
+                                    </span>
+                                    <span className="camera-feed-value">
+                                        {camera.coordinates
+                                            ? `X: ${Math.floor(
+                                                  camera.coordinates.x
+                                              )}, Y: ${Math.floor(
+                                                  camera.coordinates.y
+                                              )}`
                                             : "-"}
                                     </span>
                                 </div>
-                                <div className="assetdetails-field">
-                                    <span className="assetdetails-label">
-                                        Floors:
+                                <div className="camera-feed-field">
+                                    <span className="camera-feed-label">
+                                        Status:
                                     </span>
-                                    <span className="assetdetails-value">
-                                        {asset.floors && asset.floors.length
-                                            ? asset.floors.join(", ")
-                                            : "-"}
-                                    </span>
-                                </div>
-                                <div className="assetdetails-field">
-                                    <span className="assetdetails-label">
-                                        Zones:
-                                    </span>
-                                    <span className="assetdetails-value">
-                                        {asset.zones && asset.zones.length
-                                            ? asset.zones.join(", ")
-                                            : "-"}
+                                    <span className="camera-feed-value">
+                                        {camera.working ? "Active" : "Inactive"}
                                     </span>
                                 </div>
                             </div>
@@ -299,32 +312,32 @@ const AssetDetails = () => {
                     </div>
                 </div>
 
-                {/* Right Panel - 75% - Monitoring Interface */}
-                <div className="assetdetails-monitoring-panel">
-                    <div className="assetdetails-monitoring-container">
+                {/* Right Panel - 75% - Camera Monitoring Interface */}
+                <div className="camera-feed-monitoring-panel">
+                    <div className="camera-feed-monitoring-container">
                         <Tab.Container
                             activeKey={activeTab}
                             onSelect={(k) => setActiveTab(k)}
                         >
-                            <div className="assetdetails-tab-header">
+                            <div className="camera-feed-tab-header">
                                 <Nav
                                     variant="tabs"
-                                    className="assetdetails-nav-tabs"
+                                    className="camera-feed-nav-tabs"
                                 >
                                     <Nav.Item>
                                         <Nav.Link
                                             eventKey="realtime"
-                                            className="assetdetails-nav-link"
+                                            className="camera-feed-nav-link"
                                         >
                                             <i className="bi bi-broadcast"></i>
                                             Real-time
                                             {isConnected && (
-                                                <span className="assetdetails-connection-status connected">
+                                                <span className="camera-feed-connection-status connected">
                                                     <i className="bi bi-circle-fill"></i>
                                                 </span>
                                             )}
                                             {!isConnected && (
-                                                <span className="assetdetails-connection-status disconnected">
+                                                <span className="camera-feed-connection-status disconnected">
                                                     <i className="bi bi-circle"></i>
                                                 </span>
                                             )}
@@ -333,7 +346,7 @@ const AssetDetails = () => {
                                     <Nav.Item>
                                         <Nav.Link
                                             eventKey="history"
-                                            className="assetdetails-nav-link"
+                                            className="camera-feed-nav-link"
                                         >
                                             <i className="bi bi-clock-history"></i>
                                             History
@@ -342,63 +355,35 @@ const AssetDetails = () => {
                                 </Nav>
                             </div>
 
-                            <Tab.Content className="assetdetails-tab-content">
+                            <Tab.Content className="camera-feed-tab-content">
                                 <Tab.Pane
                                     eventKey="realtime"
-                                    className="assetdetails-tab-pane"
+                                    className="camera-feed-tab-pane"
                                 >
-                                    <div className="assetdetails-realtime-content">
-                                        {/* Geofencing Alert */}
-                                        {liveLocation?.geofencing_breached && (
-                                            <Alert
-                                                variant="danger"
-                                                className="assetdetails-geofence-alert"
-                                            >
-                                                <i className="bi bi-exclamation-triangle-fill"></i>
-                                                <strong>
-                                                    Geofencing Breach Detected!
-                                                </strong>
-                                                <span>
-                                                    Asset has moved outside the
-                                                    designated zone.
-                                                </span>
-                                            </Alert>
-                                        )}
-
-                                        {/* Connection Status */}
-                                        {!isConnected && (
-                                            <Alert
-                                                variant="warning"
-                                                className="assetdetails-connection-alert"
-                                            >
-                                                <i className="bi bi-wifi-off"></i>
-                                                <strong>Connection Lost</strong>
-                                                <span>
-                                                    Attempting to reconnect to
-                                                    live tracking...
-                                                </span>
-                                            </Alert>
-                                        )}
-
-                                        {/* Main Camera Frame with Right Sidebar */}
-                                        <div className="assetdetails-frame-container">
-                                            <div className="assetdetails-frame-main">
-                                                <div className="assetdetails-frame-box">
-                                                    <img
-                                                        src={
-                                                            liveLocation?.frame_link ||
-                                                            DUMMY_FRAME
-                                                        }
-                                                        alt="Live Camera Feed"
-                                                        className="assetdetails-frame-img"
-                                                        onError={(e) => {
-                                                            e.target.src =
-                                                                DUMMY_FRAME;
-                                                        }}
-                                                    />
-                                                    <div className="assetdetails-frame-overlay">
+                                    <div className="camera-feed-realtime-content">
+                                        {/* Camera Feed Section */}
+                                        <div className="camera-feed-frame-container">
+                                            <div className="camera-feed-frame-main">
+                                                <div className="camera-feed-frame-box">
+                                                    {liveFrame ? (
+                                                        <img
+                                                            src={
+                                                                liveFrame.frame_link
+                                                            }
+                                                            alt="Live Camera Feed"
+                                                            className="camera-feed-frame-img"
+                                                        />
+                                                    ) : (
+                                                        <div className="camera-feed-no-frame">
+                                                            <i className="bi bi-camera-video-off"></i>
+                                                            <span>
+                                                                No signal
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    <div className="camera-feed-frame-overlay">
                                                         <span
-                                                            className={`assetdetails-live-indicator ${
+                                                            className={`camera-feed-live-indicator ${
                                                                 isConnected
                                                                     ? "connected"
                                                                     : "disconnected"
@@ -409,83 +394,77 @@ const AssetDetails = () => {
                                                                 ? "LIVE"
                                                                 : "OFFLINE"}
                                                         </span>
-                                                        {liveLocation?.geofencing_breached && (
-                                                            <span className="assetdetails-breach-indicator">
-                                                                <i className="bi bi-exclamation-triangle-fill"></i>
-                                                                BREACH
-                                                            </span>
-                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
 
                                             {/* Right Sidebar */}
-                                            <div className="assetdetails-frame-sidebar">
-                                                {/* Location Information */}
-                                                <div className="assetdetails-location-info">
-                                                    <div className="assetdetails-location-header">
+                                            <div className="camera-feed-frame-sidebar">
+                                                {/* Camera Information */}
+                                                <div className="camera-feed-info">
+                                                    <div className="camera-feed-info-header">
                                                         <h6>
-                                                            <i className="bi bi-geo-alt-fill"></i>
-                                                            Location Details
+                                                            <i className="bi bi-camera-video-fill"></i>
+                                                            Camera Details
                                                         </h6>
                                                     </div>
-                                                    <div className="assetdetails-location-stack">
-                                                        <div className="assetdetails-location-item">
-                                                            <div className="assetdetails-location-label">
+                                                    <div className="camera-feed-info-stack">
+                                                        <div className="camera-feed-info-item">
+                                                            <div className="camera-feed-info-label">
                                                                 <i className="bi bi-building"></i>
                                                                 Floor
                                                             </div>
-                                                            <div className="assetdetails-location-value floor">
-                                                                {liveLocation?.floor_id ||
-                                                                    "-"}
+                                                            <div className="camera-feed-info-value floor">
+                                                                {camera.floor_name ||
+                                                                    "Unknown"}
                                                             </div>
                                                         </div>
-                                                        <div className="assetdetails-location-item">
-                                                            <div className="assetdetails-location-label">
+                                                        <div className="camera-feed-info-item">
+                                                            <div className="camera-feed-info-label">
                                                                 <i className="bi bi-geo-alt"></i>
                                                                 Zone
                                                             </div>
-                                                            <div className="assetdetails-location-value zone">
-                                                                {liveLocation?.zone_id ||
-                                                                    "-"}
+                                                            <div className="camera-feed-info-value zone">
+                                                                {camera.zone_name ||
+                                                                    "Unknown"}
                                                             </div>
                                                         </div>
-                                                        <div className="assetdetails-location-item">
-                                                            <div className="assetdetails-location-label">
+                                                        <div className="camera-feed-info-item">
+                                                            <div className="camera-feed-info-label">
                                                                 <i className="bi bi-geo-alt-fill"></i>
                                                                 X
                                                             </div>
-                                                            <div className="assetdetails-location-value coordinate">
-                                                                {liveLocation?.coordinates
+                                                            <div className="camera-feed-info-value coordinate">
+                                                                {camera.coordinates
                                                                     ? Math.floor(
-                                                                          liveLocation
+                                                                          camera
                                                                               .coordinates
                                                                               .x
                                                                       )
                                                                     : "-"}
                                                             </div>
                                                         </div>
-                                                        <div className="assetdetails-location-item">
-                                                            <div className="assetdetails-location-label">
+                                                        <div className="camera-feed-info-item">
+                                                            <div className="camera-feed-info-label">
                                                                 <i className="bi bi-geo-alt-fill"></i>
                                                                 Y
                                                             </div>
-                                                            <div className="assetdetails-location-value coordinate">
-                                                                {liveLocation?.coordinates
+                                                            <div className="camera-feed-info-value coordinate">
+                                                                {camera.coordinates
                                                                     ? Math.floor(
-                                                                          liveLocation
+                                                                          camera
                                                                               .coordinates
                                                                               .y
                                                                       )
                                                                     : "-"}
                                                             </div>
                                                         </div>
-                                                        <div className="assetdetails-location-item">
-                                                            <div className="assetdetails-location-label">
+                                                        <div className="camera-feed-info-item">
+                                                            <div className="camera-feed-info-label">
                                                                 <i className="bi bi-clock"></i>
                                                                 Last Update
                                                             </div>
-                                                            <div className="assetdetails-location-value time">
+                                                            <div className="camera-feed-info-value time">
                                                                 {lastUpdate
                                                                     ? lastUpdate.toLocaleTimeString()
                                                                     : "-"}
@@ -494,21 +473,21 @@ const AssetDetails = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Additional Info Section */}
-                                                <div className="assetdetails-status-info">
-                                                    <div className="assetdetails-location-header">
+                                                {/* Status Information */}
+                                                <div className="camera-feed-status-info">
+                                                    <div className="camera-feed-info-header">
                                                         <h6>
                                                             <i className="bi bi-activity"></i>
                                                             Status
                                                         </h6>
                                                     </div>
-                                                    <div className="assetdetails-status-items">
-                                                        <div className="assetdetails-status-item">
-                                                            <span className="assetdetails-status-label">
+                                                    <div className="camera-feed-status-items">
+                                                        <div className="camera-feed-status-item">
+                                                            <span className="camera-feed-status-label">
                                                                 Connection
                                                             </span>
                                                             <span
-                                                                className={`assetdetails-status-value ${
+                                                                className={`camera-feed-status-value ${
                                                                     isConnected
                                                                         ? "connected"
                                                                         : "disconnected"
@@ -526,27 +505,27 @@ const AssetDetails = () => {
                                                                     : "Offline"}
                                                             </span>
                                                         </div>
-                                                        <div className="assetdetails-status-item">
-                                                            <span className="assetdetails-status-label">
-                                                                Geofencing
+                                                        <div className="camera-feed-status-item">
+                                                            <span className="camera-feed-status-label">
+                                                                Camera Status
                                                             </span>
                                                             <span
-                                                                className={`assetdetails-status-value ${
-                                                                    liveLocation?.geofencing_breached
-                                                                        ? "breach"
-                                                                        : "safe"
+                                                                className={`camera-feed-status-value ${
+                                                                    camera.working
+                                                                        ? "working"
+                                                                        : "offline"
                                                                 }`}
                                                             >
                                                                 <i
                                                                     className={`bi ${
-                                                                        liveLocation?.geofencing_breached
-                                                                            ? "bi-exclamation-triangle-fill"
-                                                                            : "bi-shield-check"
+                                                                        camera.working
+                                                                            ? "bi-check-circle-fill"
+                                                                            : "bi-x-circle-fill"
                                                                     }`}
                                                                 ></i>
-                                                                {liveLocation?.geofencing_breached
-                                                                    ? "Breach"
-                                                                    : "Safe"}
+                                                                {camera.working
+                                                                    ? "Working"
+                                                                    : "Offline"}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -558,28 +537,19 @@ const AssetDetails = () => {
 
                                 <Tab.Pane
                                     eventKey="history"
-                                    className="assetdetails-tab-pane"
+                                    className="camera-feed-tab-pane"
                                 >
-                                    <div className="assetdetails-history-content">
-                                        <div className="assetdetails-video-generator">
-                                            <div className="assetdetails-video-form">
+                                    <div className="camera-feed-history-content">
+                                        <div className="camera-feed-video-generator">
+                                            <div className="camera-feed-video-form">
                                                 <h5>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="16"
-                                                        height="16"
-                                                        fill="currentColor"
-                                                        class="bi bi-fast-forward-circle-fill"
-                                                        viewBox="0 0 16 16"
-                                                    >
-                                                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16M4.79 5.093 8 7.386V5.5a.5.5 0 0 1 .79-.407l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 8 10.5V8.614l-3.21 2.293A.5.5 0 0 1 4 10.5v-5a.5.5 0 0 1 .79-.407" />
-                                                    </svg>
-                                                    Generate Tracking Video
+                                                    <i className="bi bi-film"></i>
+                                                    Generate Camera Video
                                                 </h5>
                                                 <p className="text-muted">
                                                     Select a time range to
-                                                    generate a video from asset
-                                                    tracking frames.
+                                                    generate a video from camera
+                                                    frames.
                                                 </p>
 
                                                 <div className="row g-3 mb-3">
@@ -654,7 +624,7 @@ const AssetDetails = () => {
                                                         !startTime ||
                                                         !endTime
                                                     }
-                                                    className="assetdetails-generate-btn"
+                                                    className="camera-feed-generate-btn"
                                                 >
                                                     {videoLoading ? (
                                                         <>
@@ -678,17 +648,17 @@ const AssetDetails = () => {
                                             </div>
 
                                             {videoUrl && (
-                                                <div className="assetdetails-video-player">
+                                                <div className="camera-feed-video-player">
                                                     <h5>
                                                         <i className="bi bi-play-btn"></i>
                                                         Generated Video
                                                     </h5>
-                                                    <div className="assetdetails-video-container">
+                                                    <div className="camera-feed-video-container-player">
                                                         <video
                                                             controls
                                                             width="100%"
                                                             height="auto"
-                                                            className="assetdetails-video"
+                                                            className="camera-feed-video"
                                                             src={videoUrl}
                                                             onError={(e) => {
                                                                 console.error(
@@ -712,7 +682,7 @@ const AssetDetails = () => {
                                                             video tag.
                                                         </video>
                                                     </div>
-                                                    <div className="assetdetails-video-actions">
+                                                    <div className="camera-feed-video-actions">
                                                         <Button
                                                             variant="success"
                                                             onClick={() => {
@@ -722,7 +692,7 @@ const AssetDetails = () => {
                                                                     );
                                                                 link.href =
                                                                     videoUrl;
-                                                                link.download = `asset_${asset_id}_tracking_video.mp4`;
+                                                                link.download = `camera_${camera_id}_video.mp4`;
                                                                 link.click();
                                                             }}
                                                             className="me-2"
@@ -760,8 +730,35 @@ const AssetDetails = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Loading Overlay */}
+            {loading && (
+                <div className="camera-feed-loading-overlay">
+                    <div className="camera-feed-loading-content">
+                        <Spinner animation="border" variant="primary" />
+                        <span>Loading camera details...</span>
+                    </div>
+                </div>
+            )}
+
+            {/* Error State */}
+            {error && (
+                <div className="camera-feed-error-state">
+                    <div className="camera-feed-error-content">
+                        <i className="bi bi-exclamation-triangle-fill"></i>
+                        <h3>Error Loading Camera</h3>
+                        <p>{error}</p>
+                        <Button
+                            variant="primary"
+                            onClick={() => window.location.reload()}
+                        >
+                            Retry
+                        </Button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-export default AssetDetails;
+export default CameraFeed;
