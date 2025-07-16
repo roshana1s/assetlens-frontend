@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./AssetDetails.css";
-import { Button, Spinner } from "react-bootstrap";
+import { Button, Spinner, Nav, Tab } from "react-bootstrap";
 
 const DUMMY_FRAME =
-    "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80";
+    "https://storage.googleapis.com/assetlens-b9f76.firebasestorage.app/f0001-z0001/2025-07-14T10%3A34%3A58.jpg";
 
 const AssetDetails = () => {
     const { asset_id } = useParams();
+    const navigate = useNavigate();
     const org_id = 1;
     const [asset, setAsset] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState("realtime");
 
     useEffect(() => {
         const fetchAsset = async () => {
@@ -47,124 +49,258 @@ const AssetDetails = () => {
 
     return (
         <div className="assetdetails-root">
-            <div className="assetdetails-main">
-                <div className="assetdetails-header">
-                    <div className="assetdetails-title">
-                        <i className="bi bi-box-seam"></i>
-                        <span>{asset.name}</span>
-                        <span className="assetdetails-id">
-                            #{asset.asset_id}
-                        </span>
+            {/* Main Content Container */}
+            <div className="assetdetails-main-content">
+                {/* Left Panel - 25% - Asset Metadata */}
+                <div className="assetdetails-metadata-panel">
+                    {/* Back Button in Left Panel */}
+                    <div className="assetdetails-back-button">
+                        <Button
+                            variant="outline-secondary"
+                            size="lg"
+                            onClick={() => navigate(-1)}
+                            className="assetdetails-back-btn"
+                        >
+                            <i className="bi bi-arrow-left"></i>
+                            Back to Assets
+                        </Button>
                     </div>
-                    <div className="assetdetails-category">
-                        <span className="assetdetails-category-chip">
-                            {asset.category}
-                        </span>
-                        {asset.geofencing && (
-                            <span className="assetdetails-geofence-chip">
-                                <i className="bi bi-geo-alt-fill"></i>{" "}
-                                Geofencing Enabled
-                            </span>
-                        )}
-                    </div>
-                </div>
-                <div className="assetdetails-content">
-                    <div className="assetdetails-info">
-                        <div className="assetdetails-imgbox">
-                            <img
-                                src={
-                                    asset.image_link
-                                        ? asset.image_link
-                                        : "https://cdn-icons-png.flaticon.com/512/2991/2991108.png"
-                                }
-                                alt={asset.name}
-                                className="assetdetails-img"
-                            />
-                        </div>
-                        <div className="assetdetails-fields">
-                            <div>
-                                <span className="assetdetails-label">
-                                    RFID:
-                                </span>
-                                <span className="assetdetails-value">
-                                    {asset.RFID}
+
+                    <div className="assetdetails-metadata-container">
+                        <div className="assetdetails-header">
+                            <div className="assetdetails-title">
+                                <i className="bi bi-box-seam"></i>
+                                <span>{asset.name}</span>
+                                <span className="assetdetails-id">
+                                    #{asset.asset_id}
                                 </span>
                             </div>
-                            <div>
-                                <span className="assetdetails-label">
-                                    Assigned To:
+                            <div className="assetdetails-category">
+                                <span className="assetdetails-category-chip">
+                                    {asset.category}
                                 </span>
-                                <span className="assetdetails-value">
+                                {asset.geofencing && (
+                                    <span className="assetdetails-geofence-chip">
+                                        <i className="bi bi-geo-alt-fill"></i>{" "}
+                                        Geofencing Enabled
+                                    </span>
+                                )}
+                                <span
+                                    className={`assetdetails-status-chip ${
+                                        asset.assigned_to &&
+                                        asset.assigned_to.length
+                                            ? "assigned"
+                                            : "available"
+                                    }`}
+                                >
+                                    <i
+                                        className={`bi ${
+                                            asset.assigned_to &&
+                                            asset.assigned_to.length
+                                                ? "bi-person-check-fill"
+                                                : "bi-person-dash"
+                                        }`}
+                                    ></i>{" "}
                                     {asset.assigned_to &&
                                     asset.assigned_to.length
-                                        ? asset.assigned_to.join(" / ")
-                                        : "-"}
+                                        ? "Assigned"
+                                        : "Available"}
                                 </span>
                             </div>
-                            <div>
-                                <span className="assetdetails-label">
-                                    Floors:
-                                </span>
-                                <span className="assetdetails-value">
-                                    {asset.floors && asset.floors.length
-                                        ? asset.floors.join(", ")
-                                        : "-"}
-                                </span>
+                        </div>
+
+                        <div className="assetdetails-content">
+                            <div className="assetdetails-imgbox">
+                                <img
+                                    src={
+                                        asset.image_link
+                                            ? asset.image_link
+                                            : "https://cdn-icons-png.flaticon.com/512/2991/2991108.png"
+                                    }
+                                    alt={asset.name}
+                                    className="assetdetails-img"
+                                />
                             </div>
-                            <div>
-                                <span className="assetdetails-label">
-                                    Zones:
-                                </span>
-                                <span className="assetdetails-value">
-                                    {asset.zones && asset.zones.length
-                                        ? asset.zones.join(", ")
-                                        : "-"}
-                                </span>
+
+                            <div className="assetdetails-fields">
+                                <div className="assetdetails-field">
+                                    <span className="assetdetails-label">
+                                        RFID:
+                                    </span>
+                                    <span className="assetdetails-value">
+                                        {asset.RFID || "-"}
+                                    </span>
+                                </div>
+                                <div className="assetdetails-field">
+                                    <span className="assetdetails-label">
+                                        Assigned To:
+                                    </span>
+                                    <span className="assetdetails-value">
+                                        {asset.assigned_to &&
+                                        asset.assigned_to.length
+                                            ? asset.assigned_to.join(" / ")
+                                            : "-"}
+                                    </span>
+                                </div>
+                                <div className="assetdetails-field">
+                                    <span className="assetdetails-label">
+                                        Floors:
+                                    </span>
+                                    <span className="assetdetails-value">
+                                        {asset.floors && asset.floors.length
+                                            ? asset.floors.join(", ")
+                                            : "-"}
+                                    </span>
+                                </div>
+                                <div className="assetdetails-field">
+                                    <span className="assetdetails-label">
+                                        Zones:
+                                    </span>
+                                    <span className="assetdetails-value">
+                                        {asset.zones && asset.zones.length
+                                            ? asset.zones.join(", ")
+                                            : "-"}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="assetdetails-side">
-                <div className="assetdetails-side-section">
-                    <div className="assetdetails-side-title">
-                        <i className="bi bi-geo-alt"></i> Real-time Location
+
+                {/* Right Panel - 75% - Monitoring Interface */}
+                <div className="assetdetails-monitoring-panel">
+                    <div className="assetdetails-monitoring-container">
+                        <Tab.Container
+                            activeKey={activeTab}
+                            onSelect={(k) => setActiveTab(k)}
+                        >
+                            <div className="assetdetails-tab-header">
+                                <Nav
+                                    variant="tabs"
+                                    className="assetdetails-nav-tabs"
+                                >
+                                    <Nav.Item>
+                                        <Nav.Link
+                                            eventKey="realtime"
+                                            className="assetdetails-nav-link"
+                                        >
+                                            <i className="bi bi-broadcast"></i>
+                                            Real-time
+                                        </Nav.Link>
+                                    </Nav.Item>
+                                    <Nav.Item>
+                                        <Nav.Link
+                                            eventKey="history"
+                                            className="assetdetails-nav-link"
+                                        >
+                                            <i className="bi bi-clock-history"></i>
+                                            History
+                                        </Nav.Link>
+                                    </Nav.Item>
+                                </Nav>
+                            </div>
+
+                            <Tab.Content className="assetdetails-tab-content">
+                                <Tab.Pane
+                                    eventKey="realtime"
+                                    className="assetdetails-tab-pane"
+                                >
+                                    <div className="assetdetails-realtime-content">
+                                        {/* Main Camera Frame */}
+                                        <div className="assetdetails-frame-container">
+                                            <div className="assetdetails-frame-header">
+                                                <h5>
+                                                    <i className="bi bi-camera-video"></i>
+                                                    Live Camera Feed
+                                                </h5>
+                                                <Button
+                                                    variant="outline-primary"
+                                                    size="sm"
+                                                    className="assetdetails-download-btn"
+                                                >
+                                                    <i className="bi bi-download"></i>
+                                                    Download
+                                                </Button>
+                                            </div>
+                                            <div className="assetdetails-frame-box">
+                                                <img
+                                                    src={DUMMY_FRAME}
+                                                    alt="Live Camera Feed"
+                                                    className="assetdetails-frame-img"
+                                                />
+                                                <div className="assetdetails-frame-overlay">
+                                                    <span className="assetdetails-live-indicator">
+                                                        <i className="bi bi-circle-fill"></i>
+                                                        LIVE
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Location Information */}
+                                        <div className="assetdetails-location-info">
+                                            <div className="assetdetails-location-grid">
+                                                <div className="assetdetails-location-item">
+                                                    <div className="assetdetails-location-label">
+                                                        <i className="bi bi-building"></i>
+                                                        Current Floor
+                                                    </div>
+                                                    <div className="assetdetails-location-value">
+                                                        {asset.floors?.[0] ||
+                                                            "Floor 1"}
+                                                    </div>
+                                                </div>
+                                                <div className="assetdetails-location-item">
+                                                    <div className="assetdetails-location-label">
+                                                        <i className="bi bi-geo-alt"></i>
+                                                        Current Zone
+                                                    </div>
+                                                    <div className="assetdetails-location-value">
+                                                        {asset.zones?.[0] ||
+                                                            "Zone A"}
+                                                    </div>
+                                                </div>
+                                                <div className="assetdetails-location-item">
+                                                    <div className="assetdetails-location-label">
+                                                        <i className="bi bi-clock"></i>
+                                                        Last Updated
+                                                    </div>
+                                                    <div className="assetdetails-location-value">
+                                                        {new Date().toLocaleTimeString()}
+                                                    </div>
+                                                </div>
+                                                <div className="assetdetails-location-item">
+                                                    <div className="assetdetails-location-label">
+                                                        <i className="bi bi-crosshair"></i>
+                                                        Coordinates
+                                                    </div>
+                                                    <div className="assetdetails-location-value">
+                                                        X: 120, Y: 80
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Tab.Pane>
+
+                                <Tab.Pane
+                                    eventKey="history"
+                                    className="assetdetails-tab-pane"
+                                >
+                                    <div className="assetdetails-history-content">
+                                        <div className="assetdetails-empty-state">
+                                            <i className="bi bi-clock-history"></i>
+                                            <h4>History Coming Soon</h4>
+                                            <p>
+                                                Historical tracking data will be
+                                                available here.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </Tab.Pane>
+                            </Tab.Content>
+                        </Tab.Container>
                     </div>
-                    <div className="assetdetails-side-map">
-                        <img
-                            src="https://static.vecteezy.com/system/resources/previews/024/553/687/non_2x/isometric-location-map-pin-navigation-gps-icon-3d-illustration-png.png"
-                            alt="location"
-                            className="assetdetails-side-mapimg"
-                        />
-                    </div>
-                </div>
-                <div className="assetdetails-side-section">
-                    <div className="assetdetails-side-title">
-                        <i className="bi bi-camera-video"></i> Camera Frame
-                    </div>
-                    <div className="assetdetails-side-frame">
-                        <img
-                            src={DUMMY_FRAME}
-                            alt="Camera Frame"
-                            className="assetdetails-side-frameimg"
-                        />
-                    </div>
-                    <div className="assetdetails-side-location">
-                        <span className="assetdetails-side-label">
-                            Latest Location:
-                        </span>
-                        <span className="assetdetails-side-value">
-                            {asset.floors?.[0] || "Floor"} ,{" "}
-                            {asset.zones?.[0] || "Zone"} , (X: 120, Y: 80)
-                        </span>
-                    </div>
-                    <Button
-                        className="assetdetails-download-btn"
-                        variant="outline-primary"
-                        size="sm"
-                    >
-                        <i className="bi bi-download"></i> Download Footage
-                    </Button>
                 </div>
             </div>
         </div>
