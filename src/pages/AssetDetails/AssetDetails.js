@@ -300,103 +300,160 @@ const AssetDetails = () => {
                                             </Alert>
                                         )}
 
-                                        {/* Main Camera Frame */}
+                                        {/* Main Camera Frame with Right Sidebar */}
                                         <div className="assetdetails-frame-container">
-                                            <div className="assetdetails-frame-header">
-                                                <h5>
-                                                    <i className="bi bi-camera-video"></i>
-                                                    Live Camera Feed
-                                                </h5>
-                                                <Button
-                                                    variant="outline-primary"
-                                                    size="sm"
-                                                    className="assetdetails-download-btn"
-                                                >
-                                                    <i className="bi bi-download"></i>
-                                                    Download
-                                                </Button>
-                                            </div>
-                                            <div className="assetdetails-frame-box">
-                                                <img
-                                                    src={
-                                                        liveLocation?.frame_link ||
-                                                        DUMMY_FRAME
-                                                    }
-                                                    alt="Live Camera Feed"
-                                                    className="assetdetails-frame-img"
-                                                    onError={(e) => {
-                                                        e.target.src =
-                                                            DUMMY_FRAME;
-                                                    }}
-                                                />
-                                                <div className="assetdetails-frame-overlay">
-                                                    <span
-                                                        className={`assetdetails-live-indicator ${
-                                                            isConnected
-                                                                ? "connected"
-                                                                : "disconnected"
-                                                        }`}
-                                                    >
-                                                        <i className="bi bi-circle-fill"></i>
-                                                        {isConnected
-                                                            ? "LIVE"
-                                                            : "OFFLINE"}
-                                                    </span>
-                                                    {liveLocation?.geofencing_breached && (
-                                                        <span className="assetdetails-breach-indicator">
-                                                            <i className="bi bi-exclamation-triangle-fill"></i>
-                                                            BREACH
+                                            <div className="assetdetails-frame-main">
+                                                <div className="assetdetails-frame-box">
+                                                    <img
+                                                        src={
+                                                            liveLocation?.frame_link ||
+                                                            DUMMY_FRAME
+                                                        }
+                                                        alt="Live Camera Feed"
+                                                        className="assetdetails-frame-img"
+                                                        onError={(e) => {
+                                                            e.target.src =
+                                                                DUMMY_FRAME;
+                                                        }}
+                                                    />
+                                                    <div className="assetdetails-frame-overlay">
+                                                        <span
+                                                            className={`assetdetails-live-indicator ${
+                                                                isConnected
+                                                                    ? "connected"
+                                                                    : "disconnected"
+                                                            }`}
+                                                        >
+                                                            <i className="bi bi-circle-fill"></i>
+                                                            {isConnected
+                                                                ? "LIVE"
+                                                                : "OFFLINE"}
                                                         </span>
-                                                    )}
+                                                        {liveLocation?.geofencing_breached && (
+                                                            <span className="assetdetails-breach-indicator">
+                                                                <i className="bi bi-exclamation-triangle-fill"></i>
+                                                                BREACH
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        {/* Location Information */}
-                                        <div className="assetdetails-location-info">
-                                            <div className="assetdetails-location-grid">
-                                                <div className="assetdetails-location-item">
-                                                    <div className="assetdetails-location-label">
-                                                        <i className="bi bi-building"></i>
-                                                        Current Floor
+                                            {/* Right Sidebar */}
+                                            <div className="assetdetails-frame-sidebar">
+                                                {/* Location Information */}
+                                                <div className="assetdetails-location-info">
+                                                    <div className="assetdetails-location-header">
+                                                        <h6>
+                                                            <i className="bi bi-geo-alt-fill"></i>
+                                                            Location Details
+                                                        </h6>
                                                     </div>
-                                                    <div className="assetdetails-location-value">
-                                                        {liveLocation?.floor_id ||
-                                                            asset.floors?.[0] ||
-                                                            "Floor 1"}
+                                                    <div className="assetdetails-location-stack">
+                                                        <div className="assetdetails-location-item">
+                                                            <div className="assetdetails-location-label">
+                                                                <i className="bi bi-building"></i>
+                                                                Floor
+                                                            </div>
+                                                            <div className="assetdetails-location-value floor">
+                                                                {liveLocation?.floor_id ||
+                                                                    asset
+                                                                        .floors?.[0] ||
+                                                                    "Floor 1"}
+                                                            </div>
+                                                        </div>
+                                                        <div className="assetdetails-location-item">
+                                                            <div className="assetdetails-location-label">
+                                                                <i className="bi bi-geo-alt"></i>
+                                                                Zone
+                                                            </div>
+                                                            <div className="assetdetails-location-value zone">
+                                                                {liveLocation?.zone_id ||
+                                                                    asset
+                                                                        .zones?.[0] ||
+                                                                    "Zone A"}
+                                                            </div>
+                                                        </div>
+                                                        <div className="assetdetails-location-item">
+                                                            <div className="assetdetails-location-label">
+                                                                <i className="bi bi-crosshair"></i>
+                                                                Coordinates
+                                                            </div>
+                                                            <div className="assetdetails-location-value coordinate">
+                                                                {liveLocation?.coordinates
+                                                                    ? `X: ${liveLocation.coordinates.x}, Y: ${liveLocation.coordinates.y}`
+                                                                    : "X: -, Y: -"}
+                                                            </div>
+                                                        </div>
+                                                        <div className="assetdetails-location-item">
+                                                            <div className="assetdetails-location-label">
+                                                                <i className="bi bi-clock"></i>
+                                                                Last Update
+                                                            </div>
+                                                            <div className="assetdetails-location-value time">
+                                                                {lastUpdate
+                                                                    ? lastUpdate.toLocaleTimeString()
+                                                                    : new Date().toLocaleTimeString()}
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="assetdetails-location-item">
-                                                    <div className="assetdetails-location-label">
-                                                        <i className="bi bi-geo-alt"></i>
-                                                        Current Zone
+
+                                                {/* Additional Info Section */}
+                                                <div className="assetdetails-status-info">
+                                                    <div className="assetdetails-location-header">
+                                                        <h6>
+                                                            <i className="bi bi-activity"></i>
+                                                            Status
+                                                        </h6>
                                                     </div>
-                                                    <div className="assetdetails-location-value">
-                                                        {liveLocation?.zone_id ||
-                                                            asset.zones?.[0] ||
-                                                            "Zone A"}
-                                                    </div>
-                                                </div>
-                                                <div className="assetdetails-location-item">
-                                                    <div className="assetdetails-location-label">
-                                                        <i className="bi bi-clock"></i>
-                                                        Last Updated
-                                                    </div>
-                                                    <div className="assetdetails-location-value">
-                                                        {lastUpdate
-                                                            ? lastUpdate.toLocaleTimeString()
-                                                            : new Date().toLocaleTimeString()}
-                                                    </div>
-                                                </div>
-                                                <div className="assetdetails-location-item">
-                                                    <div className="assetdetails-location-label">
-                                                        <i className="bi bi-crosshair"></i>
-                                                        Coordinates
-                                                    </div>
-                                                    <div className="assetdetails-location-value">
-                                                        {liveLocation?.coordinates
-                                                            ? `X: ${liveLocation.coordinates.x}, Y: ${liveLocation.coordinates.y}`
-                                                            : "X: -, Y: -"}
+                                                    <div className="assetdetails-status-items">
+                                                        <div className="assetdetails-status-item">
+                                                            <span className="assetdetails-status-label">
+                                                                Connection
+                                                            </span>
+                                                            <span
+                                                                className={`assetdetails-status-value ${
+                                                                    isConnected
+                                                                        ? "connected"
+                                                                        : "disconnected"
+                                                                }`}
+                                                            >
+                                                                <i
+                                                                    className={`bi ${
+                                                                        isConnected
+                                                                            ? "bi-wifi"
+                                                                            : "bi-wifi-off"
+                                                                    }`}
+                                                                ></i>
+                                                                {isConnected
+                                                                    ? "Online"
+                                                                    : "Offline"}
+                                                            </span>
+                                                        </div>
+                                                        <div className="assetdetails-status-item">
+                                                            <span className="assetdetails-status-label">
+                                                                Geofencing
+                                                            </span>
+                                                            <span
+                                                                className={`assetdetails-status-value ${
+                                                                    liveLocation?.geofencing_breached
+                                                                        ? "breach"
+                                                                        : "safe"
+                                                                }`}
+                                                            >
+                                                                <i
+                                                                    className={`bi ${
+                                                                        liveLocation?.geofencing_breached
+                                                                            ? "bi-exclamation-triangle-fill"
+                                                                            : "bi-shield-check"
+                                                                    }`}
+                                                                ></i>
+                                                                {liveLocation?.geofencing_breached
+                                                                    ? "Breach"
+                                                                    : "Safe"}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
