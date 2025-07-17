@@ -208,12 +208,12 @@ const CameraConfiguration = () => {
                                             >
                                                 {cam.working ? (
                                                     <>
-                                                        <i className="bi bi-toggle-on"></i>{" "}
+                                                        
                                                         Switch Off
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <i className="bi bi-toggle-off"></i>{" "}
+                                                        
                                                         Switch On
                                                     </>
                                                 )}
@@ -228,7 +228,7 @@ const CameraConfiguration = () => {
                                                     )
                                                 }
                                             >
-                                                <i className="bi bi-trash"></i>{" "}
+                                                
                                                 Remove
                                             </Button>
                                             <Button
@@ -239,7 +239,7 @@ const CameraConfiguration = () => {
                                                     handleAddCamera(z.zone_id)
                                                 }
                                             >
-                                                <i className="bi bi-pencil-square"></i>{" "}
+                                                
                                                 Change Position
                                             </Button>
                                         </>
@@ -252,7 +252,7 @@ const CameraConfiguration = () => {
                                                 handleAddCamera(z.zone_id)
                                             }
                                         >
-                                            <i className="bi bi-plus-circle"></i>{" "}
+                                            
                                             Add Camera
                                         </Button>
                                     )}

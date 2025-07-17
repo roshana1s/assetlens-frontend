@@ -5,6 +5,7 @@ import "./OnlineTracking.css";
 import DrawMapWithAssets from "../../components/DrawMapWithAssets/DrawMapWithAssets";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import FetchingData from "../../components/FetchingData/FetchingData";
 
 const OnlineTracking = () => {
     const org_id = 1;
@@ -16,6 +17,7 @@ const OnlineTracking = () => {
     const [initialFilterDetails, setInitialFilterDetails] = useState({});
     const [mapDetails, setMapDetails] = useState([]);
     const [liveLocations, setLiveLocations] = useState({});
+    const [initialDataLoad, setInitialDataLoad] = useState(true);
 
     const ws = useRef(null);
 
@@ -31,9 +33,11 @@ const OnlineTracking = () => {
                     `http://localhost:8000/online-tracking/1/u0002/get-online-tracking-filters-initial`
                 );
                 setInitialFilterDetails(filterRes.data);
+                setInitialDataLoad(false);
             } catch (err) {
                 console.error("Error fetching initial data", err);
                 toast.error("Failed to load filters or map data");
+                setInitialDataLoad(false);
             }
         };
 
@@ -102,72 +106,76 @@ const OnlineTracking = () => {
                     <span className="ms-2">Online Tracking</span>
                 </span>
 
-                <div className="scrollable-content">
-                    {/* Floor Combobox */}
-                    <div className="form-group">
-                        <label htmlFor="floor-select">Select Floor</label>
-                        <Combobox
-                            placeholder="Select Floor"
-                            id="floor-select"
-                            data={(initialFilterDetails.floors || []).map(
-                                (floor) => floor.floorName
-                            )}
-                            onChange={(value) =>
-                                setFloorId(
-                                    initialFilterDetails.floors?.find(
-                                        (floor) => floor.floorName === value
-                                    )?.floor_id
-                                )
-                            }
-                        />
-                    </div>
+                {!initialDataLoad ? (
+                    <div className="scrollable-content">
+                        {/* Floor Combobox */}
+                        <div className="form-group">
+                            <label htmlFor="floor-select">Select Floor</label>
+                            <Combobox
+                                placeholder="Select Floor"
+                                id="floor-select"
+                                data={(initialFilterDetails.floors || []).map(
+                                    (floor) => floor.floorName
+                                )}
+                                onChange={(value) =>
+                                    setFloorId(
+                                        initialFilterDetails.floors?.find(
+                                            (floor) => floor.floorName === value
+                                        )?.floor_id
+                                    )
+                                }
+                            />
+                        </div>
 
-                    {/* Zone Combobox */}
-                    <div className="form-group">
-                        <label htmlFor="zone-select">Select Zone</label>
-                        <Combobox
-                            id="zone-select"
-                            defaultValue={"ALL"}
-                            data={[
-                                "ALL",
-                                ...(matchedFloor?.zones || []).map(
-                                    (zone) => zone.name
-                                ),
-                            ]}
-                            onChange={(value) =>
-                                setZoneId(
-                                    matchedFloor?.zones?.find(
-                                        (zone) => zone.name === value
-                                    )?.zone_id || "ALL"
-                                )
-                            }
-                            disabled={!floorId}
-                        />
-                    </div>
+                        {/* Zone Combobox */}
+                        <div className="form-group">
+                            <label htmlFor="zone-select">Select Zone</label>
+                            <Combobox
+                                id="zone-select"
+                                defaultValue={"ALL"}
+                                data={[
+                                    "ALL",
+                                    ...(matchedFloor?.zones || []).map(
+                                        (zone) => zone.name
+                                    ),
+                                ]}
+                                onChange={(value) =>
+                                    setZoneId(
+                                        matchedFloor?.zones?.find(
+                                            (zone) => zone.name === value
+                                        )?.zone_id || "ALL"
+                                    )
+                                }
+                                disabled={!floorId}
+                            />
+                        </div>
 
-                    {/* Asset Combobox */}
-                    <div className="form-group">
-                        <label htmlFor="asset-select">Select Asset</label>
-                        <Combobox
-                            id="asset-select"
-                            defaultValue={"ALL"}
-                            data={[
-                                "ALL",
-                                ...(initialFilterDetails.assets || []).map(
-                                    (asset) => asset.name
-                                ),
-                            ]}
-                            onChange={(value) =>
-                                setAssetId(
-                                    initialFilterDetails.assets?.find(
-                                        (asset) => asset.name === value
-                                    )?.asset_id || "ALL"
-                                )
-                            }
-                            disabled={!floorId}
-                        />
+                        {/* Asset Combobox */}
+                        <div className="form-group">
+                            <label htmlFor="asset-select">Select Asset</label>
+                            <Combobox
+                                id="asset-select"
+                                defaultValue={"ALL"}
+                                data={[
+                                    "ALL",
+                                    ...(initialFilterDetails.assets || []).map(
+                                        (asset) => asset.name
+                                    ),
+                                ]}
+                                onChange={(value) =>
+                                    setAssetId(
+                                        initialFilterDetails.assets?.find(
+                                            (asset) => asset.name === value
+                                        )?.asset_id || "ALL"
+                                    )
+                                }
+                                disabled={!floorId}
+                            />
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <FetchingData />
+                )}
             </div>
 
             <DrawMapWithAssets

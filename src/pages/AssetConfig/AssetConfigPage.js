@@ -146,144 +146,164 @@ const AssetConfigPage = () => {
 
     return (
         <div className="asset-config-container">
-            {/* Left Sidebar - 25% width */}
-            <div className="filter-sidebar">
-                {/* Asset Configuration Section */}
-                <div className="category-header">
-                    <h3>
-                        <FaCog style={{ marginRight: "8px" }} />
-                        Asset Configuration
-                    </h3>
-                </div>
+            {loading ? (
+                <FetchingData />
+            ) : (
+                <>
+                    {/* Left Sidebar - 25% width */}
+                    <div className="filter-sidebar">
+                        {/* Asset Configuration Section */}
+                        <div className="category-header">
+                            <h3>
+                                <FaCog style={{ marginRight: "8px" }} />
+                                Asset Configuration
+                            </h3>
+                        </div>
 
-                <div className="scrollable-content">
-                    {/* Search Bar */}
-                    <div className="form-group">
-                        <label>
-                            <FaSearch style={{ marginRight: "8px" }} />
-                            Search Assets
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Search assets..."
-                            value={searchTerm}
-                            onChange={handleSearch}
-                            className="search-bar"
+                        <div className="scrollable-content">
+                            {/* Search Bar */}
+                            <div className="form-group">
+                                <label>
+                                    <FaSearch style={{ marginRight: "8px" }} />
+                                    Search Assets
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Search assets..."
+                                    value={searchTerm}
+                                    onChange={handleSearch}
+                                    className="search-bar"
+                                />
+                            </div>
+
+                            {/* Filters Section Header */}
+                            <div className="filters-section-divider"></div>
+                            <div
+                                className="category-header"
+                                style={{
+                                    marginTop: "24px",
+                                    marginBottom: "16px",
+                                }}
+                            >
+                                <h3
+                                    style={{
+                                        fontSize: "16px",
+                                        marginBottom: "0",
+                                    }}
+                                >
+                                    <FaFilter style={{ marginRight: "8px" }} />
+                                    Filters
+                                </h3>
+                            </div>
+
+                            {/* Category Filter */}
+                            <div className="form-group">
+                                <div className="filter-label-with-edit">
+                                    <label>
+                                        <FaLayerGroup
+                                            style={{ marginRight: "8px" }}
+                                        />
+                                        Filter by Category
+                                    </label>
+                                    <button
+                                        className="edit-category-btn"
+                                        onClick={() =>
+                                            setShowCategoryManager(true)
+                                        }
+                                        title="Edit Categories"
+                                    >
+                                        <FaEdit />
+                                    </button>
+                                </div>
+                                {categories.map((cat) => (
+                                    <label
+                                        key={cat.category_id}
+                                        className="checkbox-item"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            value={cat.category_id}
+                                            onChange={() =>
+                                                handleCategoryToggle(
+                                                    cat.category_id
+                                                )
+                                            }
+                                            checked={selectedCategories.includes(
+                                                cat.category_id
+                                            )}
+                                        />
+                                        {cat.name}
+                                    </label>
+                                ))}
+                            </div>
+
+                            {/* Availability Filter */}
+                            <div className="form-group">
+                                <label htmlFor="availability">
+                                    <FaCheckCircle
+                                        style={{ marginRight: "8px" }}
+                                    />
+                                    Filter by Availability
+                                </label>
+                                <select
+                                    id="availability"
+                                    value={availability}
+                                    onChange={handleAvailabilityChange}
+                                    className="availability-dropdown"
+                                >
+                                    <option value="ALL">All</option>
+                                    <option value="available">Available</option>
+                                    <option value="not_available">
+                                        Not Available
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Add Asset Button - Fixed at Bottom */}
+                        <Button
+                            variant="primary"
+                            className="asset-config-add-asset-btn"
+                            onClick={() => setShowAddForm(true)}
+                        >
+                            <FaPlus style={{ marginRight: "8px" }} />
+                            Add New Asset
+                        </Button>
+                    </div>
+
+                    {/* Right Content - 75% width */}
+                    <div className="asset-list-content">
+                        <AssetList
+                            assets={filteredAssets}
+                            onGeofencingUpdate={(assetId, enabled) => {
+                                // Update geofencing for specific asset
+                                const updatedAssets = assets.map((asset) =>
+                                    asset.asset_id === assetId
+                                        ? { ...asset, geofencing: enabled }
+                                        : asset
+                                );
+                                setAssets(updatedAssets);
+                                filterAssets(
+                                    updatedAssets,
+                                    selectedCategories,
+                                    searchTerm,
+                                    availability
+                                );
+                                toast.success(
+                                    `Geofencing ${
+                                        enabled ? "enabled" : "disabled"
+                                    } for asset`
+                                );
+                            }}
+                            refreshAssets={refreshAssets}
+                            onEditAsset={(asset) => {
+                                setEditingAsset(asset);
+                                setShowEditForm(true);
+                            }}
                         />
                     </div>
-
-                    {/* Filters Section Header */}
-                    <div className="filters-section-divider"></div>
-                    <div
-                        className="category-header"
-                        style={{ marginTop: "24px", marginBottom: "16px" }}
-                    >
-                        <h3 style={{ fontSize: "16px", marginBottom: "0" }}>
-                            <FaFilter style={{ marginRight: "8px" }} />
-                            Filters
-                        </h3>
-                    </div>
-
-                    {/* Category Filter */}
-                    <div className="form-group">
-                        <div className="filter-label-with-edit">
-                            <label>
-                                <FaLayerGroup style={{ marginRight: "8px" }} />
-                                Filter by Category
-                            </label>
-                            <button
-                                className="edit-category-btn"
-                                onClick={() => setShowCategoryManager(true)}
-                                title="Edit Categories"
-                            >
-                                <FaEdit />
-                            </button>
-                        </div>
-                        {categories.map((cat) => (
-                            <label
-                                key={cat.category_id}
-                                className="checkbox-item"
-                            >
-                                <input
-                                    type="checkbox"
-                                    value={cat.category_id}
-                                    onChange={() =>
-                                        handleCategoryToggle(cat.category_id)
-                                    }
-                                    checked={selectedCategories.includes(
-                                        cat.category_id
-                                    )}
-                                />
-                                {cat.name}
-                            </label>
-                        ))}
-                    </div>
-
-                    {/* Availability Filter */}
-                    <div className="form-group">
-                        <label htmlFor="availability">
-                            <FaCheckCircle style={{ marginRight: "8px" }} />
-                            Filter by Availability
-                        </label>
-                        <select
-                            id="availability"
-                            value={availability}
-                            onChange={handleAvailabilityChange}
-                            className="availability-dropdown"
-                        >
-                            <option value="ALL">All</option>
-                            <option value="available">Available</option>
-                            <option value="not_available">Not Available</option>
-                        </select>
-                    </div>
-                </div>
-
-                {/* Add Asset Button - Fixed at Bottom */}
-                <Button
-                    variant="primary"
-                    className="asset-config-add-asset-btn"
-                    onClick={() => setShowAddForm(true)}
-                >
-                    <FaPlus style={{ marginRight: "8px" }} />
-                    Add New Asset
-                </Button>
-            </div>
-
-            {/* Right Content - 75% width */}
-            <div className="asset-list-content">
-                {loading ? (
-                    <FetchingData />
-                ) : (
-                    <AssetList
-                        assets={filteredAssets}
-                        onGeofencingUpdate={(assetId, enabled) => {
-                            // Update geofencing for specific asset
-                            const updatedAssets = assets.map((asset) =>
-                                asset.asset_id === assetId
-                                    ? { ...asset, geofencing: enabled }
-                                    : asset
-                            );
-                            setAssets(updatedAssets);
-                            filterAssets(
-                                updatedAssets,
-                                selectedCategories,
-                                searchTerm,
-                                availability
-                            );
-                            toast.success(
-                                `Geofencing ${
-                                    enabled ? "enabled" : "disabled"
-                                } for asset`
-                            );
-                        }}
-                        refreshAssets={refreshAssets}
-                        onEditAsset={(asset) => {
-                            setEditingAsset(asset);
-                            setShowEditForm(true);
-                        }}
-                    />
-                )}
-            </div>
+                </>
+            )}
 
             {/* Add/Edit Bootstrap Modals */}
             <Modal
