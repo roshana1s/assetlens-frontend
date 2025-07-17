@@ -78,11 +78,6 @@ const NavBarOrgAdmin = () => {
     const handleLogout = () => {
         logout();
         navigate("/login");
-        
-    const toggleProfile = () => {
-        setShowNotifications(false);
-        setShowAlerts(false);
-        setShowProfile(!showProfile);
     };
 
     return (
