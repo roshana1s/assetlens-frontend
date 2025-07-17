@@ -35,8 +35,8 @@ const PastTracking = () => {
     const [initialDataLoad, setInitialDataLoad] = useState(true);
     const [getData, setGetData] = useState(false);
 
-    const user_id = 'u0002';
-    
+    const user_id = "u0002";
+
     useEffect(() => {
         const fetchDataAndFilters = async (org_id) => {
             try {
@@ -299,12 +299,12 @@ const PastTracking = () => {
                         </div>
 
                         {!getData ? (
-                            <div className="timeline-controls">
-                                <div className="current-time mb-3">
+                            <div className="past-tracking-timeline-controls">
+                                <div className="past-tracking-current-time mb-3">
                                     {currentTimestamp}
                                 </div>
 
-                                <div className="controls-group">
+                                <div className="past-tracking-controls-group">
                                     <Button
                                         variant="outline-primary"
                                         onClick={() => setCurrentFrameIndex(0)}

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import LogoutButton from "../../components/Logout/LogoutButton";
-import NavBarOrgAdmin from "../../components/NavBarOrgAdmin/NavBarOrgAdmin";
 import HeatmapPage from "../Dashboard/Heatmap/HeatmapPage";
 import ProfilePage from "../../pages/ProfilePage/ProfilePage";
 import "./OrgAdminDashboard.css";
@@ -146,7 +145,6 @@ const OrgAdminDashboard = () => {
 
   return (
     <div className="org-admin-dashboard">
-      <NavBarOrgAdmin />
       <div className="dashboard-container">
         <div className="sidebar">
           <div className="sidebar-header">

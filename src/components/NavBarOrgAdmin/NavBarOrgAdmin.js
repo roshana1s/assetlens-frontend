@@ -4,7 +4,7 @@ import { Dropdown } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./NavBarOrgAdmin.css";
 import axios from "axios";
-import { useAuth } from "../../context/AuthContext";;
+import { useAuth } from "../../context/AuthContext";
 
 const NavBarOrgAdmin = () => {
     const [showProfile, setShowProfile] = useState(false);
@@ -15,21 +15,25 @@ const NavBarOrgAdmin = () => {
     const [floors, setFloors] = useState({});
     const [zones, setZones] = useState({});
     const [loadingAssets, setLoadingAssets] = useState(false);
-    
+
     const { user, isGlobalAdmin, currentOrgId, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const isConfigActive = location.pathname.startsWith("/admin/config");
-    
 
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/user/profile", {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                });
+                const response = await axios.get(
+                    "http://localhost:8000/user/profile",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem(
+                                "token"
+                            )}`,
+                        },
+                    }
+                );
                 setProfileData(response.data);
             } catch (error) {
                 console.error("Error fetching profile data:", error);
@@ -44,19 +48,18 @@ const NavBarOrgAdmin = () => {
     useEffect(() => {
         const fetchAssetAndLocationData = async () => {
             if (showAlerts && currentOrgId) {
-
             }
         };
 
         fetchAssetAndLocationData();
     }, [currentOrgId]);
 
-
-
     const formatTime = (timestamp) => {
-        return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return new Date(timestamp).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
     };
-
 
     const toggleProfile = () => {
         setShowNotifications(false);
@@ -295,64 +298,177 @@ const NavBarOrgAdmin = () => {
                             </div>
                         )}
                     </div>
-                
-<div className="icon-wrapper" onClick={toggleProfile}>
-                    {user?.image_link ? (
-                        <img
-                            src={user.image_link}
-                            alt="Profile"
-                            className="profile-image-navbar"
-                            style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", border: "2px solid #2f6fed" }}
-                        />
-                    ) : (
-                        <div className="profile-image-placeholder-navbar" style={{ width: 32, height: 32, borderRadius: "50%", background: "#e5e9fb", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", color: "#2f6fed", border: "2px solid #2f6fed" }}>
-                            {user?.name?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'U'}
-                        </div>
-                    )}
-                    {showProfile && (
-                        <div className="profile-popup-box">
-      <div className="profile-header">
-        {user?.image_link ? (
-          <img src={user.image_link} alt="Profile" className="profile-image" />
-        ) : (
-          <div className="profile-image-placeholder">
-            {user?.name?.charAt(0).toUpperCase() || 'U'}
-          </div>
-        )}
-        <div className="profile-info">
-          <h5 className="profile-name">{user?.name || user?.username || 'User'}</h5>
-          <p className="profile-role">
-            {isGlobalAdmin ? 'AssetLens Admin' : user?.role || 'User'}
-          </p>
-          <p className="profile-email">{user?.email || ''}</p>
-        </div>
-      </div>
-      <div className="profile-links">
-        <NavLink 
-          to={
-            isGlobalAdmin 
-              ? "/dashboard/assetlens/profile" 
-              : `/dashboard/org/${currentOrgId}/${user?.role === 'user' ? 'user' : 'admin'}/profile`
-          } 
-          className="profile-link"
-          onClick={() => setShowProfile(false)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            fill="currentColor"
-            className="bi bi-person"
-            viewBox="0 0 16 16"
-          >
-            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z"/>
-          </svg>
-          &nbsp; My Profile
-        </NavLink>
-        <button 
-          className="profile-link logout-btn"
-          onClick={handleLogout}
-        >
+
+                    <div className="icon-wrapper" onClick={toggleProfile}>
+                        {user?.image_link ? (
+                            <img
+                                src={user.image_link}
+                                alt="Profile"
+                                className="profile-image-navbar"
+                                style={{
+                                    width: 28,
+                                    height: 28,
+                                    borderRadius: "50%",
+                                    objectFit: "cover",
+                                    border: "2px solid #2f6fed",
+                                }}
+                            />
+                        ) : (
+                            <div
+                                className="profile-image-placeholder-navbar"
+                                style={{
+                                    width: 28,
+                                    height: 28,
+                                    borderRadius: "50%",
+                                    background: "#e5e9fb",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: "bold",
+                                    color: "#2f6fed",
+                                    border: "2px solid #2f6fed",
+                                    fontSize: "12px",
+                                }}
+                            >
+                                {user?.name?.charAt(0).toUpperCase() ||
+                                    user?.username?.charAt(0).toUpperCase() ||
+                                    "U"}
+                            </div>
+                        )}
+                        {showProfile && (
+                            <div
+                                className="profile-popup-box"
+                                style={{ zIndex: 9999 }}
+                            >
+                                <div
+                                    className="profile-header"
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "12px",
+                                        marginBottom: "12px",
+                                    }}
+                                >
+                                    {user?.image_link ? (
+                                        <img
+                                            src={user.image_link}
+                                            alt="Profile"
+                                            className="profile-image"
+                                            style={{
+                                                width: 50,
+                                                height: 50,
+                                                borderRadius: "50%",
+                                                objectFit: "cover",
+                                                flexShrink: 0,
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="profile-image-placeholder"
+                                            style={{
+                                                width: 50,
+                                                height: 50,
+                                                borderRadius: "50%",
+                                                background: "#e5e9fb",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontWeight: "bold",
+                                                color: "#2f6fed",
+                                                fontSize: "18px",
+                                                flexShrink: 0,
+                                            }}
+                                        >
+                                            {user?.name
+                                                ?.charAt(0)
+                                                .toUpperCase() || "U"}
+                                        </div>
+                                    )}
+                                    <div
+                                        className="profile-info"
+                                        style={{ flex: 1 }}
+                                    >
+                                        <p
+                                            className="profile-greeting"
+                                            style={{
+                                                margin: "0 0 4px 0",
+                                                fontSize: "14px",
+                                                fontWeight: "600",
+                                                color: "#2f6fed",
+                                            }}
+                                        >
+                                            Hi,{" "}
+                                            {user?.name ||
+                                                user?.username ||
+                                                "User"}
+                                            !
+                                        </p>
+                                        <h5
+                                            className="profile-name"
+                                            style={{
+                                                margin: "0 0 4px 0",
+                                                fontSize: "16px",
+                                                fontWeight: "bold",
+                                                color: "#333",
+                                            }}
+                                        >
+                                            {user?.name ||
+                                                user?.username ||
+                                                "User"}
+                                        </h5>
+                                        <p
+                                            className="profile-role"
+                                            style={{
+                                                margin: "0 0 4px 0",
+                                                fontSize: "12px",
+                                                color: "#666",
+                                                fontWeight: "500",
+                                            }}
+                                        >
+                                            {user?.role || "User"}
+                                        </p>
+                                        <p
+                                            className="profile-email"
+                                            style={{
+                                                margin: "0",
+                                                fontSize: "12px",
+                                                color: "#888",
+                                            }}
+                                        >
+                                            {user?.email || ""}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="profile-links">
+                                    <NavLink
+                                        to={
+                                            isGlobalAdmin
+                                                ? "/dashboard/assetlens/profile"
+                                                : `/dashboard/org/${currentOrgId}/${
+                                                      user?.role === "user"
+                                                          ? "user"
+                                                          : "admin"
+                                                  }/profile`
+                                        }
+                                        className="profile-link"
+                                        onClick={() => setShowProfile(false)}
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="16"
+                                            fill="currentColor"
+                                            className="bi bi-person"
+                                            viewBox="0 0 16 16"
+                                        >
+                                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
+                                        </svg>
+                                        &nbsp; My Profile
+                                    </NavLink>
+                                    <button
+                                        className="profile-link logout-btn"
+                                        onClick={handleLogout}
+                                    >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -361,8 +477,14 @@ const NavBarOrgAdmin = () => {
                                             className="bi bi-box-arrow-right"
                                             viewBox="0 0 16 16"
                                         >
-                                            <path fillRule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
-                                            <path fillRule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"
+                                            />
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"
+                                            />
                                         </svg>
                                         &nbsp; Logout
                                     </button>
