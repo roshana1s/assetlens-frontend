@@ -1,0 +1,82 @@
+.camconfig-zone-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.camconfig-zone-list-item {
+    background: #f8f9fa;
+    border-radius: 7px;
+    margin-bottom: 8px;
+    padding: 8px 12px 6px 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: box-shadow 0.18s;
+    font-size: 0.97em;
+}
+
+.camconfig-zone-list-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.camconfig-zone-info {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.99em;
+}
+
+.camconfig-zone-name {
+    font-weight: 500;
+    color: #23306e;
+    letter-spacing: 0.01em;
+    font-size: 1em;
+}
+
+.camconfig-zone-status {
+    font-size: 0.93em;
+    font-weight: 500;
+    margin-left: 5px;
+    padding: 1px 7px;
+    border-radius: 5px;
+    background: #e3eafc;
+}
+
+.camconfig-zone-status.on {
+    color: #388e3c;
+    background: #e8f5e9;
+}
+
+.camconfig-zone-status.off {
+    color: #d32f2f;
+    background: #ffebee;
+}
+
+.camconfig-zone-coords {
+    font-size: 0.92em;
+    color: #374151;
+    margin-left: 2px;
+    margin-bottom: 1px;
+}
+
+.camconfig-zone-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 2px;
+}
+
+.camconfig-zone-btn {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 7px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.97em !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    transition: background 0.13s, color 0.13s;
+    font-weight: 400;
+}

@@ -4,23 +4,25 @@ import {
     Polygon,
     Tooltip,
     Polyline,
+    Marker,
     useMap,
-    CircleMarker,
-    Popup,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import ResetViewButton from "../ResetViewButton/ResetViewButton";
 import GridToggleButton from "../GridToggleButton/GridToggleButton";
 
-const DrawMapWithAssets = ({ zones, assetLocations }) => {
+// Camera icon SVG as Leaflet icon
+const cameraIcon = new L.Icon({
+    iconUrl: "https://cdn-icons-png.flaticon.com/512/747/747314.png",
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+});
+
+const DrawMapWithCam = ({ zones, cameras }) => {
     const [gridSize, setGridSize] = useState({ width: 1000, height: 320 });
     const [showGrid, setShowGrid] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
-
     const mapDivRef = useRef(null);
-
-    const role = "admin";
 
     const createGridLines = (width, height, step) => {
         const lines = [];
@@ -54,13 +56,9 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
                 setGridSize({ width: clientWidth, height: clientHeight });
             }
         };
-
         window.addEventListener("resize", handleResize);
         handleResize();
-
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     const gridLines = createGridLines(gridSize.width, gridSize.height, 10);
@@ -68,7 +66,7 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
     const StaticZoomMap = () => {
         const map = useMap();
         useEffect(() => {
-            map.setZoom(1); // Set the initial zoom level
+            map.setZoom(1);
         }, [map]);
         return null;
     };
@@ -87,21 +85,21 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
             ref={mapDivRef}
         >
             <MapContainer
-                key={JSON.stringify(zones)} // Add key to force re-render
-                center={[20, 20]} // Center the map at (20, 20)
+                key={JSON.stringify(zones) + JSON.stringify(cameras)}
+                center={[20, 20]}
                 zoom={1}
                 style={{
                     height: "100%",
                     width: "100%",
                     backgroundColor: "#F5F8FB",
                 }}
-                crs={L.CRS.Simple} // Use Simple CRS for pixel-based coordinates
+                crs={L.CRS.Simple}
                 maxBounds={[
                     [-gridSize.width, -gridSize.height],
                     [gridSize.width, gridSize.height],
                 ]}
-                minZoom={0} // Min zoom to prevent zooming out too far
-                maxZoom={4} // Max zoom to prevent zooming in too much
+                minZoom={0}
+                maxZoom={4}
             >
                 <StaticZoomMap />
                 <GridToggleButton
@@ -120,7 +118,7 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
                     ))}
                 {zones.map((zone, index) => (
                     <Polygon
-                        key={index}
+                        key={zone.zone_id || index}
                         positions={zone.coordinates}
                         color="#000057"
                         fillColor={zone.color}
@@ -140,65 +138,39 @@ const DrawMapWithAssets = ({ zones, assetLocations }) => {
                         </Tooltip>
                     </Polygon>
                 ))}
-                {assetLocations && assetLocations.map((asset, index) => (
-                    <CircleMarker
-                        key={`${asset.asset_id}-${asset.geofencing_breached}`}
-                        center={[asset.coordinates.x, asset.coordinates.y]}
-                        radius={8}
-                        color={
-                            asset.geofencing_breached ? "#FF0000" : "#0000FF"
-                        }
-                        fillColor={
-                            asset.geofencing_breached ? "#FF0000" : "#0000FF"
-                        }
-                        fillOpacity={0.8}
-                        eventHandlers={{
-                            click: () => {
-                                setShowPopup(true);
-                            },
-                        }}
-                    >
-                        <Tooltip direction="bottom" permanent>
-                            <span
-                                style={{
-                                    color: asset.geofencing_breached
-                                        ? "#FF0000"
-                                        : "#0000FF",
-                                    fontSize: "10px",
-                                    fontWeight: "bold",
-                                }}
-                            >
-                                {asset.name}
-                            </span>
-                        </Tooltip>
+                {cameras.map((cam, idx) => {
+                    if (!cam.cam_coordinates) return null;
+                    const pos = [cam.cam_coordinates.x, cam.cam_coordinates.y];
+                    // Create a custom Leaflet icon using the SVG with dynamic color
+                    const svgIcon = (color) =>
+                        L.divIcon({
+                            className: "",
+                            html: `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="${color}" viewBox="0 0 16 16">
+                                  <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+                                  <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/>
+                                </svg>
+                            `,
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 16],
+                        });
 
-                        {showPopup && (
-                            <Popup
-                                position={[
-                                    asset.coordinates.x,
-                                    asset.coordinates.y,
-                                ]}
-                                onClose={() => setShowPopup(false)}
-                                autoPan={true}
-                            >
-                                <div style={{ textAlign: "center" }}>
-                                    <h6>{asset.name || asset.asset_id}</h6>
-                                    <button
-                                        className="btn btn-sm btn-primary mt-2"
-                                        onClick={() =>
-                                            (window.location.href = `/${role}/asset/${asset.asset_id}`)
-                                        }
-                                    >
-                                        Show more details
-                                    </button>
-                                </div>
-                            </Popup>
-                        )}
-                    </CircleMarker>
-                ))}
+                    return (
+                        <Marker
+                            key={cam.zone_id}
+                            position={pos}
+                            icon={svgIcon(cam.working ? "#28a745" : "#dc3545")}
+                            opacity={1}
+                        >
+                            <Tooltip direction="top" permanent>
+                                <span>Camera {cam.working ? "On" : "Off"}</span>
+                            </Tooltip>
+                        </Marker>
+                    );
+                })}
             </MapContainer>
         </div>
     );
 };
 
-export default DrawMapWithAssets;
+export default DrawMapWithCam;

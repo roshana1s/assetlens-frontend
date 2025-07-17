@@ -59,8 +59,10 @@
 
 .asset-right {
   display: flex;
-  align-items: center;
-  gap: 70px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 200px;
 }
 
 .asset-icons {
@@ -155,4 +157,182 @@
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   position: relative;
+}
+
+/* Asset Status Indicators */
+.asset-status-indicators {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.asset-config-status-available {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.asset-config-status-assigned {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.asset-config-status-geofenced {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.asset-config-status-geofenced.enabled {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.asset-config-status-geofenced.disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+/* User Configuration Style Action Buttons */
+.user-config-action-btn {
+    background: none;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.user-config-edit-btn {
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.user-config-edit-btn:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.user-config-delete-btn {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.user-config-delete-btn:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Geofencing Control Styling */
+.asset-status-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 12px;
+}
+
+.geofencing-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.geofencing-toggle-label {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 500;
+    margin: 0;
+}
+
+.geofencing-status {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Asset Actions */
+.asset-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Bootstrap Modal Overrides for Asset Cards */
+.modal .modal-header {
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+}
+
+.modal .modal-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.modal .modal-body {
+  padding: 1.5rem;
+}
+
+.modal .modal-footer {
+  border-top: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.modal .btn {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+}
+
+.modal .btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.modal .btn-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.modal .btn-danger:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.modal .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.modal .btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.modal .form-control:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }

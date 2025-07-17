@@ -1,0 +1,90 @@
+/* Outer container */
+.floor-details-panel {
+    position: relative;
+    width: 25%;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+    margin: 8px 0 8px 8px;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header text (static) */
+.header-text {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+/* Scrollable content */
+.scrollable-content {
+  flex: 1; /* Take up remaining space between header and buttons */
+  overflow-y: auto; /* Enable vertical scrolling */
+  padding-right: 8px; /* Add padding for scrollbar */
+}
+
+/* Form group styling */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.combobox {
+  width: 100%;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+
+/* Timeline controls */
+.timeline-controls {
+  margin-top: 4px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.current-time {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+}
+
+.controls-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.controls-group button {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Adjust existing styles for new layout */
+.scrollable-content {
+  max-height: 80vh; /* Limit height to make space for timeline controls */
+}
+
+.apply-filters-btn {
+  margin-top: 8px;
+  width: 100%;
+}

@@ -11,7 +11,7 @@ const AssetList = ({ assets, onGeofencingUpdate, refreshAssets, onEditAsset }) =
             asset={asset}
             onGeofencingUpdate={onGeofencingUpdate}
             refreshAssets={refreshAssets}
-            onEditAsset={onEditAsset} // 🔥 pass here
+            onEditAsset={onEditAsset} 
           />
         ))
       ) : (

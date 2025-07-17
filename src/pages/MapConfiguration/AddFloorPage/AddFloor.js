@@ -96,7 +96,7 @@ const AddFloor = () => {
 
         try {
             const response = await axios.post(
-                `http://localhost:8000/maps/1/save-floor`, // Replace with your API endpoint
+                `http://localhost:8000/maps/1/save-floor`, 
                 newFloor
             );
             console.log(response.data);
