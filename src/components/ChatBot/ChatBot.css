@@ -19,12 +19,14 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 
                 0 0 0 5px rgba(78, 84, 200, 0.2);
     transition: all 0.3s ease;
+    opacity: 0.3; /* Transparent by default */
   }
   
   .chatbot-toggle:hover {
     transform: scale(1.1);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 
                 0 0 0 5px rgba(78, 84, 200, 0.3);
+    opacity: 1; /* Fully visible on hover */
   }
   
   .chatbot-icon {

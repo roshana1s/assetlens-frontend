@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./CameraFeed.css";
 import { Button, Spinner, Nav, Tab, Alert } from "react-bootstrap";
 
+const DUMMY_FRAME =
+    "https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/animation%2Floading-dummy-frame.gif?alt=media&token=b77f9ad7-7947-4182-87d9-2d6ffb3cd044";
+
 const CameraFeed = () => {
     const { camera_id } = useParams();
     const navigate = useNavigate();
@@ -365,22 +368,18 @@ const CameraFeed = () => {
                                         <div className="camera-feed-frame-container">
                                             <div className="camera-feed-frame-main">
                                                 <div className="camera-feed-frame-box">
-                                                    {liveFrame ? (
-                                                        <img
-                                                            src={
-                                                                liveFrame.frame_link
-                                                            }
-                                                            alt="Live Camera Feed"
-                                                            className="camera-feed-frame-img"
-                                                        />
-                                                    ) : (
-                                                        <div className="camera-feed-no-frame">
-                                                            <i className="bi bi-camera-video-off"></i>
-                                                            <span>
-                                                                No signal
-                                                            </span>
-                                                        </div>
-                                                    )}
+                                                    <img
+                                                        src={
+                                                            liveFrame?.frame_link ||
+                                                            DUMMY_FRAME
+                                                        }
+                                                        alt="Live Camera Feed"
+                                                        className="camera-feed-frame-img"
+                                                        onError={(e) => {
+                                                            e.target.src =
+                                                                DUMMY_FRAME;
+                                                        }}
+                                                    />
                                                     <div className="camera-feed-frame-overlay">
                                                         <span
                                                             className={`camera-feed-live-indicator ${
