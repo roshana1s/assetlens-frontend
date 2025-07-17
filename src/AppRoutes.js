@@ -34,20 +34,20 @@ const AppRouter = () => {
 
         {/* AssetLens Admin Routes */}
         <Route
-          path="/dashboard/assetlens"
+          path="/assetlens"
           element={
             <ProtectedRoute requiredRole="admin">
               <AssetLensAdminLayout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<AssetLensAdminDashboard />} />
+          <Route path="dashboard" element={<AssetLensAdminDashboard />} />
           <Route path="profile" element={<ProfilePage />} /> 
         </Route>
 
         {/* Organization Admin Routes */}
         <Route
-          path="/dashboard/org/:orgId/admin"
+          path="/admin"
           element={
             <ProtectedRoute 
               requiredRole={["Super Admin", "Admin"]} 
@@ -57,14 +57,14 @@ const AppRouter = () => {
             </ProtectedRoute>
           }
         >
-          <Route index element={<OrgAdminDashboard />} />
+          <Route path="dashboard" element={<OrgAdminDashboard />} />
           <Route path="heatmap" element={<HeatmapPage />} />
           <Route path="profile" element={<ProfilePage />} /> 
         </Route>
 
         {/* Organization User Routes */}
         <Route
-          path="/dashboard/org/:orgId/user"
+          path="/user"
           element={
             <ProtectedRoute 
               requiredRole={["user"]}
@@ -74,7 +74,7 @@ const AppRouter = () => {
             </ProtectedRoute>
           }
         >
-          <Route index element={<OrgUserDashboard />} />
+          <Route path="dashboard" element={<OrgUserDashboard />} />
           <Route path="profile" element={<ProfilePage />} /> 
         </Route>
 
