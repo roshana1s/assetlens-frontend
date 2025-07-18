@@ -182,10 +182,7 @@
 .analytics-grid {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  margin: 24px auto;
   max-width: 1400px;
-  padding: 0 24px;
 }
 
 @media (min-width: 992px) {
