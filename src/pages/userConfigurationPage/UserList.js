@@ -9,9 +9,7 @@ import {
     deleteRole,
 } from "./api";
 import "./UserConfiguration.css";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
-import Form from "react-bootstrap/Form";
+import { Button, Modal, Form } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FetchingData from "../../components/FetchingData/FetchingData";
@@ -139,19 +137,16 @@ const UserList = ({ orgId = 1 }) => {
         try {
             await createRole(orgId, roleName);
 
-            // Update UI
-            setRoles((prev) => [
-                ...prev,
-                {
-                    role_id: `new-${Date.now()}`,
-                    role_name: roleName,
-                    is_admin: false,
-                    is_deleted: false,
-                },
-            ]);
+            // Refetch roles safely
+            const updatedRoles = await fetchAllRoles(orgId);
+            if (updatedRoles && Array.isArray(updatedRoles)) {
+                setRoles(updatedRoles);
+            }
+            
             toast.success(`Created role: ${roleName}`);
             setNewRoleName("");
         } catch (error) {
+            console.error("Error creating role:", error);
             toast.error("Failed to add Role");
         }
     };
@@ -201,10 +196,16 @@ const UserList = ({ orgId = 1 }) => {
                 assets: editForm.selectedAssets,
             });
 
-            const data = await fetchAllUsers(orgId);
-            setAllUsers(data);
-            setFilteredUsers(data);
+            // Close modal first before refetching
             setShowEditModal(false);
+            
+            // Refetch data safely
+            const data = await fetchAllUsers(orgId);
+            if (data && Array.isArray(data)) {
+                setAllUsers(data);
+                setFilteredUsers(data);
+            }
+            
             toast.success("User updated successfully");
         } catch (error) {
             console.error("Error updating user:", error);
@@ -355,11 +356,16 @@ const UserList = ({ orgId = 1 }) => {
                 assigned_assets: addForm.selectedAssets, // Adding this as backup since API might check both
             });
 
-            // Success handling
-            const data = await fetchAllUsers(orgId);
-            setAllUsers(data);
-            setFilteredUsers(data);
+            // Close modal first before refetching
             setShowAddModal(false);
+            
+            // Success handling - refetch data safely
+            const data = await fetchAllUsers(orgId);
+            if (data && Array.isArray(data)) {
+                setAllUsers(data);
+                setFilteredUsers(data);
+            }
+            
             toast.success("User created successfully");
 
             // Reset form

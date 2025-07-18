@@ -12,6 +12,7 @@
   display: flex;
   flex: 1;
   overflow: hidden;
+  gap: 0;
 }
 
 .sidebar {
@@ -23,9 +24,11 @@
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
   position: relative;
   z-index: 10;
-  margin: 1rem 0 1rem 1rem;
+  margin: 1rem 0 0 1rem;
   border-radius: 16px;
   border: none;
+  height: calc(100vh - 70px - 1rem);
+  overflow: visible;
 }
 
 .sidebar-header {
@@ -136,9 +139,12 @@
 
 .main-content {
   flex: 1;
-  padding: 24px;
+  padding: 1rem;
   overflow-y: auto;
   background-color: #f9fafc;
+  border-radius: 16px;
+  margin: 1rem 1rem 0 0.5rem;
+  height: calc(100vh - 70px - 1rem);
 }
 
 .dashboard-content {

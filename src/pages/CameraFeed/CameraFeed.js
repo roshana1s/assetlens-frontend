@@ -226,7 +226,7 @@ const CameraFeed = () => {
                             className="camera-feed-back-btn"
                         >
                             <i className="bi bi-arrow-left"></i>
-                            Back to Cameras
+                            Back to Dashboard
                         </Button>
                     </div>
 

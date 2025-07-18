@@ -194,7 +194,7 @@ const AssetDetails = () => {
                             className="assetdetails-back-btn"
                         >
                             <i className="bi bi-arrow-left"></i>
-                            Back to Assets
+                            Back to Dashboard
                         </Button>
                     </div>
 
