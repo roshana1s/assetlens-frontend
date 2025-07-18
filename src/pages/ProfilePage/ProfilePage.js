@@ -185,7 +185,7 @@ const ProfilePage = () => {
                 <div className="profile-header">
                     <div className="avatar-container">
                         <img
-                            src={profile?.image_link || "/default-avatar.png"}
+                            src={profile?.image_link || "https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/default.png?alt=media&token=25cd23ac-7bf7-4b68-bdc6-76772f7361e1"}
                             alt="Profile"
                             className="profile-avatar"
                         />

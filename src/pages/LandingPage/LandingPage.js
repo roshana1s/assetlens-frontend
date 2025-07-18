@@ -119,8 +119,7 @@ const LandingPage = () => {
                     </motion.div>
                 </div>
                 <div className="hero-image">
-                    {/* <img src="./image.png" alt="AssetLens Dashboard" /> */}
-                    <img src="./image.jpg" alt="AssetLens Dashboard" />
+                    <img src="https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/background.jpg?alt=media&token=fefe9b47-51f2-4d2e-b944-8ec26210a725" alt="AssetLens Dashboard" />
                 </div>
             </section>
 
