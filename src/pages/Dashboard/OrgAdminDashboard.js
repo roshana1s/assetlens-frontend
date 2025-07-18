@@ -226,7 +226,13 @@ const OrgAdminDashboard = () => {
                         <LogoutButton />
                     </div>
                 </div>
-                <div className="main-content">{renderContent()}</div>
+                <div
+                    className={`main-content ${
+                        activeTab === "assets" ? "assets-active" : ""
+                    }`}
+                >
+                    {renderContent()}
+                </div>
             </div>
         </div>
     );
