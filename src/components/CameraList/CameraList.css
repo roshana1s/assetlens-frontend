@@ -1,0 +1,508 @@
+/* Camera List Container */
+.camera-list-container {
+    padding: 0;
+    margin: 0;
+    background: #f8f9fa;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Ensure container is visible even within dashboard assets-active context */
+.main-content.cameras-active .camera-list-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #f8f9fa !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Header */
+.camera-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: calc(100% - 1rem);
+    flex-shrink: 0;
+    border: 1px solid #e9ecef;
+}
+
+.camera-list-header h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Controls Container */
+.camera-controls {
+    display: flex !important;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    max-width: 800px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+    position: relative;
+    visibility: visible !important;
+    min-height: 50px;
+}
+
+/* Search */
+.camera-search {
+    flex: 1;
+    max-width: 450px;
+    background: transparent;
+    border-radius: 8px;
+    padding: 0;
+    border: none;
+    display: flex !important;
+    align-items: center;
+    visibility: visible !important;
+    height: 42px;
+}
+
+.camera-search .search-input-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.camera-search .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 2;
+}
+
+.camera-search .search-input {
+    width: 100%;
+    height: 100%;
+    padding: 0 12px 0 40px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    background: transparent;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.camera-search .search-input:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.camera-search .search-input::placeholder {
+    color: #6c757d;
+    font-weight: 400;
+}
+
+/* Floor Filter */
+.floor-filter {
+    min-width: 180px;
+    background: white;
+    border-radius: 8px;
+    padding: 0;
+    border: 1px solid #dee2e6;
+    display: flex !important;
+    align-items: center;
+    visibility: visible !important;
+    height: 42px;
+}
+
+.floor-select {
+    width: 100%;
+    height: 100%;
+    padding: 0 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    background: transparent;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    color: #495057;
+    box-sizing: border-box;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.floor-select:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+/* Camera Count */
+.camera-count {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+    min-width: 80px;
+    height: 42px;
+    flex-shrink: 0;
+}
+
+.camera-count .count-number {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0px;
+    line-height: 1;
+}
+
+.camera-count .count-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    line-height: 1;
+}
+
+/* Camera List */
+.camera-list {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: 0 0.5rem 0.5rem 0.5rem;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.camera-row {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.camera-row:hover {
+    background-color: #f8f9fa;
+}
+
+.camera-row:last-child {
+    border-bottom: none;
+}
+
+.camera-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-right: 15px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+}
+
+.camera-icon svg.working {
+    color: #28a745;
+}
+
+.camera-icon svg.offline {
+    color: #dc3545;
+}
+
+.camera-info {
+    flex: 1;
+}
+
+.camera-id {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.camera-details {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.camera-location {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.camera-location svg {
+    opacity: 0.7;
+}
+
+.camera-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.camera-status.working {
+    color: #28a745;
+}
+
+.camera-status.offline {
+    color: #dc3545;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.camera-actions {
+    color: #6c757d;
+    transition: color 0.3s ease;
+}
+
+.camera-row:hover .camera-actions {
+    color: #007bff;
+}
+
+/* Loading State */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #dc3545;
+}
+
+.error-icon {
+    margin-bottom: 15px;
+}
+
+.retry-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.retry-button:hover {
+    background: #0056b3;
+}
+
+/* No Cameras State */
+.no-cameras {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    text-align: center;
+}
+
+.no-cameras-icon {
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.no-cameras h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 18px;
+}
+
+.no-cameras p {
+    margin: 0;
+    max-width: 400px;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .camera-list-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .camera-controls {
+        margin-left: 0;
+        max-width: none;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .camera-search {
+        max-width: none;
+    }
+    
+    .floor-filter {
+        min-width: auto;
+    }
+    
+    .camera-count {
+        align-self: center;
+        min-width: 100px;
+    }
+    
+    .camera-row {
+        padding: 12px 15px;
+    }
+    
+    .camera-icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 12px;
+    }
+    
+    .camera-id {
+        font-size: 14px;
+    }
+    
+    .camera-details {
+        flex-direction: column;
+        gap: 5px;
+        align-items: flex-start;
+    }
+}
+
+/* Force visibility for camera controls */
+.camera-list-container .camera-controls,
+.camera-list-container .camera-search,
+.camera-list-container .floor-filter,
+.camera-list-container .camera-count {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.camera-list-container .camera-controls .camera-search,
+.camera-list-container .camera-controls .floor-filter {
+    display: flex !important;
+}
+
+/* Override dashboard styles that might hide camera controls */
+.main-content.cameras-active .camera-list-container,
+.main-content.cameras-active .camera-list-container .camera-controls,
+.main-content.cameras-active .camera-list-container .camera-search,
+.main-content.cameras-active .camera-list-container .floor-filter,
+.main-content.cameras-active .camera-list-container .camera-count {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1000 !important;
+}
+
+.main-content.cameras-active .camera-list-container .camera-controls .camera-search,
+.main-content.cameras-active .camera-list-container .camera-controls .floor-filter {
+    display: flex !important;
+}
+
+.main-content.cameras-active .camera-list-container .camera-list-header {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.main-content.cameras-active .camera-list-container .camera-controls {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 1px solid #e9ecef !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+@media (max-width: 480px) {
+    .camera-controls {
+        gap: 8px;
+    }
+    
+    .camera-count .count-number {
+        font-size: 18px;
+    }
+    
+    .camera-details {
+        gap: 3px;
+    }
+    
+    .camera-location {
+        font-size: 12px;
+    }
+    
+    .camera-status {
+        font-size: 10px;
+    }
+}
