@@ -442,13 +442,9 @@ const NavBarOrgAdmin = () => {
                                 <div className="profile-links">
                                     <NavLink
                                         to={
-                                            isGlobalAdmin
-                                                ? "/dashboard/assetlens/profile"
-                                                : `/dashboard/org/${currentOrgId}/${
-                                                      user?.role === "user"
-                                                          ? "user"
-                                                          : "admin"
-                                                  }/profile`
+                                            user?.role === "user"
+                                                ? "/user/profile"
+                                                : "/admin/profile"
                                         }
                                         className="profile-link"
                                         onClick={() => setShowProfile(false)}

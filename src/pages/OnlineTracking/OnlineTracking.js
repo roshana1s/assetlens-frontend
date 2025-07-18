@@ -6,11 +6,10 @@ import DrawMapWithAssets from "../../components/DrawMapWithAssets/DrawMapWithAss
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FetchingData from "../../components/FetchingData/FetchingData";
+import { useAuth } from "../../context/AuthContext";
 
 const OnlineTracking = () => {
-    const org_id = 1;
-    const user_id = "u0002";
-
+    const { user } = useAuth();
     const [floorId, setFloorId] = useState("");
     const [zoneId, setZoneId] = useState("ALL");
     const [assetId, setAssetId] = useState("ALL");
@@ -24,13 +23,14 @@ const OnlineTracking = () => {
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
+                if (!user || !user.org_id) return;
                 const mapRes = await axios.get(
-                    `http://localhost:8000/maps/1/get-map`
+                    `http://localhost:8000/maps/${user.org_id}/get-map`
                 );
                 setMapDetails(mapRes.data);
 
                 const filterRes = await axios.get(
-                    `http://localhost:8000/online-tracking/1/u0002/get-online-tracking-filters-initial`
+                    `http://localhost:8000/online-tracking/${user.org_id}/${user.user_id}/get-online-tracking-filters-initial`
                 );
                 setInitialFilterDetails(filterRes.data);
                 setInitialDataLoad(false);
@@ -42,10 +42,11 @@ const OnlineTracking = () => {
         };
 
         fetchInitialData();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
-        const socketUrl = `ws://localhost:8000/ws/online-tracking/${org_id}/${user_id}`;
+        if (!user || !user.org_id || !user.user_id) return;
+        const socketUrl = `ws://localhost:8000/ws/online-tracking/${user.org_id}/${user.user_id}`;
         const socket = new WebSocket(socketUrl);
         ws.current = socket;
 
@@ -69,7 +70,7 @@ const OnlineTracking = () => {
         socket.onclose = (event) => {
             console.log("WebSocket closed:", event);
         };
-    }, []);
+    }, [user]);
 
     const matchedFloor = (initialFilterDetails.floors || []).find(
         (floor) => floor.floor_id === floorId

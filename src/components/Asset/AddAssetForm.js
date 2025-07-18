@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./AddAssetForm.css";
 import Select from "react-select";
+import { useAuth } from "../../context/AuthContext";
 
 const AddAssetForm = ({ onClose, onSuccess }) => {
+    const { user } = useAuth();
     const [formData, setFormData] = useState({
         name: "",
         category_id: "",
@@ -25,15 +27,16 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
     const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
-        const orgId = 1;
         const fetchMeta = async () => {
+            if (!user || !user.org_id) return;
+
             try {
                 const [catRes, userRes, floorsRes] = await Promise.all([
-                    axios.get(`http://localhost:8000/categories/${orgId}`),
+                    axios.get(`http://localhost:8000/categories/${user.org_id}`),
                     axios.get(
-                        `http://localhost:8000/users/for-assets/${orgId}`
+                        `http://localhost:8000/users/for-assets/${user.org_id}`
                     ),
-                    axios.get(`http://localhost:8000/maps/${orgId}`),
+                    axios.get(`http://localhost:8000/maps/${user.org_id}`),
                 ]);
 
                 setCategories(catRes.data);
@@ -135,9 +138,9 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
 
         setIsFetchingZones(true);
         try {
-            const orgId = 1; // Replace with actual orgId if needed
+            if (!user || !user.org_id) return;
             const zonesPromises = selectedFloors.map((floorId) =>
-                axios.get(`http://localhost:8000/maps/${orgId}/${floorId}`)
+                axios.get(`http://localhost:8000/maps/${user.org_id}/${floorId}`)
             );
             const zonesResponses = await Promise.all(zonesPromises);
 
@@ -177,6 +180,7 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
         setError(null);
 
         try {
+            if (!user || !user.org_id) return;
             if (!formData.name.trim()) {
                 throw new Error("Asset name is required");
             }
@@ -201,7 +205,7 @@ const AddAssetForm = ({ onClose, onSuccess }) => {
                 is_deleted: false,
             };
 
-            await axios.post("http://localhost:8000/assets/1", assetData, {
+            await axios.post(`http://localhost:8000/assets/${user.org_id}`, assetData, {
                 headers: {
                     "Content-Type": "application/json",
                 },

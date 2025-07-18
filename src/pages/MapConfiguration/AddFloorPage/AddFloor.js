@@ -11,9 +11,10 @@ import Form from "react-bootstrap/Form";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./AddFloor.css";
+import { useAuth } from "../../../context/AuthContext";
 
 const AddFloor = () => {
-    
+    const { user } = useAuth();
     const [zoneName, setZoneName] = useState("");
     const [zoneColor, setZoneColor] = useState("#000000");
     const [coordinates, setCoordinates] = useState([]);
@@ -95,8 +96,9 @@ const AddFloor = () => {
         };
 
         try {
+            if (!user || !user.org_id) return;
             const response = await axios.post(
-                `http://localhost:8000/maps/1/save-floor`, 
+                `http://localhost:8000/maps/${user.org_id}/save-floor`,
                 newFloor
             );
             console.log(response.data);

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Select from "react-select";
 import "./EditAssetForm.css";
+import { useAuth } from "../../context/AuthContext";
 
 const EditAssetForm = ({ asset, onClose, onSuccess }) => {
+    const { user } = useAuth();
     const [formData, setFormData] = useState({
         name: asset.name || "",
         category_id: asset.category?.category_id || "",
@@ -27,9 +29,10 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
     const [imagePreview, setImagePreview] = useState(asset.image_link || null);
 
     useEffect(() => {
-        const orgId = 1;
         const fetchMeta = async () => {
             try {
+                if (!user || !user.org_id) return;
+                const orgId = user.org_id;
                 const [catRes, userRes, floorsRes] = await Promise.all([
                     axios.get(`http://localhost:8000/categories/${orgId}`),
                     axios.get(
@@ -58,6 +61,8 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
         const loadZonesForFloors = async (floorIds) => {
             setIsFetchingZones(true);
             try {
+                if (!user || !user.org_id) return;
+                const orgId = user.org_id;
                 const zonesPromises = floorIds.map((floorId) =>
                     axios.get(`http://localhost:8000/maps/${orgId}/${floorId}`)
                 );
@@ -165,8 +170,10 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
 
         setIsFetchingZones(true);
         try {
+            if (!user || !user.org_id) return;
+            const orgId = user.org_id;
             const zonesPromises = selectedFloors.map((floorId) =>
-                axios.get(`http://localhost:8000/maps/1/${floorId}`)
+                axios.get(`http://localhost:8000/maps/${orgId}/${floorId}`)
             );
             const zonesResponses = await Promise.all(zonesPromises);
 
@@ -214,8 +221,10 @@ const EditAssetForm = ({ asset, onClose, onSuccess }) => {
                 image_link: formData.image_link,
             };
 
+            if (!user || !user.org_id) return;
+            const orgId = user.org_id;
             await axios.put(
-                `http://localhost:8000/assets/1/${asset.asset_id}`,
+                `http://localhost:8000/assets/${orgId}/${asset.asset_id}`,
                 payload
             );
 

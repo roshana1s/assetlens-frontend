@@ -13,8 +13,10 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./EditFloor.css";
 import FetchingData from "../../../components/FetchingData/FetchingData";
+import { useAuth } from "../../../context/AuthContext";
 
 const EditFloor = () => {
+    const { user } = useAuth();
     const { floor_id } = useParams(); // Get floor_id from the URL
     const [floorName, setFloorName] = useState("");
     const [zones, setZones] = useState([]);
@@ -133,8 +135,9 @@ const EditFloor = () => {
         };
 
         try {
+            if (!user || !user.org_id) return;
             const response = await axios.put(
-                `http://localhost:8000/maps/1/update-floor/${floor_id}`,
+                `http://localhost:8000/maps/${user.org_id}/update-floor/${floor_id}`,
                 updatedFloor
             );
             console.log("Floor updated successfully:", response.data);

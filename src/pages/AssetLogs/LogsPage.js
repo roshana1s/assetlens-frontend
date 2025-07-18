@@ -4,8 +4,10 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaFilter, FaCalendarAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import './Logs.css';
+import { useAuth } from '../../context/AuthContext';
 
 const AssetLogsPage = () => {
+  const { user } = useAuth();
   const [logs, setLogs] = useState([]);
   const [filterOptions, setFilterOptions] = useState({
     floors: [],
@@ -28,7 +30,6 @@ const AssetLogsPage = () => {
     hasMore: false
   });
   const [loading, setLoading] = useState(true);
-  const orgId = 1;
 
   useEffect(() => {
     fetchFilterOptions();
@@ -41,7 +42,8 @@ const AssetLogsPage = () => {
 
   const fetchFilterOptions = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/logs/filter-options/${orgId}`);
+      if (!user?.org_id) return;
+      const response = await axios.get(`http://localhost:8000/logs/filter-options/${user.org_id}`);
       setFilterOptions(response.data);
     } catch (error) {
       console.error('Error fetching filter options:', error);
@@ -58,8 +60,8 @@ const AssetLogsPage = () => {
         skip: pagination.skip,
         limit: pagination.limit
       };
-
-      const response = await axios.get(`http://localhost:8000/logs/${orgId}`, { params });
+      if (!user?.org_id) return;
+      const response = await axios.get(`http://localhost:8000/logs/${user.org_id}`, { params });
       console.log('API Response:', response.data); // Debug log
       setLogs(response.data.data);
       setPagination({

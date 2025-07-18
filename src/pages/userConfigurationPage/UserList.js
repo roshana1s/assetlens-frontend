@@ -35,6 +35,7 @@ const UserList = ({ orgId = 1 }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [confirmationName, setConfirmationName] = useState("");
     const [newRoleName, setNewRoleName] = useState("");
+    const [newRoleIsAdmin, setNewRoleIsAdmin] = useState(false);
 
     // Form states
     const [editForm, setEditForm] = useState({
@@ -65,15 +66,18 @@ const UserList = ({ orgId = 1 }) => {
                     fetchAllRoles(orgId),
                 ]);
 
-                const assetsResponse = await axios.get(`http://localhost:8000/dashboard/assets/${orgId}`);
-                if (assetsResponse.status !== 200) throw new Error("Failed to fetch assets");
+                const assetsResponse = await axios.get(
+                    `http://localhost:8000/dashboard/assets/${orgId}`
+                );
+                if (assetsResponse.status !== 200)
+                    throw new Error("Failed to fetch assets");
                 const assetsData = assetsResponse.data;
                 const assetsList = Array.isArray(assetsData)
-                  ? assetsData.map(asset => ({
-                    id: asset.asset_id,
-                    name: asset.name
-                  }))
-                  : [];
+                    ? assetsData.map((asset) => ({
+                          id: asset.asset_id,
+                          name: asset.name,
+                      }))
+                    : [];
                 setAllAssets(assetsList);
 
                 setAllUsers(usersData);
@@ -135,16 +139,19 @@ const UserList = ({ orgId = 1 }) => {
         }
 
         try {
-            await createRole(orgId, roleName);
+            await createRole(orgId, roleName, newRoleIsAdmin);
 
             // Refetch roles safely
             const updatedRoles = await fetchAllRoles(orgId);
             if (updatedRoles && Array.isArray(updatedRoles)) {
                 setRoles(updatedRoles);
             }
-            
-            toast.success(`Created role: ${roleName}`);
+
+            toast.success(
+                `Created role: ${roleName}${newRoleIsAdmin ? " (Admin)" : ""}`
+            );
             setNewRoleName("");
+            setNewRoleIsAdmin(false);
         } catch (error) {
             console.error("Error creating role:", error);
             toast.error("Failed to add Role");
@@ -198,14 +205,14 @@ const UserList = ({ orgId = 1 }) => {
 
             // Close modal first before refetching
             setShowEditModal(false);
-            
+
             // Refetch data safely
             const data = await fetchAllUsers(orgId);
             if (data && Array.isArray(data)) {
                 setAllUsers(data);
                 setFilteredUsers(data);
             }
-            
+
             toast.success("User updated successfully");
         } catch (error) {
             console.error("Error updating user:", error);
@@ -358,14 +365,14 @@ const UserList = ({ orgId = 1 }) => {
 
             // Close modal first before refetching
             setShowAddModal(false);
-            
+
             // Success handling - refetch data safely
             const data = await fetchAllUsers(orgId);
             if (data && Array.isArray(data)) {
                 setAllUsers(data);
                 setFilteredUsers(data);
             }
-            
+
             toast.success("User created successfully");
 
             // Reset form
@@ -650,6 +657,7 @@ const UserList = ({ orgId = 1 }) => {
                 onHide={() => {
                     setShowRoleManagementModal(false);
                     setNewRoleName("");
+                    setNewRoleIsAdmin(false);
                 }}
                 size="lg"
             >
@@ -662,6 +670,11 @@ const UserList = ({ orgId = 1 }) => {
                             <div key={role.role_id} className="role-item">
                                 <div className="role-name">
                                     {role.role_name}
+                                    {role.is_admin && (
+                                        <span className="admin-badge">
+                                            Admin
+                                        </span>
+                                    )}
                                 </div>
                                 <button
                                     className="role-delete-btn"
@@ -684,6 +697,18 @@ const UserList = ({ orgId = 1 }) => {
                             onChange={(e) => setNewRoleName(e.target.value)}
                             className="role-input"
                         />
+                        <div className="admin-toggle-container">
+                            <Form.Check
+                                type="checkbox"
+                                id="admin-toggle"
+                                checked={newRoleIsAdmin}
+                                onChange={(e) =>
+                                    setNewRoleIsAdmin(e.target.checked)
+                                }
+                                label="Admin Role"
+                                className="admin-toggle"
+                            />
+                        </div>
                         <Button
                             variant="success"
                             onClick={handleAddRole}

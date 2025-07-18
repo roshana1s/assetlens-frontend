@@ -16,6 +16,7 @@ import Form from "react-bootstrap/Form";
 import { toast } from "react-toastify";
 import DeleteSuccessPopup from "./DeleteSuccessPopup";
 import EditAssetForm from "./EditAssetForm";
+import { useAuth } from "../../context/AuthContext";
 
 const AssetCard = ({
     asset,
@@ -23,6 +24,7 @@ const AssetCard = ({
     refreshAssets,
     onEditAsset,
 }) => {
+    const { user } = useAuth();
     const [geofencing, setGeofencing] = useState(asset.geofencing);
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -34,8 +36,9 @@ const AssetCard = ({
         const newStatus = !geofencing;
         setGeofencing(newStatus);
         try {
+            if (!user || !user.org_id) return;
             await axios.put(
-                `http://localhost:8000/assets/1/${asset.asset_id}`,
+                `http://localhost:8000/assets/${user.org_id}/${asset.asset_id}`,
                 {
                     geofencing: newStatus,
                 }
@@ -68,8 +71,9 @@ const AssetCard = ({
 
         setIsDeleting(true);
         try {
+            if (!user || !user.org_id) return;
             await axios.delete(
-                `http://localhost:8000/assets/1/${asset.asset_id}`
+                `http://localhost:8000/assets/${user.org_id}/${asset.asset_id}`
             );
             setShowConfirmPopup(false);
             setShowSuccessPopup(true);

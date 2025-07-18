@@ -2,15 +2,15 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./AssetDetails.css";
 import { Button, Spinner, Nav, Tab, Alert } from "react-bootstrap";
+import { useAuth } from "../../context/AuthContext";
 
 const DUMMY_FRAME =
     "https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/animation%2Floading-dummy-frame.gif?alt=media&token=b77f9ad7-7947-4182-87d9-2d6ffb3cd044";
 
 const AssetDetails = () => {
+    const { user } = useAuth();
     const { asset_id } = useParams();
     const navigate = useNavigate();
-    const org_id = 1;
-    const user_id = "u0002"; // You may need to get this from context/auth
     const ws = useRef(null);
 
     const [asset, setAsset] = useState(null);
@@ -27,10 +27,14 @@ const AssetDetails = () => {
 
     useEffect(() => {
         const fetchAsset = async () => {
+            if (!asset_id || !user?.org_id) {
+                setLoading(false);
+                return;
+            }
             setLoading(true);
             try {
                 const res = await fetch(
-                    `http://localhost:8000/dashboard/assets/${org_id}/${asset_id}`
+                    `http://localhost:8000/dashboard/assets/${user.org_id}/${asset_id}`
                 );
                 const data = await res.json();
                 setAsset(data);
@@ -44,7 +48,9 @@ const AssetDetails = () => {
 
     // WebSocket connection for live tracking
     useEffect(() => {
-        const socketUrl = `ws://localhost:8000/ws/online-tracking/${org_id}/${user_id}`;
+        if (!asset_id || !user?.org_id) return;
+        setIsConnected(false);
+        const socketUrl = `ws://localhost:8000/ws/online-tracking/${user.org_id}/${user.user_id}`;
         const socket = new WebSocket(socketUrl);
         ws.current = socket;
 
@@ -86,7 +92,7 @@ const AssetDetails = () => {
                 ws.current.close();
             }
         };
-    }, [asset_id, org_id, user_id]);
+    }, [asset_id, user]);
 
     // Function to handle video generation
     const handleGenerateVideo = async () => {
@@ -105,8 +111,9 @@ const AssetDetails = () => {
         setVideoUrl(null);
 
         try {
+            if (!user?.org_id) return;
             const response = await fetch(
-                `http://localhost:8000/asset-video/${org_id}/${asset_id}/video`,
+                `http://localhost:8000/asset-video/${user.org_id}/${asset_id}/video`,
                 {
                     method: "POST",
                     headers: {

@@ -8,9 +8,10 @@ import Modal from "react-bootstrap/Modal";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CameraConfiguration.css";
+import { useAuth } from "../../context/AuthContext";
 
 const CameraConfiguration = () => {
-    const org_id = 1;
+    const { user } = useAuth();
     const [floors, setFloors] = useState([]);
     const [selectedFloor, setSelectedFloor] = useState(null);
     const [zones, setZones] = useState([]);
@@ -23,8 +24,9 @@ const CameraConfiguration = () => {
     // Fetch floors and zones
     useEffect(() => {
         const fetchFloors = async () => {
+            if (!user?.org_id) return;
             const res = await axios.get(
-                `http://localhost:8000/maps/${org_id}/get-map`
+                `http://localhost:8000/maps/${user.org_id}/get-map`
             );
             setFloors(res.data);
         };
@@ -33,12 +35,13 @@ const CameraConfiguration = () => {
 
     useEffect(() => {
         if (!selectedFloor) return;
+        if (!user?.org_id) return;
         const floor = floors.find((f) => f.floor_id === selectedFloor);
         setZones(floor?.zones || []);
         // Fetch cameras for this floor
         axios
             .get(
-                `http://localhost:8000/cameras/${org_id}/get-cameras/${selectedFloor}`
+                `http://localhost:8000/cameras/${user.org_id}/get-cameras/${selectedFloor}`
             )
             .then((res) => setCameras(res.data.cameras || []))
             .catch(() => setCameras([]));
@@ -96,8 +99,9 @@ const CameraConfiguration = () => {
         setCameras(newCameras);
 
         console.log("Saving cameras:", newCameras);
+        if (!user?.org_id) return;
         await axios.post(
-            `http://localhost:8000/cameras/${org_id}/set-cameras/${selectedFloor}`,
+            `http://localhost:8000/cameras/${user.org_id}/set-cameras/${selectedFloor}`,
             { cameras: newCameras }
         );
 
@@ -108,8 +112,9 @@ const CameraConfiguration = () => {
     const handleRemoveCamera = async (zone_id) => {
         const updatedCameras = cameras.filter((c) => c.zone_id !== zone_id);
         setCameras(updatedCameras);
+        if (!user?.org_id) return;
         await axios.post(
-            `http://localhost:8000/cameras/${org_id}/set-cameras/${selectedFloor}`,
+            `http://localhost:8000/cameras/${user.org_id}/set-cameras/${selectedFloor}`,
             { cameras: updatedCameras }
         );
         toast.info("Camera removed!");
@@ -120,8 +125,9 @@ const CameraConfiguration = () => {
             c.zone_id === zone_id ? { ...c, working: !c.working } : c
         );
         setCameras(updatedCameras);
+        if (!user?.org_id) return;
         await axios.post(
-            `http://localhost:8000/cameras/${org_id}/set-cameras/${selectedFloor}`,
+            `http://localhost:8000/cameras/${user.org_id}/set-cameras/${selectedFloor}`,
             { cameras: updatedCameras }
         );
         const cam = updatedCameras.find((c) => c.zone_id === zone_id);

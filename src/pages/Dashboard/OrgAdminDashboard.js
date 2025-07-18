@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
 import LogoutButton from "../../components/Logout/LogoutButton";
 import HeatmapPage from "../Dashboard/Heatmap/HeatmapPage";
 import ProfilePage from "../../pages/ProfilePage/ProfilePage";
@@ -8,7 +7,6 @@ import CameraList from "../../components/CameraList/CameraList";
 import "./OrgAdminDashboard.css";
 
 const OrgAdminDashboard = () => {
-    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState("analytics");
 
     const icons = {

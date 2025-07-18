@@ -8,20 +8,21 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./MapConfiguration.css";
 import FetchingData from "../../components/FetchingData/FetchingData";
+import { useAuth } from "../../context/AuthContext";
 
 const MapConfiguration = () => {
-    const org_id = 1;
-
+    const { user } = useAuth();
     const [mapDetails, setMapDetails] = useState([]);
     const [selectedFloor, setSelectedFloor] = useState(null);
     const [show, setShow] = useState(false);
     const [floorToDelete, setFloorToDelete] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    const handleDeleteConfirm = async (org_id, floor_id) => {
+    const handleDeleteConfirm = async (floor_id) => {
         try {
+            if (!user?.org_id || !floor_id) return;
             const response = await axios.delete(
-                `http://localhost:8000/maps/${org_id}/delete-floor/${floor_id}`
+                `http://localhost:8000/maps/${user.org_id}/delete-floor/${floor_id}`
             );
             console.log(response.data);
             setMapDetails((prev) =>
@@ -46,11 +47,12 @@ const MapConfiguration = () => {
     }, [mapDetails, selectedFloor]);
 
     useEffect(() => {
-        const fetchData = async (org_id) => {
+        const fetchData = async () => {
             try {
+                if (!user.org_id) return;
                 setLoading(true);
                 const response = await axios.get(
-                    `http://localhost:8000/maps/${org_id}/get-map`
+                    `http://localhost:8000/maps/${user.org_id}/get-map`
                 );
                 console.log(response.data);
                 setMapDetails(response.data);
@@ -62,8 +64,8 @@ const MapConfiguration = () => {
             }
         };
 
-        fetchData(org_id); // Pass the organization ID (e.g., 1)
-    }, []);
+        fetchData(); // Pass the organization ID (e.g., 1)
+    }, [user]);
 
     return (
         <>
@@ -231,7 +233,7 @@ const MapConfiguration = () => {
                         <Button
                             variant="danger"
                             onClick={() => {
-                                handleDeleteConfirm(org_id, floorToDelete);
+                                handleDeleteConfirm(floorToDelete);
                                 setShow(false);
                             }}
                         >

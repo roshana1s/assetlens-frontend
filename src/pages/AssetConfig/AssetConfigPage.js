@@ -19,8 +19,10 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../../context/AuthContext";
 
 const AssetConfigPage = () => {
+    const { user } = useAuth();
     const [assets, setAssets] = useState([]);
     const [filteredAssets, setFilteredAssets] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -33,14 +35,14 @@ const AssetConfigPage = () => {
     const [editingAsset, setEditingAsset] = useState(null);
     const [showCategoryManager, setShowCategoryManager] = useState(false);
 
-    const orgId = 1;
-
     useEffect(() => {
         const fetchData = async () => {
             try {
+                if (!user?.org_id || !user?.user_id) return;
+
                 const [assetRes, categoryRes] = await Promise.all([
-                    axios.get(`http://localhost:8000/assets/${orgId}`),
-                    axios.get(`http://localhost:8000/categories/${orgId}`),
+                    axios.get(`http://localhost:8000/assets/${user.org_id}`),
+                    axios.get(`http://localhost:8000/categories/${user.org_id}`),
                 ]);
                 setAssets(assetRes.data);
                 setCategories(categoryRes.data);
@@ -62,8 +64,9 @@ const AssetConfigPage = () => {
 
     const refreshAssets = async () => {
         try {
+            if (!user?.org_id) return;
             const res = await axios.get(
-                `http://localhost:8000/assets/${orgId}`
+                `http://localhost:8000/assets/${user.org_id}`
             );
             setAssets(res.data);
             filterAssets(
@@ -80,8 +83,9 @@ const AssetConfigPage = () => {
 
     const refreshCategories = async () => {
         try {
+            if (!user?.org_id) return;
             const res = await axios.get(
-                `http://localhost:8000/categories/${orgId}`
+                `http://localhost:8000/categories/${user.org_id}`
             );
             setCategories(res.data);
         } catch (err) {
@@ -390,6 +394,7 @@ const AssetConfigPage = () => {
                 </Modal.Header>
                 <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
                     <CategoryManager
+                        orgId={user.org_id}   
                         onClose={() => setShowCategoryManager(false)}
                         onCategoryChange={() => {
                             refreshCategories();

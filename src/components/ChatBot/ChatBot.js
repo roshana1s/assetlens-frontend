@@ -4,8 +4,10 @@ import axios from "axios";
 import "./ChatBot.css";
 import { Button, Card, Spinner } from "react-bootstrap";
 import * as Babel from "@babel/standalone";
+import { useAuth } from "../../context/AuthContext";
 
 const ChatBot = () => {
+    const { user } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
@@ -64,8 +66,9 @@ const ChatBot = () => {
         // get chat history
         const getChatHistory = async (user_id) => {
             try {
+                if (!user || !user.org_id) return;
                 const response = await axios.get(
-                    `http://localhost:8000/chat/1/chat-history/${user_id}`
+                    `http://localhost:8000/chat/${user.org_id}/chat-history/${user_id}`
                 );
                 if (response.data && response.data.length > 0) {
                     setMessages(response.data);
@@ -104,9 +107,10 @@ const ChatBot = () => {
         const sendMessage = async (message) => {
             setLoading(true);
             try {
+                if (!user || !user.org_id) return;
                 console.log(message);
                 const response = await axios.post(
-                    "http://localhost:8000/chat/1/chatbot/u0003",
+                    `http://localhost:8000/chat/${user.org_id}/chatbot/${user.user_id}`,
                     {
                         user_query: message,
                     }

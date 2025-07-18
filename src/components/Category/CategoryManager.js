@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./CategoryManager.css";
 
-const CategoryManager = ({ orgId = 1, onClose, onCategoryChange }) => {
+const CategoryManager = ({ orgId, onClose, onCategoryChange }) => {
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [error, setError] = useState(null);

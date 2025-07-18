@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./CameraFeed.css";
 import { Button, Spinner, Nav, Tab, Alert } from "react-bootstrap";
+import { useAuth } from "../../context/AuthContext";
 
 const DUMMY_FRAME =
     "https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/animation%2Floading-dummy-frame.gif?alt=media&token=b77f9ad7-7947-4182-87d9-2d6ffb3cd044";
@@ -9,8 +10,7 @@ const DUMMY_FRAME =
 const CameraFeed = () => {
     const { camera_id } = useParams();
     const navigate = useNavigate();
-    const org_id = 1;
-    const user_id = "u0002"; // You may need to get this from context/auth
+    const { user } = useAuth();
     const ws = useRef(null);
 
     const [camera, setCamera] = useState(null);
@@ -30,18 +30,10 @@ const CameraFeed = () => {
         const fetchCamera = async () => {
             setLoading(true);
             try {
+                if (!user?.org_id) return;
                 const res = await fetch(
-                    `http://localhost:8000/cameras/${org_id}/get-camera/${camera_id}`
+                    `http://localhost:8000/cameras/${user.org_id}/get-camera/${camera_id}`
                 );
-                // This gives below document:
-                // {
-                //     "floor_id": floor_id,
-                //     "zone_id": zone_id,
-                //     "coordinates": camera.get("coordinates"),
-                //     "working": camera.get("working"),
-                //     "floor_name": map_document.get("floorName"),
-                //     "zone_name": zone.get("name")
-                // }
                 const data = await res.json();
                 setCamera(data);
                 setError(null);
@@ -52,11 +44,12 @@ const CameraFeed = () => {
             setLoading(false);
         };
         fetchCamera();
-    }, [camera_id, org_id]);
+    }, [camera_id, user]);
 
     // WebSocket connection for camera feed
     useEffect(() => {
-        const socketUrl = `ws://localhost:8000/ws/online-tracking/${org_id}/${user_id}`;
+        if (!user?.org_id) return;
+        const socketUrl = `ws://localhost:8000/ws/online-tracking/${user.org_id}/${user.id}`;
         const socket = new WebSocket(socketUrl);
         ws.current = socket;
 
@@ -73,7 +66,7 @@ const CameraFeed = () => {
                 // When WebSocket sends a message, fetch the current frame with timestamp
                 if (wsData.timestamp) {
                     const frameResponse = await fetch(
-                        `http://localhost:8000/cameras/${org_id}/get-frame/${camera_id}`,
+                        `http://localhost:8000/cameras/${user.org_id}/get-frame/${camera_id}`,
                         {
                             method: "POST",
                             headers: {
@@ -87,12 +80,6 @@ const CameraFeed = () => {
 
                     if (frameResponse.ok) {
                         const frameData = await frameResponse.json();
-                        // This gives below document:
-                        // {
-                        //     "timestamp": frame_document["timestamp"],
-                        //     "zone_id": zone_id,
-                        //     "frame_link": frame_link
-                        // }
                         setLiveFrame(frameData);
                         setLastUpdate(new Date(frameData.timestamp));
                     }
@@ -118,7 +105,7 @@ const CameraFeed = () => {
                 ws.current.close();
             }
         };
-    }, [camera_id, org_id, user_id]);
+    }, [camera_id, user]);
 
     // Function to handle camera video generation
     const handleGenerateVideo = async () => {
@@ -137,8 +124,9 @@ const CameraFeed = () => {
         setVideoUrl(null);
 
         try {
+            if (!user?.org_id) return;
             const response = await fetch(
-                `http://localhost:8000/cameras/${org_id}/get-video-file/${camera_id}`,
+                `http://localhost:8000/cameras/${user.org_id}/get-video-file/${camera_id}`,
                 {
                     method: "POST",
                     headers: {

@@ -16,8 +16,10 @@ import {
     BsSkipEndFill,
 } from "react-icons/bs";
 import FetchingData from "../../components/FetchingData/FetchingData";
+import { useAuth } from "../../context/AuthContext";
 
 const PastTracking = () => {
+    const { user } = useAuth();
     const [floorId, setFloorId] = useState("");
     const [zoneId, setZoneId] = useState("ALL");
     const [assetId, setAssetId] = useState("ALL");
@@ -35,18 +37,17 @@ const PastTracking = () => {
     const [initialDataLoad, setInitialDataLoad] = useState(true);
     const [getData, setGetData] = useState(false);
 
-    const user_id = "u0002";
-
     useEffect(() => {
-        const fetchDataAndFilters = async (org_id) => {
+        const fetchDataAndFilters = async () => {
             try {
+                if (!user || !user.org_id) return;
                 const mapResponse = await axios.get(
-                    `http://localhost:8000/maps/${org_id}/get-map`
+                    `http://localhost:8000/maps/${user.org_id}/get-map`
                 );
                 setMapDetails(mapResponse.data);
 
                 const filterResponse = await axios.get(
-                    `http://localhost:8000/past-tracking/1/u0003/get-past-tracking-filters-initial`
+                    `http://localhost:8000/past-tracking/${user.org_id}/${user.user_id}/get-past-tracking-filters-initial`
                 );
                 setInitialFilterDetails(filterResponse.data);
                 setInitialDataLoad(false);
@@ -55,8 +56,8 @@ const PastTracking = () => {
             }
         };
 
-        fetchDataAndFilters(1);
-    }, []);
+        fetchDataAndFilters();
+    }, [user]);
 
     useEffect(() => {
         let interval;
@@ -76,9 +77,10 @@ const PastTracking = () => {
 
     const fetchLocations = async (filters) => {
         try {
+            if (!user || !user.org_id) return;
             setGetData(true);
             const response = await axios.post(
-                `http://localhost:8000/past-tracking/1/past-tracking-locations`,
+                `http://localhost:8000/past-tracking/${user.org_id}/${user.user_id}/past-tracking-locations`,
                 filters
             );
             const sortedFrames = response.data.sort(
@@ -100,7 +102,7 @@ const PastTracking = () => {
         }
 
         const filterData = {
-            user_id: user_id,
+            user_id: user.user_id,
             floor_id: floorId,
             zone_id: zoneId,
             asset_id: assetId,
