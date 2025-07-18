@@ -198,10 +198,10 @@ import DrawMapWithAssets from "../../components/DrawMapWithAssets/DrawMapWithAss
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import NavBarOrgAdmin from "../../components/NavBarOrgAdmin/NavBarOrgAdmin";
-import { useAuth } from "../../context/AuthContext"; // Import the auth context
+import { useAuth } from "../../context/AuthContext"; 
 
 const OnlineTracking = () => {
-    const { currentOrgId, user } = useAuth(); // Get org and user from auth context
+    const { currentOrgId, user } = useAuth(); 
     const [floorId, setFloorId] = useState("");
     const [zoneId, setZoneId] = useState("ALL");
     const [assetId, setAssetId] = useState("ALL");
@@ -212,7 +212,7 @@ const OnlineTracking = () => {
     const ws = useRef(null);
 
     useEffect(() => {
-        if (!currentOrgId || !user?.user_id) return; // Wait until IDs are available
+        if (!currentOrgId || !user?.user_id) return;
 
         const fetchInitialData = async () => {
             try {
@@ -232,10 +232,9 @@ const OnlineTracking = () => {
         };
 
         fetchInitialData();
-    }, [currentOrgId, user]); // Add dependencies
-
+    }, [currentOrgId, user]); 
     useEffect(() => {
-        if (!currentOrgId || !user?.user_id) return; // Wait until IDs are available
+        if (!currentOrgId || !user?.user_id) return;
 
         const socketUrl = `ws://localhost:8000/ws/online-tracking/${currentOrgId}/${user.user_id}`;
         const socket = new WebSocket(socketUrl);
@@ -263,11 +262,10 @@ const OnlineTracking = () => {
         };
 
         return () => {
-            socket.close(); // Clean up on unmount
+            socket.close(); 
         };
-    }, [currentOrgId, user]); // Add dependencies
+    }, [currentOrgId, user]); 
 
-    // Rest of the component remains the same...
     const matchedFloor = (initialFilterDetails.floors || []).find(
         (floor) => floor.floor_id === floorId
     );

@@ -5,8 +5,8 @@ import './NotificationPage.css';
 
 const NotificationPage = () => {
     const { 
-        allNotifications, 
-        fetchAllNotifications 
+        notifications: allNotifications = [],
+        fetchNotifications: fetchAllNotifications,
     } = useNotifications();
     const { currentOrgId } = useAuth();
 

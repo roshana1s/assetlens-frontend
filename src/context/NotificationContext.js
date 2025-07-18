@@ -7,137 +7,146 @@ const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
   const { user, currentOrgId, token } = useAuth();
-  const { socket } = useWebSocket();
+  const { notificationMessages, clearNotificationMessages } = useWebSocket();
   const [notifications, setNotifications] = useState([]);
-  const [allNotifications, setAllNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchNotifications = async () => {
-    if (!currentOrgId || !token) return;
-    
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const [notifsResponse, countResponse] = await Promise.all([
-        axios.get(`http://localhost:8000/notifications/${currentOrgId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get(`http://localhost:8000/notifications/unread/${currentOrgId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      ]);
-      
-      setNotifications(notifsResponse.data);
-      setUnreadCount(countResponse.data.unread_count);
-    } catch (err) {
-      console.error('Failed to fetch notifications:', err);
-      setError(err.response?.data?.detail || 'Failed to load notifications');
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!currentOrgId || !token) return;
 
-  const fetchAllNotifications = async (skip = 0, limit = 20) => {
-    if (!currentOrgId || !token) return;
-    
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        `http://localhost:8000/notifications/all/${currentOrgId}?skip=${skip}&limit=${limit}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setAllNotifications(response.data);
-    } catch (err) {
-      console.error('Failed to fetch all notifications:', err);
-      setError(err.response?.data?.detail || 'Failed to load all notifications');
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    setError(null);
 
-  useEffect(() => {
-    if (socket) {
-      const handleNotification = (data) => {
-    // Handle different message types
-    if (data.type === 'notification') {
-        // New notification
-        setNotifications(prev => [data.data, ...prev.slice(0, 4)]);
-        setAllNotifications(prev => [data.data, ...prev]);
-        setUnreadCount(prev => prev + 1);
-    } else if (data.type === 'unread_count') {
-        // Update unread count
-        setUnreadCount(data.data);
-    }
+    const response = await axios.get(`http://localhost:8000/notifications/${currentOrgId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    setNotifications(prev => {
+      if (prev.length === 0) {
+        return response.data;
+      } else {
+
+        return prev;
+      }
+    });
+  } catch (err) {
+    console.error('Failed to fetch notifications:', err);
+    setError('Failed to load notifications');
+  } finally {
+    setLoading(false);
+  }
 };
 
-      socket.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          handleNotification(data);
-        } catch (err) {
-          console.error('Error parsing WebSocket message:', err);
-        }
-      };
-
-      return () => {
-        socket.onmessage = null;
-      };
+  const fetchUnreadCount = async () => {
+    if (!currentOrgId || !token) return;
+    
+    try {
+      const response = await axios.get(`http://localhost:8000/notifications/unread/${currentOrgId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUnreadCount(response.data.unread_count);
+    } catch (err) {
+      console.error('Failed to fetch unread count:', err);
     }
-  }, [socket]);
+  };
+
+  // Process WebSocket messages for real-time updates
+  useEffect(() => {
+    if (notificationMessages.length === 0) return;
+    console.log("Processing notification messages:", notificationMessages);
+
+    const newMessages = [...notificationMessages];
+    clearNotificationMessages();
+
+    newMessages.forEach(message => {
+      console.log("Processing message type:", message.type, "with data:", message);
+      switch(message.type) {
+        case 'new_notification':
+          console.log("Adding new notification:", message.data);
+          setNotifications(prev => {
+            console.log("Previous notifications count:", prev.length);
+            return [message.data, ...prev];
+          });
+          setUnreadCount(prev => prev + 1);
+          break;
+          
+        case 'unread_count':
+          console.log("Updating unread count to:", message.data);
+          setUnreadCount(message.data);
+          break;
+          
+        case 'initial_data':
+          console.log("Initial data received with", 
+                    message.notifications?.length, "notifications");
+          setNotifications(message.notifications || []);
+          setUnreadCount(message.unread_count || 0);
+          break;
+          
+        case 'heartbeat':
+          console.log("Heartbeat received");
+          // Ignore heartbeat messages
+          break;
+          
+        default:
+          console.log('Unhandled message type:', message.type);
+      }
+    });
+  }, [notificationMessages, clearNotificationMessages]);
 
   useEffect(() => {
     if (user && currentOrgId) {
       fetchNotifications();
+      fetchUnreadCount();
     }
   }, [user, currentOrgId, token]);
 
   const markAsRead = async (notificationId) => {
     try {
-        await axios.patch(
-            `http://localhost:8000/notifications/${notificationId}/read?org_id=${currentOrgId}`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-        // No need to manually update count - will come via WebSocket
+      await axios.patch(
+        `http://localhost:8000/notifications/${notificationId}/read?org_id=${currentOrgId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Optimistic update
+      setNotifications(prev => 
+        prev.map(n => n._id === notificationId ? { ...n, is_read: true } : n)
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (err) {
-        console.error('Failed to mark notification as read:', err);
+      console.error('Failed to mark notification as read:', err);
     }
-};
+  };
 
   const markAllAsRead = async () => {
     try {
-        await axios.patch(
-            `http://localhost:8000/notifications/mark-all-read/${currentOrgId}`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-        
-        // Optimistically update the UI
-        setUnreadCount(0);
-        setNotifications(prev => 
-            prev.map(n => ({ ...n, is_read: true }))
-        );
-        setAllNotifications(prev => 
-            prev.map(n => ({ ...n, is_read: true }))
-        );
+      await axios.patch(
+        `http://localhost:8000/notifications/mark-all-read/${currentOrgId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Optimistic update
+      setNotifications(prev => 
+        prev.map(n => ({ ...n, is_read: true }))
+      );
+      setUnreadCount(0);
     } catch (err) {
-        console.error('Failed to mark all notifications as read:', err);
+      console.error('Failed to mark all notifications as read:', err);
     }
-};
+  };
 
   return (
     <NotificationContext.Provider
       value={{
         notifications,
-        allNotifications,
         unreadCount,
         loading,
         error,
         fetchNotifications,
-        fetchAllNotifications,
         markAsRead,
         markAllAsRead
       }}
