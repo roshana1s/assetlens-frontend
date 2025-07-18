@@ -4,6 +4,7 @@ import HeatmapPage from "../Dashboard/Heatmap/HeatmapPage";
 import ProfilePage from "../../pages/ProfilePage/ProfilePage";
 import AssetList from "../../components/AssetList/AssetList";
 import CameraList from "../../components/CameraList/CameraList";
+import Report from "../../pages/Report/Report";
 import "./OrgAdminDashboard.css";
 
 const OrgAdminDashboard = () => {
@@ -127,12 +128,7 @@ const OrgAdminDashboard = () => {
             case "reports":
                 return (
                     <div className="dashboard-content">
-                        <h2>Reports</h2>
-                        <div className="placeholder-content">
-                            <p>
-                                Reports functionality will be implemented here
-                            </p>
-                        </div>
+                        <Report />
                     </div>
                 );
             case "assets":
