@@ -464,7 +464,7 @@ const NavBarOrgAdmin = () => {
                                     <div className="no-alerts">
                                         No new alerts
                                         <NavLink
-                                            to="/alerts"
+                                            to={`/dashboard/org/${currentOrgId}/admin/alerts`}
                                             className="view-all-link"
                                             onClick={() => setShowAlerts(false)}
                                         >

@@ -17,16 +17,19 @@ export const AlertProvider = ({ children }) => {
     
     try {
       setLoading(true);
+      console.log('Fetching alerts for org:', currentOrgId);  // Debug log
       const response = await axios.get(
         `http://localhost:8000/alerts/${currentOrgId}`, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      console.log('Alerts response:', response.data);  // Debug log
       setAlerts(response.data);
       
       const countResponse = await axios.get(
         `http://localhost:8000/alerts/unread/${currentOrgId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      console.log('Unread count:', countResponse.data.unread_count);  // Debug log
       setUnreadCount(countResponse.data.unread_count);
     } catch (error) {
       console.error('Error fetching alerts:', error);
