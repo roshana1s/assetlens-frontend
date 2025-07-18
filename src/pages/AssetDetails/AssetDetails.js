@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./AssetDetails.css";
 import { Button, Spinner, Nav, Tab, Alert } from "react-bootstrap";
 import { useAuth } from "../../context/AuthContext";
+import FetchingData from "../../components/FetchingData/FetchingData";
 
 const DUMMY_FRAME =
     "https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/animation%2Floading-dummy-frame.gif?alt=media&token=b77f9ad7-7947-4182-87d9-2d6ffb3cd044";
@@ -171,11 +172,7 @@ const AssetDetails = () => {
     }, [videoUrl]);
 
     if (loading) {
-        return (
-            <div className="assetdetails-loading">
-                <Spinner animation="border" variant="primary" />
-            </div>
-        );
+        return <FetchingData />;
     }
 
     if (!asset) {
@@ -201,7 +198,7 @@ const AssetDetails = () => {
                             className="assetdetails-back-btn"
                         >
                             <i className="bi bi-arrow-left"></i>
-                            Back to Dashboard
+                            Back
                         </Button>
                     </div>
 

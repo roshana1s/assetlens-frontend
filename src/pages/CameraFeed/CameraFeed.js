@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./CameraFeed.css";
 import { Button, Spinner, Nav, Tab, Alert } from "react-bootstrap";
 import { useAuth } from "../../context/AuthContext";
+import FetchingData from "../../components/FetchingData/FetchingData";
 
 const DUMMY_FRAME =
     "https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/animation%2Floading-dummy-frame.gif?alt=media&token=b77f9ad7-7947-4182-87d9-2d6ffb3cd044";
@@ -184,11 +185,7 @@ const CameraFeed = () => {
     }, [videoUrl]);
 
     if (loading) {
-        return (
-            <div className="camera-feed-loading">
-                <Spinner animation="border" variant="primary" />
-            </div>
-        );
+        return <FetchingData />;
     }
 
     if (!camera) {
@@ -214,7 +211,7 @@ const CameraFeed = () => {
                             className="camera-feed-back-btn"
                         >
                             <i className="bi bi-arrow-left"></i>
-                            Back to Dashboard
+                            Back
                         </Button>
                     </div>
 
@@ -719,14 +716,7 @@ const CameraFeed = () => {
             </div>
 
             {/* Loading Overlay */}
-            {loading && (
-                <div className="camera-feed-loading-overlay">
-                    <div className="camera-feed-loading-content">
-                        <Spinner animation="border" variant="primary" />
-                        <span>Loading camera details...</span>
-                    </div>
-                </div>
-            )}
+            {loading && <FetchingData />}
 
             {/* Error State */}
             {error && (

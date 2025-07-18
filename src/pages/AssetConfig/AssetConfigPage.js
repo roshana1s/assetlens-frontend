@@ -42,7 +42,9 @@ const AssetConfigPage = () => {
 
                 const [assetRes, categoryRes] = await Promise.all([
                     axios.get(`http://localhost:8000/assets/${user.org_id}`),
-                    axios.get(`http://localhost:8000/categories/${user.org_id}`),
+                    axios.get(
+                        `http://localhost:8000/categories/${user.org_id}`
+                    ),
                 ]);
                 setAssets(assetRes.data);
                 setCategories(categoryRes.data);
@@ -394,12 +396,13 @@ const AssetConfigPage = () => {
                 </Modal.Header>
                 <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
                     <CategoryManager
-                        orgId={user.org_id}   
+                        orgId={user.org_id}
                         onClose={() => setShowCategoryManager(false)}
                         onCategoryChange={() => {
                             refreshCategories();
                             toast.success("Categories updated successfully!");
                         }}
+                        inline={true}
                     />
                 </Modal.Body>
             </Modal>

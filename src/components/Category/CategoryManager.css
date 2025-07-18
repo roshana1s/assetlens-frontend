@@ -68,3 +68,16 @@
     margin-top: 12px;
   }
   
+  .category-content-inline {
+    padding: 0;
+    width: 100%;
+    max-height: none;
+    overflow-y: visible;
+  }
+  
+  .category-content-inline h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 18px;
+  }
+  

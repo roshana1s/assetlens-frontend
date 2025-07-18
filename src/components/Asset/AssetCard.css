@@ -224,6 +224,16 @@
     text-decoration: none;
 }
 
+.user-config-view-btn {
+    color: #28a745;
+    border-color: #28a745;
+}
+
+.user-config-view-btn:hover {
+    background-color: #28a745;
+    color: white;
+}
+
 .user-config-edit-btn {
     color: #007bff;
     border-color: #007bff;

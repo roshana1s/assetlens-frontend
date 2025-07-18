@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./AssetCard.css";
 import {
     FaEdit,
@@ -9,6 +10,7 @@ import {
     FaTimes,
     FaCheckCircle,
     FaExclamationCircle,
+    FaEye,
 } from "react-icons/fa";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
@@ -25,6 +27,7 @@ const AssetCard = ({
     onEditAsset,
 }) => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [geofencing, setGeofencing] = useState(asset.geofencing);
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -61,6 +64,14 @@ const AssetCard = ({
             setShowEditForm(true);
         }
     };
+
+    const handleViewDetails = () => {
+        // Check if user role determines the route
+        const isUser = user?.role && user.role.toLowerCase() === "user";
+        const basePath = isUser ? "user" : "admin";
+        navigate(`/${basePath}/asset/${asset.asset_id}`);
+    };
+
     const closeEditForm = () => setShowEditForm(false);
 
     const confirmDelete = async () => {
@@ -194,6 +205,13 @@ const AssetCard = ({
                     </div>
 
                     <div className="asset-actions">
+                        <button
+                            className="user-config-action-btn user-config-view-btn"
+                            onClick={handleViewDetails}
+                        >
+                            <FaEye style={{ marginRight: "4px" }} />
+                            View Details
+                        </button>
                         <button
                             className="user-config-action-btn user-config-edit-btn"
                             onClick={handleEdit}
