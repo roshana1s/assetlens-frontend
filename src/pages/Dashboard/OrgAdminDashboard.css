@@ -148,8 +148,9 @@
   height: calc(100vh - 70px - 2rem);
 }
 
-/* Special handling for assets tab - remove padding and margins, fix scroll */
-.main-content.assets-active {
+/* Special handling for assets and cameras tabs - remove padding and margins, fix scroll */
+.main-content.assets-active,
+.main-content.cameras-active {
     padding: 0;
     margin: 1rem 1rem 1rem 0.5rem;
     background-color: transparent;
@@ -161,8 +162,9 @@
   margin: 0 auto;
 }
 
-/* Assets tab specific styling - full width, no constraints */
-.dashboard-content.assets-tab {
+/* Assets and cameras tabs specific styling - full width, no constraints */
+.dashboard-content.assets-tab,
+.dashboard-content.cameras-tab {
   max-width: none;
   margin: 0;
   padding: 0;

@@ -4,6 +4,7 @@ import LogoutButton from "../../components/Logout/LogoutButton";
 import HeatmapPage from "../Dashboard/Heatmap/HeatmapPage";
 import ProfilePage from "../../pages/ProfilePage/ProfilePage";
 import AssetList from "../../components/AssetList/AssetList";
+import CameraList from "../../components/CameraList/CameraList";
 import "./OrgAdminDashboard.css";
 
 const OrgAdminDashboard = () => {
@@ -144,14 +145,8 @@ const OrgAdminDashboard = () => {
                 );
             case "camera":
                 return (
-                    <div className="dashboard-content">
-                        <h2>Camera Feed</h2>
-                        <div className="placeholder-content">
-                            <p>
-                                Camera feed and controls will be implemented
-                                here
-                            </p>
-                        </div>
+                    <div className="dashboard-content cameras-tab">
+                        <CameraList />
                     </div>
                 );
             case "profile":
@@ -229,7 +224,7 @@ const OrgAdminDashboard = () => {
                 <div
                     className={`main-content ${
                         activeTab === "assets" ? "assets-active" : ""
-                    }`}
+                    } ${activeTab === "camera" ? "cameras-active" : ""}`}
                 >
                     {renderContent()}
                 </div>
