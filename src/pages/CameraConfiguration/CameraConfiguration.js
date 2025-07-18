@@ -9,6 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CameraConfiguration.css";
 import { useAuth } from "../../context/AuthContext";
+import FetchingData from "../../components/FetchingData/FetchingData";
 
 const CameraConfiguration = () => {
     const { user } = useAuth();
@@ -20,18 +21,27 @@ const CameraConfiguration = () => {
     const [modalZone, setModalZone] = useState(null);
     const [camX, setCamX] = useState("");
     const [camY, setCamY] = useState("");
+    const [loading, setLoading] = useState(true);
 
     // Fetch floors and zones
     useEffect(() => {
         const fetchFloors = async () => {
-            if (!user?.org_id) return;
-            const res = await axios.get(
-                `http://localhost:8000/maps/${user.org_id}/get-map`
-            );
-            setFloors(res.data);
+            try {
+                setLoading(true);
+                if (!user?.org_id) return;
+                const res = await axios.get(
+                    `http://localhost:8000/maps/${user.org_id}/get-map`
+                );
+                setFloors(res.data);
+            } catch (error) {
+                console.error("Error fetching floors:", error);
+                toast.error("Failed to load floors");
+            } finally {
+                setLoading(false);
+            }
         };
         fetchFloors();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         if (!selectedFloor) return;
@@ -133,6 +143,10 @@ const CameraConfiguration = () => {
         const cam = updatedCameras.find((c) => c.zone_id === zone_id);
         toast.info(`Camera switched ${cam && cam.working ? "on" : "off"}!`);
     };
+
+    if (loading) {
+        return <FetchingData />;
+    }
 
     return (
         <div style={{ display: "flex" }}>

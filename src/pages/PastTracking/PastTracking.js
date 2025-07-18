@@ -80,7 +80,7 @@ const PastTracking = () => {
             if (!user || !user.org_id) return;
             setGetData(true);
             const response = await axios.post(
-                `http://localhost:8000/past-tracking/${user.org_id}/${user.user_id}/past-tracking-locations`,
+                `http://localhost:8000/past-tracking/${user.org_id}/past-tracking-locations`,
                 filters
             );
             const sortedFrames = response.data.sort(

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./CategoryManager.css";
 
@@ -11,6 +11,7 @@ const CategoryManager = ({
     const [categories, setCategories] = useState([]);
     const [newCategory, setNewCategory] = useState("");
     const [error, setError] = useState(null);
+    const inputRef = useRef(null);
 
     useEffect(() => {
         fetchCategories();
@@ -36,9 +37,21 @@ const CategoryManager = ({
             setNewCategory("");
             fetchCategories();
             onCategoryChange(); // refresh from parent
+            // Keep focus on input after adding
+            setTimeout(() => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                }
+            }, 100);
         } catch (err) {
             console.error("Add failed", err);
             setError("Failed to add category");
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === "Enter") {
+            handleAdd();
         }
     };
 
@@ -78,10 +91,13 @@ const CategoryManager = ({
 
             <div className="add-category-row">
                 <input
+                    ref={inputRef}
                     type="text"
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
+                    onKeyPress={handleKeyPress}
                     placeholder="New category name"
+                    autoFocus
                 />
                 <button onClick={handleAdd}>Add Category</button>
             </div>

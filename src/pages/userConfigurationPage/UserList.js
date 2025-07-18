@@ -23,6 +23,9 @@ const UserList = ({ orgId = 1 }) => {
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [deleteLoading, setDeleteLoading] = useState(false);
+    const [editLoading, setEditLoading] = useState(false);
+    const [addLoading, setAddLoading] = useState(false);
+    const [roleLoading, setRoleLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [allAssets, setAllAssets] = useState([]);
 
@@ -139,6 +142,7 @@ const UserList = ({ orgId = 1 }) => {
         }
 
         try {
+            setRoleLoading(true);
             await createRole(orgId, roleName, newRoleIsAdmin);
 
             // Refetch roles safely
@@ -155,6 +159,8 @@ const UserList = ({ orgId = 1 }) => {
         } catch (error) {
             console.error("Error creating role:", error);
             toast.error("Failed to add Role");
+        } finally {
+            setRoleLoading(false);
         }
     };
 
@@ -196,6 +202,7 @@ const UserList = ({ orgId = 1 }) => {
 
     const handleEditConfirm = async () => {
         try {
+            setEditLoading(true);
             await updateUser(orgId, currentUser.user_id, {
                 name: editForm.name,
                 role_id: editForm.role_id,
@@ -217,6 +224,8 @@ const UserList = ({ orgId = 1 }) => {
         } catch (error) {
             console.error("Error updating user:", error);
             toast.error("User update failed");
+        } finally {
+            setEditLoading(false);
         }
     };
 
@@ -352,6 +361,7 @@ const UserList = ({ orgId = 1 }) => {
         }
 
         try {
+            setAddLoading(true);
             // Fix: Ensure we're using the correct property name for assets
             await createUser(orgId, {
                 name: addForm.name,
@@ -387,6 +397,8 @@ const UserList = ({ orgId = 1 }) => {
         } catch (error) {
             console.error("Create User Error:", error);
             toast.error("User create error");
+        } finally {
+            setAddLoading(false);
         }
     };
 
@@ -659,7 +671,9 @@ const UserList = ({ orgId = 1 }) => {
                     setNewRoleName("");
                     setNewRoleIsAdmin(false);
                 }}
-                size="lg"
+                size="xl"
+                backdrop="static"
+                keyboard={false}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Role Management</Modal.Title>
@@ -713,8 +727,22 @@ const UserList = ({ orgId = 1 }) => {
                             variant="success"
                             onClick={handleAddRole}
                             className="add-role-btn"
+                            disabled={roleLoading}
                         >
-                            <span className="add-icon">+</span> Add Role
+                            {roleLoading ? (
+                                <>
+                                    <span
+                                        className="spinner-border spinner-border-sm me-2"
+                                        role="status"
+                                        aria-hidden="true"
+                                    ></span>
+                                    Adding...
+                                </>
+                            ) : (
+                                <>
+                                    <span className="add-icon">+</span> Add Role
+                                </>
+                            )}
                         </Button>
                     </div>
                 </Modal.Body>
@@ -728,6 +756,8 @@ const UserList = ({ orgId = 1 }) => {
                     setConfirmationName("");
                 }}
                 size="lg"
+                backdrop="static"
+                keyboard={false}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Delete User: {currentUser?.name}</Modal.Title>
@@ -779,7 +809,9 @@ const UserList = ({ orgId = 1 }) => {
             <Modal
                 show={showEditModal}
                 onHide={() => setShowEditModal(false)}
-                size="lg"
+                size="xl"
+                backdrop="static"
+                keyboard={false}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Edit User: {editForm.name}</Modal.Title>
@@ -918,15 +950,29 @@ const UserList = ({ orgId = 1 }) => {
                     <Button
                         variant="secondary"
                         onClick={() => setShowEditModal(false)}
+                        disabled={editLoading}
                     >
                         Cancel
                     </Button>
                     <Button
                         variant="primary"
                         onClick={handleEditConfirm}
-                        disabled={!editForm.name || !editForm.role_id}
+                        disabled={
+                            !editForm.name || !editForm.role_id || editLoading
+                        }
                     >
-                        Save Changes
+                        {editLoading ? (
+                            <>
+                                <span
+                                    className="spinner-border spinner-border-sm me-2"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                Updating...
+                            </>
+                        ) : (
+                            "Save Changes"
+                        )}
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -935,7 +981,9 @@ const UserList = ({ orgId = 1 }) => {
             <Modal
                 show={showAddModal}
                 onHide={() => setShowAddModal(false)}
-                size="lg"
+                size="xl"
+                backdrop="static"
+                keyboard={false}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Add New User</Modal.Title>
@@ -1057,15 +1105,29 @@ const UserList = ({ orgId = 1 }) => {
                     <Button
                         variant="secondary"
                         onClick={() => setShowAddModal(false)}
+                        disabled={addLoading}
                     >
                         Cancel
                     </Button>
                     <Button
                         variant="primary"
                         onClick={handleAddConfirm}
-                        disabled={!addForm.name || !addForm.role_id}
+                        disabled={
+                            !addForm.name || !addForm.role_id || addLoading
+                        }
                     >
-                        Add User
+                        {addLoading ? (
+                            <>
+                                <span
+                                    className="spinner-border spinner-border-sm me-2"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                Adding...
+                            </>
+                        ) : (
+                            "Add User"
+                        )}
                     </Button>
                 </Modal.Footer>
             </Modal>

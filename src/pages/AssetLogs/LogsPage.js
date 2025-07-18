@@ -169,7 +169,7 @@ const AssetLogsPage = () => {
           </div>
 
           <div className="filter-group">
-            <label>Availability</label>
+            <label>Geofencing</label>
             <select 
               name="availability" 
               value={filters.availability} 
