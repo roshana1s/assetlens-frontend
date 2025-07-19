@@ -5,6 +5,7 @@ import ProfilePage from "../../pages/ProfilePage/ProfilePage";
 import AssetList from "../../components/AssetList/AssetList";
 import CameraList from "../../components/CameraList/CameraList";
 import Report from "../../pages/Report/Report";
+import logo from "../../assets/logo.png";
 import "./OrgAdminDashboard.css";
 
 const OrgAdminDashboard = () => {
@@ -167,7 +168,11 @@ const OrgAdminDashboard = () => {
                 <div className="sidebar">
                     <div className="sidebar-header">
                         <span className="sidebar-brand-icon">
-                            {icons.dashboard}
+                            <img
+                                src={logo}
+                                alt="AssetLens Logo"
+                                className="sidebar-logo"
+                            />
                         </span>
                         <h3>AssetLens</h3>
                         <p>Organization Admin</p>

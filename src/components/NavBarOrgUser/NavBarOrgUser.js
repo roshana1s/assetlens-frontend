@@ -85,7 +85,6 @@ const NavBarOrgUser = () => {
         <div className="layout-container">
             <nav className="navbar-custom">
                 <div className="brand">
-                    {/* <img src="/logo.png" alt="logo" className="logo" /> */}
                     <span className="brand-name">AssetLens</span>
                 </div>
                 <div className="nav-links">
@@ -257,7 +256,10 @@ const NavBarOrgUser = () => {
                                 >
                                     {user?.image_link ? (
                                         <img
-                                            src={user.image_link || "https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/default.png?alt=media&token=25cd23ac-7bf7-4b68-bdc6-76772f7361e1"}
+                                            src={
+                                                user.image_link ||
+                                                "https://firebasestorage.googleapis.com/v0/b/assetlens-b9f76.firebasestorage.app/o/default.png?alt=media&token=25cd23ac-7bf7-4b68-bdc6-76772f7361e1"
+                                            }
                                             alt="Profile"
                                             className="profile-image"
                                             style={{
