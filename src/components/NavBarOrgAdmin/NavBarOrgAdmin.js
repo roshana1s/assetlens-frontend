@@ -33,10 +33,10 @@ const NavBarOrgAdmin = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const {
         alerts,
-        unreadAlertCount,
+        unreadCount: unreadAlertCount,
         loading: loadingAlerts,
         error: alertError,
-        markAllAlertsAsRead
+        markAllAsRead: markAllAlertsAsRead
     } = useAlerts();
 
     useEffect(() => {
@@ -108,12 +108,21 @@ const NavBarOrgAdmin = () => {
         fetchAssetAndLocationData();
     }, [showAlerts, currentOrgId, alerts]);
 
-    const toggleAlerts = () => {
-        const newState = !showAlerts;
-        setShowAlerts(newState);
-        setShowNotifications(false);
-        setShowProfile(false);
-    };
+    const toggleAlerts = async () => {
+    const newState = !showAlerts;
+    setShowAlerts(newState);
+    setShowNotifications(false);
+    setShowProfile(false);
+    
+    // Mark all alerts as read when opening the alert popup
+    if (newState && unreadAlertCount > 0) {
+        try {
+            await markAllAlertsAsRead();
+        } catch (error) {
+            console.error("Failed to mark alerts as read:", error);
+        }
+    }
+};
 
     const getAlertColor = (type) => {
         switch(type) {
