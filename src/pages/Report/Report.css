@@ -49,9 +49,13 @@
 }
 
 .generate-form {
+  width: 100%;
+}
+
+.form-row {
   display: flex;
-  align-items: end;
-  gap: 16px;
+  align-items: flex-end;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
@@ -61,10 +65,15 @@
   gap: 8px;
 }
 
+.button-group {
+  margin-top: 0;
+}
+
 .form-group label {
   font-weight: 500;
   color: #374151;
   font-size: 0.875rem;
+  margin-bottom: 8px;
 }
 
 .date-input {
@@ -361,6 +370,23 @@
 
 .Toastify__toast--success {
   background: #10b981;
+}
+
+.Toastify__toast--error {
+  background: #ef4444;
+}
+
+/* Delete Modal Styling */
+.report-details {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 12px 0;
+  font-size: 0.875rem;
+}
+
+.modal-footer .btn {
+  min-width: 100px;
 }
 
 .Toastify__toast--error {
