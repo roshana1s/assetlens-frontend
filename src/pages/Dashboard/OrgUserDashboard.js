@@ -3,6 +3,7 @@ import LogoutButton from "../../components/Logout/LogoutButton";
 import HeatmapPage from "../Dashboard/Heatmap/HeatmapPage";
 import ProfilePage from "../../pages/ProfilePage/ProfilePage";
 import AssetList from "../../components/AssetList/AssetList";
+import logo from "../../assets/logo.png";
 import "./OrgAdminDashboard.css";
 
 const OrgAdminDashboard = () => {
@@ -143,7 +144,11 @@ const OrgAdminDashboard = () => {
                 <div className="sidebar">
                     <div className="sidebar-header">
                         <span className="sidebar-brand-icon">
-                            {icons.dashboard}
+                            <img
+                                src={logo}
+                                alt="AssetLens Logo"
+                                className="sidebar-logo"
+                            />
                         </span>
                         <h3>AssetLens</h3>
                         <p>Organization User</p>

@@ -87,7 +87,6 @@ const NavBarOrgAdmin = () => {
         <div className="layout-container">
             <nav className="navbar-custom">
                 <div className="brand">
-                    {/* <img src="/logo.png" alt="logo" className="logo" /> */}
                     <span className="brand-name">AssetLens</span>
                 </div>
                 <div className="nav-links">
