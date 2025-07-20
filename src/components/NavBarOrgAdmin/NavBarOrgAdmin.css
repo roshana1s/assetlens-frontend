@@ -132,6 +132,7 @@
   min-width: 220px;    
   border-radius: 0.75rem; 
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);  
+  z-index: 9999 !important;
 }
 
 .dropdown-toggle {
@@ -140,6 +141,25 @@
   border: none !important;
   background: none !important;
   box-shadow: none !important;
+  text-decoration: none;
+  color: black;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  transition: background-color 0.3s ease;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.dropdown-toggle:hover {
+  background-color: #d8defc !important;
+  color: black !important;
+  text-decoration: none;
+}
+
+.dropdown-toggle.nav-link.active {
+  background-color: #2f6fed !important;
+  color: white !important;
 }
 
 .dropdown-toggle:focus {
