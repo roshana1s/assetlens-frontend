@@ -5,10 +5,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./NavBarOrgAdmin.css";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import NotificationDropdown from "../NotificationDropdown/NotificationDropdown";
 
 const NavBarOrgAdmin = () => {
     const [showProfile, setShowProfile] = useState(false);
-    const [showNotifications, setShowNotifications] = useState(false);
     const [showAlerts, setShowAlerts] = useState(false);
     const [profileData, setProfileData] = useState(null);
     const [assets, setAssets] = useState({});
@@ -62,19 +62,11 @@ const NavBarOrgAdmin = () => {
     };
 
     const toggleProfile = () => {
-        setShowNotifications(false);
         setShowAlerts(false);
         setShowProfile(!showProfile);
     };
     const toggleAlerts = () => {
         setShowAlerts(!showAlerts);
-        setShowNotifications(false);
-        setShowProfile(false);
-    };
-
-    const toggleNotifications = () => {
-        setShowNotifications(!showNotifications);
-        setShowAlerts(false);
         setShowProfile(false);
     };
 
@@ -280,23 +272,12 @@ const NavBarOrgAdmin = () => {
                             <div className="popup-box">No new alerts</div>
                         )}
                     </div>
-                    <div className="icon-wrapper" onClick={toggleNotifications}>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            className="notification-icon"
-                            viewBox="0 0 16 16"
-                        >
-                            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
-                        </svg>
-                        {showNotifications && (
-                            <div className="popup-box">
-                                No new notifications
-                            </div>
-                        )}
-                    </div>
+
+                    <NotificationDropdown
+                        userId={user?.user_id || user?._id}
+                        orgId={currentOrgId}
+                        userRole="admin"
+                    />
 
                     <div className="icon-wrapper" onClick={toggleProfile}>
                         {user?.image_link ? (
