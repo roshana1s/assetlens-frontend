@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
 import "./NotificationDropdown.css";
 
-// Global toast tracking to prevent duplicates across all instances
-const globalToastTracker = new Set();
-
-const NotificationDropdown = ({ userId, orgId, userRole = "admin" }) => {
-    const [showNotifications, setShowNotifications] = useState(false);
+const NotificationDropdown = ({
+    userId,
+    orgId,
+    userRole = "admin",
+    isOpen,
+    onToggle,
+    onClose,
+}) => {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [loadingNotifications, setLoadingNotifications] = useState(false);
@@ -85,17 +86,8 @@ const NotificationDropdown = ({ userId, orgId, userRole = "admin" }) => {
                     const notification = JSON.parse(event.data);
                     const notificationId =
                         notification.notification_id || notification._id;
-                    const toastKey = `${notificationId}_${Date.now()}`;
 
                     console.log("WebSocket message received:", notificationId);
-
-                    // Global check - if toast already shown for this notification, skip entirely
-                    if (globalToastTracker.has(notificationId)) {
-                        console.log(
-                            "Toast already shown globally, skipping everything"
-                        );
-                        return;
-                    }
 
                     // Add to notifications list
                     setNotifications((prev) => {
@@ -127,32 +119,8 @@ const NotificationDropdown = ({ userId, orgId, userRole = "admin" }) => {
                         return updatedNotifications;
                     });
 
-                    // Show toast ONLY for unread notifications and ONLY once globally
-                    if (!notification.is_read) {
-                        globalToastTracker.add(notificationId);
-                        console.log(
-                            "Showing single toast for:",
-                            notification.message
-                        );
-
-                        toast.info(notification.message, {
-                            position: "top-right",
-                            autoClose: 1500, // 1.5 seconds
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: false,
-                            draggable: true,
-                        });
-
-                        // Remove from global tracker after 5 seconds
-                        setTimeout(() => {
-                            globalToastTracker.delete(notificationId);
-                            console.log(
-                                "Removed from global tracker:",
-                                notificationId
-                            );
-                        }, 5000);
-                    }
+                    // No toast notifications - just update the list and count
+                    console.log("Notification added to list:", notificationId);
                 } catch (error) {
                     console.error("Error parsing notification data:", error);
                 }
@@ -250,14 +218,9 @@ const NotificationDropdown = ({ userId, orgId, userRole = "admin" }) => {
     };
 
     const toggleNotifications = () => {
-        setShowNotifications(!showNotifications);
-    };
-
-    const getNotificationRoute = () => {
-        if (userRole === "admin") {
-            return `/admin/notifications`;
+        if (onToggle) {
+            onToggle();
         }
-        return `/user/notifications`;
     };
 
     return (
@@ -275,7 +238,7 @@ const NotificationDropdown = ({ userId, orgId, userRole = "admin" }) => {
             {unreadCount > 0 && (
                 <span className="notification-badge">{unreadCount}</span>
             )}
-            {showNotifications && (
+            {isOpen && (
                 <div className="popup-box notification-popup">
                     {loadingNotifications ? (
                         <div className="loading-notifications">
@@ -301,15 +264,6 @@ const NotificationDropdown = ({ userId, orgId, userRole = "admin" }) => {
                                     >
                                         Mark all as read
                                     </button>
-                                    <NavLink
-                                        to={getNotificationRoute()}
-                                        className="view-all-link"
-                                        onClick={() =>
-                                            setShowNotifications(false)
-                                        }
-                                    >
-                                        View All
-                                    </NavLink>
                                 </div>
                             </div>
                             <div className="notification-list">
@@ -349,13 +303,6 @@ const NotificationDropdown = ({ userId, orgId, userRole = "admin" }) => {
                     ) : (
                         <div className="no-notifications">
                             No new notifications
-                            <NavLink
-                                to={getNotificationRoute()}
-                                className="view-all-link"
-                                onClick={() => setShowNotifications(false)}
-                            >
-                                View All Notifications
-                            </NavLink>
                         </div>
                     )}
                 </div>
