@@ -58,59 +58,6 @@ const OrgAdminDashboard = () => {
                                     <HeatmapPage />
                                 </div>
                             </div>
-                            <div className="stats-row">
-                                <div className="stats-card">
-                                    <div className="stats-header">
-                                        <span className="stats-icon">
-                                            <svg
-                                                width="20"
-                                                height="20"
-                                                fill="currentColor"
-                                                viewBox="0 0 16 16"
-                                            >
-                                                <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z" />
-                                            </svg>
-                                        </span>
-                                        <h4 className="stats-title">
-                                            Most Active Assets
-                                        </h4>
-                                    </div>
-                                    <div className="stats-content">
-                                        <div className="placeholder-content">
-                                            <p>
-                                                Most used assets data will be
-                                                displayed here
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="stats-card">
-                                    <div className="stats-header">
-                                        <span className="stats-icon">
-                                            <svg
-                                                width="20"
-                                                height="20"
-                                                fill="currentColor"
-                                                viewBox="0 0 16 16"
-                                            >
-                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-                                            </svg>
-                                        </span>
-                                        <h4 className="stats-title">
-                                            Least Active Assets
-                                        </h4>
-                                    </div>
-                                    <div className="stats-content">
-                                        <div className="placeholder-content">
-                                            <p>
-                                                Least used assets data will be
-                                                displayed here
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 );
