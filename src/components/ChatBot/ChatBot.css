@@ -1,11 +1,12 @@
+/* ChatBot Component Styles - Completely isolated from global styles */
 .chatbot-container {
     position: fixed;
     bottom: 30px;
     right: 30px;
     z-index: 9999;
-  }
-  
-  .chatbot-toggle {
+}
+
+.chatbot-toggle {
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -19,8 +20,8 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 
                 0 0 0 5px rgba(78, 84, 200, 0.2);
     transition: all 0.3s ease;
-    opacity: 0.3; /* Transparent by default */
-  }
+    opacity: 0.3;
+}
   
   .chatbot-toggle:hover {
     transform: scale(1.1);
@@ -78,7 +79,8 @@
     height: 0;
     min-height: 0;
   }
-  .message {
+  
+  .chatbot-message {
     margin-bottom: 15px;
     max-width: 80%;
     padding: 10px 15px;
@@ -87,14 +89,20 @@
     word-wrap: break-word;
   }
   
-  .bot-message {
+  .chatbot-message-content {
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  .chatbot-bot-message {
     background: white;
     border-top-left-radius: 5px;
     align-self: flex-start;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
   
-  .user-message {
+  .chatbot-user-message {
     background: #4e54c8;
     color: white;
     border-top-right-radius: 5px;
@@ -104,10 +112,12 @@
   
   .chatbot-input {
     display: flex;
-    align-items: center; /* Ensures vertical centering */
+    align-items: center;
     padding: 10px;
     background: white;
     border-top: 1px solid #eee;
+    flex-shrink: 0;
+    border-radius: 0 0 15px 15px;
   }
   
   .chatbot-input input {
@@ -119,6 +129,20 @@
     font-size: 14px;
     height: 40px;
     box-sizing: border-box;
+    font-family: inherit;
+    color: #333;
+    background: white;
+    margin: 0;
+  }
+  
+  .chatbot-input input:focus {
+    border-color: #4e54c8;
+    box-shadow: 0 0 0 2px rgba(78, 84, 200, 0.2);
+  }
+  
+  .chatbot-input input::placeholder {
+    color: #999;
+    opacity: 1;
   }
   
   .chatbot-send-btn {
@@ -138,6 +162,8 @@
     padding: 0;
     position: relative;
     top: 0;
+    outline: none;
+    font-family: inherit;
   }
   
   .chatbot-send-btn:hover {
@@ -145,11 +171,11 @@
   }
   
   /* Animation for new messages */
-  @keyframes fadeIn {
+  @keyframes chatbot-fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
   
-  .message {
-    animation: fadeIn 0.3s ease-out;
+  .chatbot-message {
+    animation: chatbot-fadeIn 0.3s ease-out;
   }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import LogoutButton from "../../components/Logout/LogoutButton";
 import ManageOrganizationPage from "../mangeOrganizationPage/organization";
 import ProfilePage from "../ProfilePage/ProfilePage";
+import OrdersManagement from "../../components/Orders/OrdersManagement";
 import "./AssetLensAdminDashboard.css";
 
 const AssetLensAdminDashboard = () => {
@@ -12,12 +13,7 @@ const AssetLensAdminDashboard = () => {
             case "orders":
                 return (
                     <div className="dashboard-content">
-                        <div className="orders-content">
-                            <h2>Orders Management</h2>
-                            <div className="placeholder-content">
-                                <p>Orders management functionality will be implemented here</p>
-                            </div>
-                        </div>
+                        <OrdersManagement />
                     </div>
                 );
             case "organizations":
