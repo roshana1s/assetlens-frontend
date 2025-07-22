@@ -352,23 +352,6 @@ const AssetDetails = () => {
                                     className="assetdetails-tab-pane"
                                 >
                                     <div className="assetdetails-realtime-content">
-                                        {/* Geofencing Alert */}
-                                        {liveLocation?.geofencing_breached && (
-                                            <Alert
-                                                variant="danger"
-                                                className="assetdetails-geofence-alert"
-                                            >
-                                                <i className="bi bi-exclamation-triangle-fill"></i>
-                                                <strong>
-                                                    Geofencing Breach Detected!
-                                                </strong>
-                                                <span>
-                                                    Asset has moved outside the
-                                                    designated zone.
-                                                </span>
-                                            </Alert>
-                                        )}
-
                                         {/* Connection Status */}
                                         {!isConnected && (
                                             <Alert
