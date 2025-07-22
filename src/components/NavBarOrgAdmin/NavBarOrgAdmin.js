@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./NavBarOrgAdmin.css";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import NotificationDropdown from "../NotificationDropdown/NotificationDropdown";
+import AlertDropdown from "../AlertDropdown/AlertDropdown";
 
 const NavBarOrgAdmin = () => {
     const [showProfile, setShowProfile] = useState(false);
-    const [showNotifications, setShowNotifications] = useState(false);
     const [showAlerts, setShowAlerts] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
     const [profileData, setProfileData] = useState(null);
     const [assets, setAssets] = useState({});
     const [floors, setFloors] = useState({});
@@ -20,6 +22,58 @@ const NavBarOrgAdmin = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const isConfigActive = location.pathname.startsWith("/admin/config");
+    const navbarRef = useRef(null);
+
+    // Dropdown toggle functions with mutual exclusivity
+    const toggleProfile = () => {
+        const newState = !showProfile;
+        setShowProfile(newState);
+        if (newState) {
+            setShowAlerts(false);
+            setShowNotifications(false);
+        }
+    };
+
+    const toggleAlerts = () => {
+        const newState = !showAlerts;
+        setShowAlerts(newState);
+        if (newState) {
+            setShowProfile(false);
+            setShowNotifications(false);
+        }
+    };
+
+    const toggleNotifications = () => {
+        const newState = !showNotifications;
+        setShowNotifications(newState);
+        if (newState) {
+            setShowProfile(false);
+            setShowAlerts(false);
+        }
+    };
+
+    const closeAllDropdowns = () => {
+        setShowProfile(false);
+        setShowAlerts(false);
+        setShowNotifications(false);
+    };
+
+    // Click outside handler to close dropdowns
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                navbarRef.current &&
+                !navbarRef.current.contains(event.target)
+            ) {
+                closeAllDropdowns();
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -61,23 +115,6 @@ const NavBarOrgAdmin = () => {
         });
     };
 
-    const toggleProfile = () => {
-        setShowNotifications(false);
-        setShowAlerts(false);
-        setShowProfile(!showProfile);
-    };
-    const toggleAlerts = () => {
-        setShowAlerts(!showAlerts);
-        setShowNotifications(false);
-        setShowProfile(false);
-    };
-
-    const toggleNotifications = () => {
-        setShowNotifications(!showNotifications);
-        setShowAlerts(false);
-        setShowProfile(false);
-    };
-
     const handleLogout = () => {
         logout();
         navigate("/login");
@@ -85,7 +122,7 @@ const NavBarOrgAdmin = () => {
 
     return (
         <div className="layout-container">
-            <nav className="navbar-custom">
+            <nav className="navbar-custom" ref={navbarRef}>
                 <div className="brand">
                     <span className="brand-name">AssetLens</span>
                 </div>
@@ -265,38 +302,23 @@ const NavBarOrgAdmin = () => {
                 </div>
 
                 <div className="nav-icons">
-                    <div className="icon-wrapper" onClick={toggleAlerts}>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            className="alert-icon"
-                            viewBox="0 0 16 16"
-                        >
-                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
-                        </svg>
-                        {showAlerts && (
-                            <div className="popup-box">No new alerts</div>
-                        )}
-                    </div>
-                    <div className="icon-wrapper" onClick={toggleNotifications}>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            className="notification-icon"
-                            viewBox="0 0 16 16"
-                        >
-                            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
-                        </svg>
-                        {showNotifications && (
-                            <div className="popup-box">
-                                No new notifications
-                            </div>
-                        )}
-                    </div>
+                    <AlertDropdown
+                        userId={user?.user_id || user?._id}
+                        orgId={currentOrgId}
+                        userRole="admin"
+                        isOpen={showAlerts}
+                        onToggle={toggleAlerts}
+                        onClose={closeAllDropdowns}
+                    />
+
+                    <NotificationDropdown
+                        userId={user?.user_id || user?._id}
+                        orgId={currentOrgId}
+                        userRole="admin"
+                        isOpen={showNotifications}
+                        onToggle={toggleNotifications}
+                        onClose={closeAllDropdowns}
+                    />
 
                     <div className="icon-wrapper" onClick={toggleProfile}>
                         {user?.image_link ? (

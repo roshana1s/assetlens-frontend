@@ -1,0 +1,43 @@
+/* Global Toast Notification Styling */
+.Toastify__toast {
+    color: white !important;
+    font-weight: 500 !important;
+}
+
+.Toastify__toast--success {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+.Toastify__toast--error {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.Toastify__toast--warning {
+    background-color: #ffc107 !important;
+    color: white !important;
+}
+
+.Toastify__toast--info {
+    background-color: #17a2b8 !important;
+    color: white !important;
+}
+
+.Toastify__toast-body {
+    color: white !important;
+    font-family: inherit !important;
+}
+
+.Toastify__close-button {
+    color: white !important;
+    opacity: 0.8 !important;
+}
+
+.Toastify__close-button:hover {
+    opacity: 1 !important;
+}
+
+.Toastify__progress-bar {
+    background: rgba(255, 255, 255, 0.7) !important;
+}

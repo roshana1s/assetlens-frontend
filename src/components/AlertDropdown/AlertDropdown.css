@@ -1,0 +1,215 @@
+/* Blinking red border animation for alert icon when there are unread alerts */
+@keyframes alertBlink {
+    0% {
+        border: 2px solid transparent;
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+        transform: scale(1);
+    }
+    50% {
+        border: 2px solid #dc3545;
+        box-shadow: 0 0 8px 3px rgba(220, 53, 69, 0.3);
+        transform: scale(1.05);
+    }
+    100% {
+        border: 2px solid transparent;
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+        transform: scale(1);
+    }
+}
+
+.alert-icon-wrapper-active {
+    animation: alertBlink 2s infinite ease-in-out;
+    border-radius: 50%;
+    padding: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-icon-container {
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.alert-type-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.alert-popup {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 350px;
+    max-height: 500px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 99999 !important;
+    padding: 0;
+    overflow: hidden;
+}
+
+.alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #fafafa;
+}
+
+.alert-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.alert-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.mark-all-read {
+    background: none;
+    border: none;
+    color: #2f6fed;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.mark-all-read:hover:not(:disabled) {
+    background-color: #e6f0ff;
+}
+
+.mark-all-read:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.view-all-link {
+    color: #2f6fed;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.view-all-link:hover {
+    color: #1e5beb;
+    text-decoration: none;
+}
+
+.alert-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.alert-item {
+    display: flex;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    background-color: #fff;
+}
+
+.alert-item:hover {
+    background-color: #f8f9fa;
+}
+
+.alert-item.unread {
+    background-color: #fff8f0;
+}
+
+.alert-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.alert-message {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #333;
+    line-height: 1.4;
+}
+
+.alert-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.alert-type {
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+.alert-time {
+    font-size: 11px;
+    color: #999;
+}
+
+.loading-alerts,
+.alert-error,
+.no-alerts {
+    padding: 20px 16px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.alert-error {
+    color: #dc3545;
+}
+
+.no-alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.alert-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ffc107;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Scrollbar styling for alert list */
+.alert-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.alert-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.alert-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.alert-list::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
