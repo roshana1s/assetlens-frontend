@@ -17,17 +17,55 @@ const LandingPage = () => {
     const formRef = useRef(null);
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
+
+    // API Base URL - adjust this according to your backend
+    const API_BASE_URL = 'http://localhost:8000';
 
     const handleBookDemoClick = () => {
         formRef.current.scrollIntoView({ behavior: "smooth" });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(`Email: ${email}, Message: ${message}`);
-        alert("Thank you for your interest! We'll contact you shortly.");
-        setEmail("");
-        setMessage("");
+        setIsSubmitting(true);
+        setSubmitStatus({ type: '', message: '' });
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/orders/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    message: message
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit order');
+            }
+
+            const data = await response.json();
+            
+            setSubmitStatus({
+                type: 'success',
+                message: `Thank you for your interest! Your order has been submitted successfully (Order ID: ${data.order_id}). We'll contact you shortly.`
+            });
+            
+            setEmail("");
+            setMessage("");
+        } catch (error) {
+            console.error('Error submitting order:', error);
+            setSubmitStatus({
+                type: 'error',
+                message: 'Sorry, there was an error submitting your request. Please try again or contact us directly at assetlensai@gmail.com'
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const features = [
@@ -207,6 +245,13 @@ const LandingPage = () => {
                     </div>
                     <form onSubmit={handleSubmit} className="contact-form">
                         <h3>Contact Us</h3>
+                        
+                        {submitStatus.message && (
+                            <div className={`status-message ${submitStatus.type}`}>
+                                {submitStatus.message}
+                            </div>
+                        )}
+                        
                         <div className="form-group">
                             <input
                                 type="email"
@@ -214,6 +259,7 @@ const LandingPage = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
+                                disabled={isSubmitting}
                             />
                         </div>
                         <div className="form-group">
@@ -222,14 +268,16 @@ const LandingPage = () => {
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 required
+                                disabled={isSubmitting}
                             />
                         </div>
                         <motion.button
                             type="submit"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                            whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                            whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                            disabled={isSubmitting}
                         >
-                            Send Message
+                            {isSubmitting ? 'Sending...' : 'Send Message'}
                         </motion.button>
                     </form>
                 </div>

@@ -154,20 +154,20 @@ const ChatBot = () => {
                         {messages.map((message, index) => (
                             <div
                                 key={index}
-                                className={`message ${
+                                className={`chatbot-message ${
                                     message.type === "user"
-                                        ? "user-message"
-                                        : "bot-message"
+                                        ? "chatbot-user-message"
+                                        : "chatbot-bot-message"
                                 }`}
                             >
-                                <div className="message-content">
+                                <div className="chatbot-message-content">
                                     {compileJSX(message.message)}
                                 </div>
                             </div>
                         ))}
                         {loading && (
-                            <div className="message bot-message">
-                                <div className="message-content">
+                            <div className="chatbot-message chatbot-bot-message">
+                                <div className="chatbot-message-content">
                                     <Spinner animation="border" size="sm" />{" "}
                                     Typing...
                                 </div>
