@@ -2,6 +2,13 @@
 
 An intelligent real-time asset tracking and management system frontend built with React.js.
 
+## Resources
+
+- 📄 [Project Report](https://drive.google.com/file/d/1KMGigLSYUDufdMK-J9gTIjvGvk6-zkTc/view?usp=sharing)  
+- 🎥 [Demo](https://www.youtube.com/watch?v=0Mw6Owxq6XQ)  
+- 🔧 [Backend Repository](https://github.com/roshana1s/assetlens-backend)  
+- 🧠 [YOLO Model Repository](https://github.com/roshana1s/assetlens-yolo-model)
+
 ## Prerequisites
 
 - Node.js (version 16.0.0 or higher)
@@ -32,8 +39,7 @@ npm start
 
 The application will open at `http://localhost:3000`.
 
-## Available Scripts
+> ⚠️ Important:
+> Make sure the Backend and YOLO model service are running in the background before using the frontend application.
 
-- `npm start` - Run development server
-- `npm run build` - Build for production
-- `npm test` - Run tests
+**Happy coding!** 🎉
